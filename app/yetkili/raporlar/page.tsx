@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import {
   Box,
@@ -27,6 +28,15 @@ import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
 import CheckCircle from "@mui/icons-material/CheckCircle";
 import CancelOutlined from "@mui/icons-material/CancelOutlined";
 import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import PeopleIcon from "@mui/icons-material/People";
+import EventAvailableIcon from "@mui/icons-material/EventAvailable";
+import FolderIcon from "@mui/icons-material/Folder";
+import CampaignIcon from "@mui/icons-material/Campaign";
+import NotificationsIcon from "@mui/icons-material/Notifications";
+import SettingsIcon from "@mui/icons-material/Settings";
+import LogoutIcon from "@mui/icons-material/Logout";
+import PersonIcon from "@mui/icons-material/Person";
 
 import {
   raporlar as initialRaporlar,
@@ -39,6 +49,7 @@ import {
 } from "@/app/data/stajyerler";
 
 export default function RaporlarPage() {
+  const router = useRouter();
   /* =========================
      RAPORLAR
   ========================= */
@@ -195,12 +206,169 @@ export default function RaporlarPage() {
       sx={{
         minHeight: "100vh",
         background: "#f5f7fa",
-        p: {
-          xs: 2,
-          md: 4,
-        },
+        display: "flex",
       }}
     >
+      {/* SOL MENÜ */}
+      <Box
+        sx={{
+          width: 195,
+          background: "linear-gradient(180deg, #0F2742 0%, #286B9D 100%)",
+          color: "white",
+          display: "flex",
+          flexDirection: "column",
+          position: "fixed",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 10,
+        }}
+      >
+        <Box sx={{ px: 2.2, py: 2.2, borderBottom: "1px solid rgba(255,255,255,0.15)" }}>
+          <Typography sx={{ fontSize: 23, fontWeight: "bold" }}>ONVO</Typography>
+          <Typography sx={{ fontSize: 11, opacity: 0.9, mt: 0.3 }}>Stajyer Takip Sistemi</Typography>
+        </Box>
+
+        <Box sx={{ px: 1, py: 1.5 }}>
+          {[
+            [<DashboardIcon />, "Kontrol Paneli", "/yetkili"],
+            [<PeopleIcon />, "Stajyerler", "/yetkili/stajyerler"],
+            [<DescriptionOutlined />, "Raporlar", "/yetkili/raporlar"],
+            [<EventAvailableIcon />, "Devam Durumu", "/yetkili/devam"],
+            [<FolderIcon />, "Belgeler", "/yetkili/belgeler"],
+            [<CampaignIcon />, "Duyurular", "/yetkili/duyurular"],
+            [<NotificationsIcon />, "Bildirimler", "/yetkili/bildirimler"],
+            [<SettingsIcon />, "Ayarlar", "/yetkili/ayarlar"],
+          ].map(([icon, text, path]) => {
+            const active = path === "/yetkili/raporlar";
+            return (
+              <Box
+                key={String(text)}
+                onClick={() => router.push(String(path))}
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.2,
+                  px: 1.3,
+                  py: 1.05,
+                  mb: 0.35,
+                  borderRadius: 1.5,
+                  cursor: "pointer",
+                  backgroundColor: active ? "rgba(255,255,255,0.20)" : "transparent",
+                  "&:hover": { backgroundColor: "rgba(255,255,255,0.14)" },
+                  transition: "0.2s",
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", "& svg": { fontSize: 19 } }}>
+                  {icon}
+                </Box>
+                <Typography sx={{ fontSize: 12, fontWeight: active ? 600 : 500 }}>
+                  {String(text)}
+                </Typography>
+              </Box>
+            );
+          })}
+        </Box>
+
+        <Box sx={{ mt: "auto", px: 1, pb: 2 }}>
+          <Box
+            onClick={() => router.push("/login/yetkili")}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.2,
+              px: 1.3,
+              py: 1,
+              borderRadius: 1.5,
+              cursor: "pointer",
+              "&:hover": { backgroundColor: "rgba(255,255,255,0.14)" },
+            }}
+          >
+            <LogoutIcon sx={{ fontSize: 19 }} />
+            <Typography sx={{ fontSize: 12, fontWeight: 500 }}>Çıkış Yap</Typography>
+          </Box>
+        </Box>
+      </Box>
+
+      {/* ANA ALAN */}
+      <Box
+        sx={{
+          marginLeft: "195px",
+          width: "calc(100% - 195px)",
+          minHeight: "100vh",
+        }}
+      >
+        {/* =========================
+            ÜST BAR
+        ========================= */}
+
+        <Box
+          component="header"
+          sx={{
+            height: 58,
+            backgroundColor: "white",
+            borderBottom: "1px solid #e4e7ec",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            px: 3,
+          }}
+        >
+          <IconButton
+            sx={{
+              mr: 1,
+              color: "#286B9D",
+            }}
+          >
+            <NotificationsIcon />
+          </IconButton>
+
+          <Box
+            sx={{
+              width: 34,
+              height: 34,
+              borderRadius: "50%",
+              backgroundColor: "#EDF4F9",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#286B9D",
+              mr: 1,
+            }}
+          >
+            <PersonIcon sx={{ fontSize: 20 }} />
+          </Box>
+
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 12,
+                fontWeight: "bold",
+                color: "#17202A",
+              }}
+            >
+              Yetkili Kullanıcı
+            </Typography>
+
+            <Typography
+              sx={{
+                fontSize: 9,
+                color: "#64748B",
+              }}
+            >
+              Yetkili
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* ANA İÇERİK */}
+        <Box
+          component="main"
+          sx={{
+            p: { xs: 2, md: 4 },
+            boxSizing: "border-box",
+          }}
+        >
       {/* =========================
           BAŞLIK
       ========================= */}
@@ -208,12 +376,9 @@ export default function RaporlarPage() {
       <Box sx={{ mb: 3 }}>
         <Typography
           sx={{
-            fontSize: {
-              xs: "1.8rem",
-              md: "2rem",
-            },
-            fontWeight: 800,
-            color: "#0f2742",
+            fontSize: 28,
+            fontWeight: "bold",
+            color: "#0F2742",
             mb: 1,
           }}
         >
@@ -939,6 +1104,8 @@ export default function RaporlarPage() {
           </>
         )}
       </Dialog>
+        </Box>
+      </Box>
     </Box>
   );
 }

@@ -636,43 +636,6 @@ export default function DevamPage() {
             mx: "auto",
           }}
         >
-          {/* GERİ */}
-
-          <Box
-            onClick={() =>
-              router.push(
-                "/yetkili"
-              )
-            }
-            sx={{
-              display:
-                "inline-flex",
-              alignItems:
-                "center",
-              gap: 0.7,
-              color:
-                "#286B9D",
-              cursor:
-                "pointer",
-              mb: 2,
-            }}
-          >
-            <ArrowBack
-              sx={{
-                fontSize: 18,
-              }}
-            />
-
-            <Typography
-              sx={{
-                fontSize: 12,
-                fontWeight: 600,
-              }}
-            >
-              Kontrol Paneline Dön
-            </Typography>
-          </Box>
-
           {/* BAŞLIK */}
 
           <Box

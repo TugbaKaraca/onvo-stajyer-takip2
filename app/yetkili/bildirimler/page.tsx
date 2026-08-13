@@ -26,6 +26,7 @@ import CampaignIcon from "@mui/icons-material/Campaign";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SettingsIcon from "@mui/icons-material/Settings";
 import PersonIcon from "@mui/icons-material/Person";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import NotificationsOutlined from "@mui/icons-material/NotificationsOutlined";
@@ -265,10 +266,10 @@ export default function BildirimlerPage() {
       <Box
         component="aside"
         sx={{
-          width: 215,
+          width: 195,
           minHeight: "100vh",
           background:
-            "linear-gradient(180deg, #123457 0%, #1d5a88 100%)",
+            "linear-gradient(180deg, #0F2742 0%, #286B9D 100%)",
           color: "#ffffff",
           position: "fixed",
           left: 0,
@@ -283,17 +284,16 @@ export default function BildirimlerPage() {
 
         <Box
           sx={{
-            px: 2.5,
-            py: 3,
+            px: 2.2,
+            py: 2.2,
             borderBottom:
               "1px solid rgba(255,255,255,0.15)",
           }}
         >
           <Typography
             sx={{
-              fontSize: "1.6rem",
-              fontWeight: 800,
-              letterSpacing: "-0.5px",
+              fontSize: 23,
+              fontWeight: "bold",
             }}
           >
             ONVO
@@ -301,9 +301,9 @@ export default function BildirimlerPage() {
 
           <Typography
             sx={{
-              fontSize: "0.75rem",
-              mt: 0.5,
-              color: "#dbeafe",
+              fontSize: 11,
+              opacity: 0.9,
+              mt: 0.3,
             }}
           >
             Stajyer Takip Sistemi
@@ -314,288 +314,121 @@ export default function BildirimlerPage() {
 
         <Box
           sx={{
-            py: 2,
+            px: 1,
+            py: 1.5,
             flex: 1,
           }}
         >
-          {/* KONTROL PANELİ */}
+          {[
+            {
+              icon: <GridViewIcon />,
+              text: "Kontrol Paneli",
+              path: "/yetkili",
+            },
+            {
+              icon: <GroupsIcon />,
+              text: "Stajyerler",
+              path: "/yetkili/stajyerler",
+            },
+            {
+              icon: <DescriptionIcon />,
+              text: "Raporlar",
+              path: "/yetkili/raporlar",
+            },
+            {
+              icon: <EventAvailableIcon />,
+              text: "Devam Durumu",
+              path: "/yetkili/devam",
+            },
+            {
+              icon: <FolderIcon />,
+              text: "Belgeler",
+              path: "/yetkili/belgeler",
+            },
+            {
+              icon: <CampaignIcon />,
+              text: "Duyurular",
+              path: "/yetkili/duyurular",
+            },
+            {
+              icon: <NotificationsIcon />,
+              text: "Bildirimler",
+              path: "/yetkili/bildirimler",
+            },
+            {
+              icon: <SettingsIcon />,
+              text: "Ayarlar",
+              path: "/yetkili/ayarlar",
+            },
+          ].map((item) => {
+            const active =
+              item.path === "/yetkili/bildirimler";
 
-          <Link
-            href="/yetkili"
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                px: 2,
-                py: 1.25,
-                mx: 1,
-                borderRadius: 1.5,
-                cursor: "pointer",
+            return (
+              <Link
+                key={item.text}
+                href={item.path}
+                style={{
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+              >
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1.2,
+                    px: 1.3,
+                    py: 1.05,
+                    mb: 0.35,
+                    borderRadius: 1.5,
+                    cursor: "pointer",
+                    backgroundColor: active
+                      ? "rgba(255,255,255,0.20)"
+                      : "transparent",
+                    "&:hover": {
+                      backgroundColor:
+                        "rgba(255,255,255,0.14)",
+                    },
+                    transition: "0.2s",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      "& svg": {
+                        fontSize: 19,
+                      },
+                    }}
+                  >
+                    {item.icon}
+                  </Box>
 
-                "&:hover": {
-                  background:
-                    "rgba(255,255,255,0.12)",
-                },
-              }}
-            >
-              <GridViewIcon sx={{ fontSize: 20 }} />
-
-              <Typography sx={{ fontSize: "0.9rem" }}>
-                Kontrol Paneli
-              </Typography>
-            </Box>
-          </Link>
-
-          {/* STAJYERLER */}
-
-          <Link
-            href="/yetkili/stajyerler"
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                px: 2,
-                py: 1.25,
-                mx: 1,
-                borderRadius: 1.5,
-                cursor: "pointer",
-
-                "&:hover": {
-                  background:
-                    "rgba(255,255,255,0.12)",
-                },
-              }}
-            >
-              <GroupsIcon sx={{ fontSize: 20 }} />
-
-              <Typography sx={{ fontSize: "0.9rem" }}>
-                Stajyerler
-              </Typography>
-            </Box>
-          </Link>
-
-          {/* RAPORLAR */}
-
-          <Link
-            href="/yetkili/raporlar"
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                px: 2,
-                py: 1.25,
-                mx: 1,
-                borderRadius: 1.5,
-                cursor: "pointer",
-
-                "&:hover": {
-                  background:
-                    "rgba(255,255,255,0.12)",
-                },
-              }}
-            >
-              <DescriptionIcon sx={{ fontSize: 20 }} />
-
-              <Typography sx={{ fontSize: "0.9rem" }}>
-                Raporlar
-              </Typography>
-            </Box>
-          </Link>
-
-          {/* DEVAM DURUMU */}
-
-          <Link
-            href="/yetkili/devam"
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                px: 2,
-                py: 1.25,
-                mx: 1,
-                borderRadius: 1.5,
-                cursor: "pointer",
-
-                "&:hover": {
-                  background:
-                    "rgba(255,255,255,0.12)",
-                },
-              }}
-            >
-              <EventAvailableIcon sx={{ fontSize: 20 }} />
-
-              <Typography sx={{ fontSize: "0.9rem" }}>
-                Devam Durumu
-              </Typography>
-            </Box>
-          </Link>
-
-          {/* BELGELER */}
-
-          <Link
-            href="/yetkili/belgeler"
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                px: 2,
-                py: 1.25,
-                mx: 1,
-                borderRadius: 1.5,
-                cursor: "pointer",
-
-                "&:hover": {
-                  background:
-                    "rgba(255,255,255,0.12)",
-                },
-              }}
-            >
-              <FolderIcon sx={{ fontSize: 20 }} />
-
-              <Typography sx={{ fontSize: "0.9rem" }}>
-                Belgeler
-              </Typography>
-            </Box>
-          </Link>
-
-          {/* DUYURULAR */}
-
-          <Link
-            href="/yetkili/duyurular"
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                px: 2,
-                py: 1.25,
-                mx: 1,
-                borderRadius: 1.5,
-                cursor: "pointer",
-
-                "&:hover": {
-                  background:
-                    "rgba(255,255,255,0.12)",
-                },
-              }}
-            >
-              <CampaignIcon sx={{ fontSize: 20 }} />
-
-              <Typography sx={{ fontSize: "0.9rem" }}>
-                Duyurular
-              </Typography>
-            </Box>
-          </Link>
-
-          {/* BİLDİRİMLER - AKTİF */}
-
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
-              px: 2,
-              py: 1.25,
-              mx: 1,
-              borderRadius: 1.5,
-              background:
-                "rgba(255,255,255,0.20)",
-            }}
-          >
-            <NotificationsIcon sx={{ fontSize: 20 }} />
-
-            <Typography
-              sx={{
-                fontSize: "0.9rem",
-                fontWeight: 700,
-              }}
-            >
-              Bildirimler
-            </Typography>
-          </Box>
-
-          {/* AYARLAR */}
-
-          <Link
-            href="/yetkili/ayarlar"
-            style={{
-              textDecoration: "none",
-              color: "inherit",
-            }}
-          >
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.5,
-                px: 2,
-                py: 1.25,
-                mx: 1,
-                borderRadius: 1.5,
-                cursor: "pointer",
-
-                "&:hover": {
-                  background:
-                    "rgba(255,255,255,0.12)",
-                },
-              }}
-            >
-              <SettingsIcon sx={{ fontSize: 20 }} />
-
-              <Typography sx={{ fontSize: "0.9rem" }}>
-                Ayarlar
-              </Typography>
-            </Box>
-          </Link>
+                  <Typography
+                    sx={{
+                      fontSize: 12,
+                      fontWeight: active ? 600 : 500,
+                    }}
+                  >
+                    {item.text}
+                  </Typography>
+                </Box>
+              </Link>
+            );
+          })}
         </Box>
 
         {/* ÇIKIŞ */}
 
         <Box
           sx={{
-            px: 2,
-            py: 2,
-            borderTop:
-              "1px solid rgba(255,255,255,0.15)",
+            px: 1,
+            pb: 2,
           }}
         >
           <Link
-            href="/login"
+            href="/login/yetkili"
             style={{
               textDecoration: "none",
               color: "inherit",
@@ -605,15 +438,25 @@ export default function BildirimlerPage() {
               sx={{
                 display: "flex",
                 alignItems: "center",
-                gap: 1.5,
+                gap: 1.2,
+                px: 1.3,
+                py: 1,
+                borderRadius: 1.5,
                 cursor: "pointer",
+                "&:hover": {
+                  backgroundColor:
+                    "rgba(255,255,255,0.14)",
+                },
               }}
             >
-              <Typography sx={{ fontSize: "0.9rem" }}>
-                ⇥
-              </Typography>
+              <LogoutIcon sx={{ fontSize: 19 }} />
 
-              <Typography sx={{ fontSize: "0.9rem" }}>
+              <Typography
+                sx={{
+                  fontSize: 12,
+                  fontWeight: 500,
+                }}
+              >
                 Çıkış Yap
               </Typography>
             </Box>
@@ -627,8 +470,8 @@ export default function BildirimlerPage() {
 
       <Box
         sx={{
-          marginLeft: "215px",
-          width: "calc(100% - 215px)",
+          marginLeft: "195px",
+          width: "calc(100% - 195px)",
           minHeight: "100vh",
         }}
       >
@@ -639,69 +482,60 @@ export default function BildirimlerPage() {
         <Box
           component="header"
           sx={{
-            height: 65,
-            background: "#ffffff",
+            height: 58,
+            backgroundColor: "white",
             borderBottom:
-              "1px solid #e5e7eb",
+              "1px solid #e4e7ec",
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-end",
             px: 3,
           }}
         >
-          <Box
+          <IconButton
             sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
+              mr: 1,
+              color: "#286B9D",
             }}
           >
-            <NotificationsIcon
-              sx={{
-                color: "#286b9d",
-                fontSize: 23,
-              }}
-            />
+            <NotificationsIcon />
+          </IconButton>
 
-            <Box
+          <Box
+            sx={{
+              width: 34,
+              height: 34,
+              borderRadius: "50%",
+              backgroundColor: "#EDF4F9",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#286B9D",
+              mr: 1,
+            }}
+          >
+            <PersonIcon sx={{ fontSize: 20 }} />
+          </Box>
+
+          <Box>
+            <Typography
               sx={{
-                width: 38,
-                height: 38,
-                borderRadius: "50%",
-                background: "#eaf3fa",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
+                fontSize: 12,
+                fontWeight: "bold",
+                color: "#17202A",
               }}
             >
-              <PersonIcon
-                sx={{
-                  color: "#286b9d",
-                  fontSize: 21,
-                }}
-              />
-            </Box>
+              Yetkili Kullanıcı
+            </Typography>
 
-            <Box>
-              <Typography
-                sx={{
-                  fontWeight: 700,
-                  fontSize: "0.85rem",
-                  color: "#17202a",
-                }}
-              >
-                Yetkili Kullanıcı
-              </Typography>
-
-              <Typography
-                sx={{
-                  fontSize: "0.7rem",
-                  color: "#64748b",
-                }}
-              >
-                Yetkili
-              </Typography>
-            </Box>
+            <Typography
+              sx={{
+                fontSize: 9,
+                color: "#64748B",
+              }}
+            >
+              Yetkili
+            </Typography>
           </Box>
         </Box>
 
@@ -723,12 +557,9 @@ export default function BildirimlerPage() {
           <Box sx={{ mb: 3 }}>
             <Typography
               sx={{
-                fontSize: {
-                  xs: "2rem",
-                  md: "2.5rem",
-                },
-                fontWeight: 800,
-                color: "#0f2742",
+                fontSize: 28,
+                fontWeight: "bold",
+                color: "#0F2742",
                 mb: 0.5,
               }}
             >
@@ -738,7 +569,7 @@ export default function BildirimlerPage() {
             <Typography
               sx={{
                 color: "#64748b",
-                fontSize: "0.95rem",
+                fontSize: 13,
               }}
             >
               Stajyerlere özel veya tüm stajyerlere
