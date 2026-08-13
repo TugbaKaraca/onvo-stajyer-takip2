@@ -15,11 +15,56 @@ import { useRouter } from "next/navigation";
 
 export default function YetkiliLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
   const router = useRouter();
 
   const handleLogin = () => {
-    router.push("/yetkili");
+    setError("");
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    /*
+     * =========================
+     * İK HESABI
+     * =========================
+     */
+
+    if (
+      normalizedEmail === "ik@onvo.com.tr" &&
+      password === "123456"
+    ) {
+      router.push("/yetkili");
+      return;
+    }
+
+    /*
+     * =========================
+     * MÜHENDİS HESABI
+     * =========================
+     */
+
+    if (
+      normalizedEmail === "ahmet.yilmaz@onvo.com.tr" &&
+      password === "123456"
+    ) {
+      router.push("/engineer");
+      return;
+    }
+
+    /*
+     * =========================
+     * HATALI GİRİŞ
+     * =========================
+     */
+
+    setError(
+      "E-posta veya şifre hatalı."
+    );
   };
+
   return (
     <Box
       sx={{
@@ -31,6 +76,7 @@ export default function YetkiliLoginPage() {
       }}
     >
       {/* ==================== HEADER ==================== */}
+
       <Box
         component="header"
         sx={{
@@ -51,7 +97,8 @@ export default function YetkiliLoginPage() {
             },
           }}
         >
-          {/* ONVO LOGO */}
+          {/* LOGO */}
+
           <Link href="/">
             <Box
               component="img"
@@ -67,6 +114,7 @@ export default function YetkiliLoginPage() {
           </Link>
 
           {/* ANA SAYFA */}
+
           <Button
             component={Link}
             href="/"
@@ -91,6 +139,7 @@ export default function YetkiliLoginPage() {
       </Box>
 
       {/* ==================== GİRİŞ ALANI ==================== */}
+
       <Box
         sx={{
           flex: 1,
@@ -116,10 +165,12 @@ export default function YetkiliLoginPage() {
               borderRadius: 3,
               border: "1px solid #e5e7eb",
               background: "#ffffff",
-              boxShadow: "0 12px 35px rgba(15,39,66,0.08)",
+              boxShadow:
+                "0 12px 35px rgba(15,39,66,0.08)",
             }}
           >
             {/* BAŞLIK */}
+
             <Box
               sx={{
                 textAlign: "center",
@@ -151,12 +202,17 @@ export default function YetkiliLoginPage() {
             </Box>
 
             {/* E-POSTA */}
+
             <TextField
               fullWidth
               label="E-posta"
               type="email"
               placeholder="ornek@email.com"
               variant="outlined"
+              value={email}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
               sx={{
                 mb: 2.5,
 
@@ -167,10 +223,19 @@ export default function YetkiliLoginPage() {
             />
 
             {/* ŞİFRE */}
+
             <TextField
               fullWidth
               label="Şifre"
-              type={showPassword ? "text" : "password"}
+              type={
+                showPassword
+                  ? "text"
+                  : "password"
+              }
+              value={password}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
               variant="outlined"
               sx={{
                 mb: 1,
@@ -182,15 +247,20 @@ export default function YetkiliLoginPage() {
             />
 
             {/* ŞİFRE GÖSTER */}
+
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "flex-end",
-                mb: 3,
+                mb: 2,
               }}
             >
               <Button
-                onClick={() => setShowPassword(!showPassword)}
+                onClick={() =>
+                  setShowPassword(
+                    !showPassword
+                  )
+                }
                 sx={{
                   color: "#286b9d",
                   fontSize: "0.8rem",
@@ -205,7 +275,28 @@ export default function YetkiliLoginPage() {
               </Button>
             </Box>
 
+            {/* HATA MESAJI */}
+
+            {error && (
+              <Box
+                sx={{
+                  background: "#fef2f2",
+                  border:
+                    "1px solid #fecaca",
+                  color: "#dc2626",
+                  borderRadius: 1.5,
+                  px: 2,
+                  py: 1.5,
+                  mb: 2,
+                  fontSize: "0.9rem",
+                }}
+              >
+                {error}
+              </Box>
+            )}
+
             {/* GİRİŞ YAP */}
+
             <Button
               fullWidth
               variant="contained"
@@ -229,11 +320,13 @@ export default function YetkiliLoginPage() {
             </Button>
 
             {/* GERİ DÖN */}
+
             <Box
               sx={{
                 mt: 3,
                 pt: 3,
-                borderTop: "1px solid #e5e7eb",
+                borderTop:
+                  "1px solid #e5e7eb",
                 textAlign: "center",
               }}
             >
@@ -262,6 +355,7 @@ export default function YetkiliLoginPage() {
       </Box>
 
       {/* ==================== FOOTER ==================== */}
+
       <Box
         component="footer"
         sx={{
@@ -281,7 +375,6 @@ export default function YetkiliLoginPage() {
             },
           }}
         >
-          {/* FOOTER İÇERİĞİ */}
           <Box
             sx={{
               display: "grid",
@@ -294,6 +387,7 @@ export default function YetkiliLoginPage() {
             }}
           >
             {/* LOGO */}
+
             <Box>
               <Box
                 component="img"
@@ -302,7 +396,8 @@ export default function YetkiliLoginPage() {
                 sx={{
                   width: 110,
                   mb: 2,
-                  filter: "brightness(0) invert(1)",
+                  filter:
+                    "brightness(0) invert(1)",
                 }}
               />
 
@@ -314,12 +409,15 @@ export default function YetkiliLoginPage() {
                   lineHeight: 1.7,
                 }}
               >
-                ONVO Dijital Stajyer Takip Sistemi ile staj süreçlerini
-                daha düzenli, verimli ve erişilebilir hale getirin.
+                ONVO Dijital Stajyer Takip
+                Sistemi ile staj süreçlerini
+                daha düzenli, verimli ve
+                erişilebilir hale getirin.
               </Typography>
             </Box>
 
             {/* KURUMSAL */}
+
             <Box>
               <Typography
                 sx={{
@@ -365,6 +463,7 @@ export default function YetkiliLoginPage() {
             </Box>
 
             {/* DESTEK */}
+
             <Box>
               <Typography
                 sx={{
@@ -411,16 +510,19 @@ export default function YetkiliLoginPage() {
           </Box>
 
           {/* ALT FOOTER */}
+
           <Box
             sx={{
-              borderTop: "1px solid rgba(255,255,255,0.1)",
+              borderTop:
+                "1px solid rgba(255,255,255,0.1)",
               pt: 3,
               display: "flex",
               flexDirection: {
                 xs: "column",
                 sm: "row",
               },
-              justifyContent: "space-between",
+              justifyContent:
+                "space-between",
               alignItems: {
                 xs: "flex-start",
                 sm: "center",

@@ -5,14 +5,21 @@ import {
   Button,
   Container,
   Paper,
+  TextField,
   Typography,
 } from "@mui/material";
 
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useState } from "react";
 
-export default function LoginPage() {
-  const router = useRouter();
+export default function MuhendisLoginPage() {
+  const [showPassword, setShowPassword] = useState(false);
+
+  const handleLogin = () => {
+    // Şimdilik gerçek doğrulama yapmıyoruz.
+    // Giriş yapan mühendisi mühendis paneline gönderiyoruz.
+    window.location.href = "/engineer";
+  };
 
   return (
     <Box
@@ -46,7 +53,7 @@ export default function LoginPage() {
             },
           }}
         >
-          {/* ONVO LOGO */}
+          {/* LOGO */}
 
           <Link
             href="/"
@@ -67,60 +74,28 @@ export default function LoginPage() {
             />
           </Link>
 
-          {/* HEADER BUTONLARI */}
+          {/* ANA SAYFA */}
 
-          <Box
+          <Button
+            component={Link}
+            href="/"
+            variant="contained"
             sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1.5,
+              background: "#0f2742",
+              px: 3,
+              py: 1,
+              borderRadius: 1.5,
+              fontWeight: 700,
+              boxShadow: "none",
+
+              "&:hover": {
+                background: "#173b61",
+                boxShadow: "none",
+              },
             }}
           >
-            {/* KAYIT OL */}
-
-            <Button
-              variant="outlined"
-              onClick={() => router.push("/kayit")}
-              sx={{
-                borderColor: "#0f2742",
-                color: "#0f2742",
-                px: 3,
-                py: 1,
-                borderRadius: 1.5,
-                fontWeight: 700,
-                boxShadow: "none",
-
-                "&:hover": {
-                  borderColor: "#173b61",
-                  background: "#f5f8fb",
-                },
-              }}
-            >
-              KAYIT OL
-            </Button>
-
-            {/* ANA SAYFA */}
-
-            <Button
-              variant="contained"
-              onClick={() => router.push("/")}
-              sx={{
-                background: "#0f2742",
-                px: 3,
-                py: 1,
-                borderRadius: 1.5,
-                fontWeight: 700,
-                boxShadow: "none",
-
-                "&:hover": {
-                  background: "#173b61",
-                  boxShadow: "none",
-                },
-              }}
-            >
-              ANA SAYFA
-            </Button>
-          </Box>
+            ANA SAYFA
+          </Button>
         </Box>
       </Box>
 
@@ -151,15 +126,14 @@ export default function LoginPage() {
               borderRadius: 3,
               border: "1px solid #e5e7eb",
               background: "#ffffff",
-              boxShadow:
-                "0 12px 35px rgba(15,39,66,0.08)",
-              textAlign: "center",
+              boxShadow: "0 12px 35px rgba(15,39,66,0.08)",
             }}
           >
             {/* BAŞLIK */}
 
             <Box
               sx={{
+                textAlign: "center",
                 mb: 4,
               }}
             >
@@ -174,7 +148,7 @@ export default function LoginPage() {
                   mb: 1,
                 }}
               >
-                Giriş Yap
+                Mühendis Girişi
               </Typography>
 
               <Typography
@@ -183,147 +157,104 @@ export default function LoginPage() {
                   fontSize: "0.95rem",
                 }}
               >
-                Giriş yapmak istediğiniz hesabı seçin.
+                Mühendis hesabınızla sisteme giriş yapın.
               </Typography>
             </Box>
 
-            {/* ==================== STAJYER GİRİŞİ ==================== */}
+            {/* E-POSTA */}
 
-            <Button
+            <TextField
               fullWidth
+              label="E-posta"
+              type="email"
+              placeholder="ornek@onvo.com.tr"
               variant="outlined"
-              onClick={() =>
-                router.push("/login/stajyer")
-              }
               sx={{
-                height: 90,
-                mb: 2,
-                borderRadius: 2,
-                borderColor: "#0f2742",
-                color: "#0f2742",
-                fontSize: "1.05rem",
-                fontWeight: 700,
-                transition: "all 0.2s ease",
+                mb: 2.5,
 
-                "&:hover": {
-                  background: "#0f2742",
-                  color: "#ffffff",
-                  borderColor: "#0f2742",
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 1.5,
                 },
               }}
-            >
-              STAJYER GİRİŞİ
-            </Button>
+            />
 
-            {/* ==================== YETKİLİ GİRİŞİ ==================== */}
+            {/* ŞİFRE */}
 
-            <Button
+            <TextField
               fullWidth
+              label="Şifre"
+              type={showPassword ? "text" : "password"}
               variant="outlined"
-              onClick={() =>
-                router.push("/login/yetkili")
-              }
               sx={{
-                height: 90,
-                mb: 2,
-                borderRadius: 2,
-                borderColor: "#0f2742",
-                color: "#0f2742",
-                fontSize: "1.05rem",
-                fontWeight: 700,
-                transition: "all 0.2s ease",
+                mb: 1,
 
-                "&:hover": {
-                  background: "#0f2742",
-                  color: "#ffffff",
-                  borderColor: "#0f2742",
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 1.5,
                 },
               }}
-            >
-              YETKİLİ GİRİŞİ
-            </Button>
+            />
 
-            {/* ==================== MÜHENDİS GİRİŞİ ==================== */}
-
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={() =>
-                router.push("/login/muhendis")
-              }
-              sx={{
-                height: 90,
-                borderRadius: 2,
-                borderColor: "#0f2742",
-                color: "#0f2742",
-                fontSize: "1.05rem",
-                fontWeight: 700,
-                transition: "all 0.2s ease",
-
-                "&:hover": {
-                  background: "#0f2742",
-                  color: "#ffffff",
-                  borderColor: "#0f2742",
-                },
-              }}
-            >
-              MÜHENDİS GİRİŞİ
-            </Button>
-
-            {/* ==================== KAYIT ==================== */}
+            {/* ŞİFRE GÖSTER */}
 
             <Box
               sx={{
-                mt: 4,
-                pt: 3,
-                borderTop:
-                  "1px solid #e5e7eb",
+                display: "flex",
+                justifyContent: "flex-end",
+                mb: 3,
               }}
             >
-              <Typography
-                component="span"
+              <Button
+                onClick={() => setShowPassword(!showPassword)}
                 sx={{
-                  color: "#64748b",
-                  fontSize: "0.9rem",
+                  color: "#286b9d",
+                  fontSize: "0.8rem",
+                  textTransform: "none",
+                  p: 0,
+                  minWidth: 0,
                 }}
               >
-                Hesabınız yok mu?{" "}
-              </Typography>
-
-              <Link
-                href="/kayit"
-                style={{
-                  textDecoration: "none",
-                }}
-              >
-                <Typography
-                  component="span"
-                  sx={{
-                    color: "#286b9d",
-                    fontSize: "0.9rem",
-                    fontWeight: 700,
-                    cursor: "pointer",
-
-                    "&:hover": {
-                      textDecoration:
-                        "underline",
-                    },
-                  }}
-                >
-                  KAYIT OL
-                </Typography>
-              </Link>
+                {showPassword
+                  ? "Şifreyi gizle"
+                  : "Şifreyi göster"}
+              </Button>
             </Box>
 
-            {/* ==================== GERİ DÖN ==================== */}
+            {/* GİRİŞ YAP */}
+
+            <Button
+              fullWidth
+              variant="contained"
+              size="large"
+              onClick={handleLogin}
+              sx={{
+                background: "#0f2742",
+                py: 1.5,
+                borderRadius: 1.5,
+                fontWeight: 700,
+                fontSize: "0.95rem",
+                boxShadow: "none",
+
+                "&:hover": {
+                  background: "#173b61",
+                  boxShadow: "none",
+                },
+              }}
+            >
+              GİRİŞ YAP
+            </Button>
+
+            {/* GERİ DÖN */}
 
             <Box
               sx={{
-                mt: 2,
+                mt: 3,
+                pt: 3,
+                borderTop: "1px solid #e5e7eb",
+                textAlign: "center",
               }}
             >
               <Link
-                href="/"
+                href="/login"
                 style={{
                   textDecoration: "none",
                 }}
@@ -338,7 +269,7 @@ export default function LoginPage() {
                     },
                   }}
                 >
-                  ← Ana sayfaya dön
+                  ← Giriş seçeneklerine dön
                 </Typography>
               </Link>
             </Box>
@@ -388,8 +319,7 @@ export default function LoginPage() {
                 sx={{
                   width: 110,
                   mb: 2,
-                  filter:
-                    "brightness(0) invert(1)",
+                  filter: "brightness(0) invert(1)",
                 }}
               />
 
@@ -401,9 +331,8 @@ export default function LoginPage() {
                   lineHeight: 1.7,
                 }}
               >
-                ONVO Dijital Stajyer Takip Sistemi
-                ile staj süreçlerini daha düzenli,
-                verimli ve erişilebilir hale getirin.
+                ONVO Dijital Stajyer Takip Sistemi ile staj süreçlerini
+                daha düzenli, verimli ve erişilebilir hale getirin.
               </Typography>
             </Box>
 
@@ -500,20 +429,18 @@ export default function LoginPage() {
             </Box>
           </Box>
 
-          {/* ==================== ALT FOOTER ==================== */}
+          {/* ALT FOOTER */}
 
           <Box
             sx={{
-              borderTop:
-                "1px solid rgba(255,255,255,0.1)",
+              borderTop: "1px solid rgba(255,255,255,0.1)",
               pt: 3,
               display: "flex",
               flexDirection: {
                 xs: "column",
                 sm: "row",
               },
-              justifyContent:
-                "space-between",
+              justifyContent: "space-between",
               alignItems: {
                 xs: "flex-start",
                 sm: "center",
