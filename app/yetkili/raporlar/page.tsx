@@ -1,851 +1,783 @@
 "use client";
 
+import { useState } from "react";
+
 import {
   Box,
   Button,
-  Card,
-  CardContent,
   Chip,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   Divider,
+  FormControl,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Paper,
+  Select,
+  SelectChangeEvent,
   TextField,
   Typography,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from "@mui/material";
 
-import DescriptionIcon from "@mui/icons-material/Description";
-import SearchIcon from "@mui/icons-material/Search";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import WarningIcon from "@mui/icons-material/Warning";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
+import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
+import CheckCircle from "@mui/icons-material/CheckCircle";
+import CancelOutlined from "@mui/icons-material/CancelOutlined";
+import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleIcon from "@mui/icons-material/People";
-import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-import FolderIcon from "@mui/icons-material/Folder";
-import CampaignIcon from "@mui/icons-material/Campaign";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import SettingsIcon from "@mui/icons-material/Settings";
-import LogoutIcon from "@mui/icons-material/Logout";
-import PersonIcon from "@mui/icons-material/Person";
+import {
+  raporlar as initialRaporlar,
+  type Rapor,
+  type RaporDurumu,
+} from "@/app/data/raporlar";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import {
+  interns,
+} from "@/app/data/stajyerler";
 
-const reports = [
-  {
-    id: 1,
-    name: "Zeliha Koyuncu",
-    department: "Yazılım",
-    date: "12 Ağustos 2026",
-    title: "Günlük Çalışma Raporu",
-    status: "İnceleniyor",
-    description:
-      "Frontend geliştirme çalışmaları ve günlük görevler tamamlandı.",
-  },
-  {
-    id: 2,
-    name: "Ahmet Yılmaz",
-    department: "Elektrik",
-    date: "12 Ağustos 2026",
-    title: "Günlük Çalışma Raporu",
-    status: "Onaylandı",
-    description:
-      "Elektrik sistemleri ve üretim süreçleri hakkında çalışmalar yapıldı.",
-  },
-  {
-    id: 3,
-    name: "Elif Demir",
-    department: "Yazılım",
-    date: "11 Ağustos 2026",
-    title: "Günlük Çalışma Raporu",
-    status: "Bekliyor",
-    description:
-      "Yazılım geliştirme ve proje analiz çalışmaları gerçekleştirildi.",
-  },
-  {
-    id: 4,
-    name: "Mehmet Kaya",
-    department: "Ar-Ge",
-    date: "11 Ağustos 2026",
-    title: "Günlük Çalışma Raporu",
-    status: "Revizyon İstendi",
-    description:
-      "Ar-Ge departmanında yürütülen çalışmalar hakkında günlük rapor.",
-  },
-];
+export default function RaporlarPage() {
+  /* =========================
+     RAPORLAR
+  ========================= */
 
-export default function YetkiliReportsPage() {
-  const router = useRouter();
+  const [raporlar, setRaporlar] =
+    useState<Rapor[]>(initialRaporlar);
 
-  const [search, setSearch] = useState("");
-  const [selectedReport, setSelectedReport] =
-    useState<(typeof reports)[number] | null>(null);
+  /* =========================
+     STATE
+  ========================= */
 
-  const filteredReports = reports.filter((report) =>
-    `${report.name} ${report.department} ${report.title}`
-      .toLowerCase()
-      .includes(search.toLowerCase())
-  );
+  const [stajyerId, setStajyerId] =
+    useState<string>("");
 
-  const getStatusColor = (
-    status: string
-  ): "success" | "warning" | "error" | "info" => {
-    if (status === "Onaylandı") return "success";
-    if (status === "İnceleniyor") return "warning";
-    if (status === "Revizyon İstendi") return "error";
-    return "info";
+  const [durum, setDurum] =
+    useState<string>("");
+
+  const [selectedRapor, setSelectedRapor] =
+    useState<Rapor | null>(null);
+
+  const [yetkiliNotu, setYetkiliNotu] =
+    useState("");
+
+  /* =========================
+     FİLTRELEME
+  ========================= */
+
+  const filtrelenmisRaporlar =
+    raporlar.filter((rapor) => {
+      const stajyerUygun =
+        stajyerId === "" ||
+        rapor.stajyerId === Number(stajyerId);
+
+      const durumUygun =
+        durum === "" ||
+        rapor.durum === durum;
+
+      return (
+        stajyerUygun &&
+        durumUygun
+      );
+    });
+
+  /* =========================
+     RAPOR DETAY
+  ========================= */
+
+  const raporDetayAc = (
+    rapor: Rapor
+  ) => {
+    setSelectedRapor(rapor);
+    setYetkiliNotu(
+      rapor.yetkiliNotu
+    );
   };
 
-  const getStatusIcon = (status: string) => {
-    if (status === "Onaylandı") {
-      return <CheckCircleIcon sx={{ fontSize: 20 }} />;
+  /* =========================
+     DURUM GÜNCELLE
+  ========================= */
+
+  const raporDurumGuncelle = (
+    yeniDurum: RaporDurumu
+  ) => {
+    if (!selectedRapor) {
+      return;
     }
 
-    if (status === "İnceleniyor") {
-      return <AccessTimeIcon sx={{ fontSize: 20 }} />;
-    }
+    const yeniNot =
+      yetkiliNotu.trim();
 
-    return <WarningIcon sx={{ fontSize: 20 }} />;
+    setRaporlar((prev) =>
+      prev.map((rapor) =>
+        rapor.id ===
+        selectedRapor.id
+          ? {
+              ...rapor,
+              durum: yeniDurum,
+              yetkiliNotu:
+                yeniNot,
+            }
+          : rapor
+      )
+    );
+
+    setSelectedRapor((prev) =>
+      prev
+        ? {
+            ...prev,
+            durum: yeniDurum,
+            yetkiliNotu:
+              yeniNot,
+          }
+        : null
+    );
   };
 
-  const menuItems = [
-    {
-      icon: <DashboardIcon />,
-      text: "Kontrol Paneli",
-      path: "/yetkili",
-    },
-    {
-      icon: <PeopleIcon />,
-      text: "Stajyerler",
-      path: "/yetkili/stajyerler",
-    },
-    {
-      icon: <DescriptionIcon />,
-      text: "Raporlar",
-      path: "/yetkili/raporlar",
-    },
-    {
-      icon: <EventAvailableIcon />,
-      text: "Devam Durumu",
-      path: "/yetkili/devam",
-    },
-    {
-      icon: <FolderIcon />,
-      text: "Belgeler",
-      path: "/yetkili/belgeler",
-    },
-    {
-      icon: <CampaignIcon />,
-      text: "Duyurular",
-      path: "/yetkili/duyurular",
-    },
-    {
-      icon: <NotificationsIcon />,
-      text: "Bildirimler",
-      path: "/yetkili/bildirimler",
-    },
-    {
-      icon: <SettingsIcon />,
-      text: "Ayarlar",
-      path: "/yetkili/ayarlar",
-    },
-  ];
+  /* =========================
+     RAPOR SİL
+  ========================= */
+
+  const raporSil = (
+    id: number
+  ) => {
+    setRaporlar((prev) =>
+      prev.filter(
+        (rapor) =>
+          rapor.id !== id
+      )
+    );
+
+    if (
+      selectedRapor?.id === id
+    ) {
+      setSelectedRapor(null);
+    }
+  };
+
+  /* =========================
+     CHIP RENGİ
+  ========================= */
+
+  const durumStyle = (
+    raporDurumu: RaporDurumu
+  ) => {
+    switch (raporDurumu) {
+      case "Onaylandı":
+        return {
+          background: "#e8f5e9",
+          color: "#2e7d32",
+        };
+
+      case "Reddedildi":
+        return {
+          background: "#ffebee",
+          color: "#c62828",
+        };
+
+      case "İnceleniyor":
+        return {
+          background: "#e3f2fd",
+          color: "#1565c0",
+        };
+
+      default:
+        return {
+          background: "#fff3e0",
+          color: "#e65100",
+        };
+    }
+  };
 
   return (
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: "#F5F7FA",
-        display: "flex",
+        background: "#f5f7fa",
+        p: {
+          xs: 2,
+          md: 4,
+        },
       }}
     >
-      {/* SOL MENÜ */}
-      <Box
-        sx={{
-          width: 195,
-          background:
-            "linear-gradient(180deg, #0F2742 0%, #286B9D 100%)",
-          color: "white",
-          display: "flex",
-          flexDirection: "column",
-          position: "fixed",
-          left: 0,
-          top: 0,
-          bottom: 0,
-          zIndex: 10,
-        }}
-      >
-        {/* LOGO */}
-        <Box
+      {/* =========================
+          BAŞLIK
+      ========================= */}
+
+      <Box sx={{ mb: 3 }}>
+        <Typography
           sx={{
-            px: 2.2,
-            py: 2.2,
-            borderBottom:
-              "1px solid rgba(255,255,255,0.15)",
+            fontSize: {
+              xs: "1.8rem",
+              md: "2rem",
+            },
+            fontWeight: 800,
+            color: "#0f2742",
+            mb: 1,
           }}
         >
-          <Typography
-            sx={{
-              fontSize: 23,
-              fontWeight: "bold",
-            }}
-          >
-            ONVO
-          </Typography>
+          Raporlar
+        </Typography>
 
-          <Typography
-            sx={{
-              fontSize: 11,
-              opacity: 0.9,
-              mt: 0.3,
-            }}
-          >
-            Stajyer Takip Sistemi
-          </Typography>
-        </Box>
-
-        {/* MENÜ */}
-        <Box sx={{ px: 1, py: 1.5 }}>
-          {menuItems.map((item) => {
-            const active = item.path === "/yetkili/raporlar";
-
-            return (
-              <Box
-                key={item.text}
-                onClick={() => router.push(item.path)}
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 1.2,
-                  px: 1.3,
-                  py: 1.05,
-                  mb: 0.35,
-                  borderRadius: 1.5,
-                  cursor: "pointer",
-
-                  backgroundColor: active
-                    ? "rgba(255,255,255,0.20)"
-                    : "transparent",
-
-                  "&:hover": {
-                    backgroundColor:
-                      "rgba(255,255,255,0.14)",
-                  },
-
-                  transition: "0.2s",
-                }}
-              >
-                <Box
-                  sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    "& svg": {
-                      fontSize: 19,
-                    },
-                  }}
-                >
-                  {item.icon}
-                </Box>
-
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    fontWeight: active ? 600 : 500,
-                  }}
-                >
-                  {item.text}
-                </Typography>
-              </Box>
-            );
-          })}
-        </Box>
-
-        {/* ÇIKIŞ */}
-        <Box
+        <Typography
           sx={{
-            mt: "auto",
-            px: 1,
-            pb: 2,
+            color: "#64748b",
           }}
         >
-          <Box
-            onClick={() => router.push("/login/yetkili")}
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              gap: 1.2,
-              px: 1.3,
-              py: 1,
-              borderRadius: 1.5,
-              cursor: "pointer",
-
-              "&:hover": {
-                backgroundColor:
-                  "rgba(255,255,255,0.14)",
-              },
-            }}
-          >
-            <LogoutIcon sx={{ fontSize: 19 }} />
-
-            <Typography
-              sx={{
-                fontSize: 12,
-                fontWeight: 500,
-              }}
-            >
-              Çıkış Yap
-            </Typography>
-          </Box>
-        </Box>
+          Stajyerlerin göndermiş
+          olduğu raporları buradan
+          inceleyebilir ve
+          yönetebilirsiniz.
+        </Typography>
       </Box>
 
-      {/* SAĞ ANA ALAN */}
-      <Box
+      {/* =========================
+          FİLTRELER
+      ========================= */}
+
+      <Paper
+        elevation={0}
         sx={{
-          marginLeft: "195px",
-          width: "calc(100% - 195px)",
-          minHeight: "100vh",
+          border:
+            "1px solid #dfe5ec",
+          borderRadius: 2,
+          p: {
+            xs: 2,
+            md: 3,
+          },
+          mb: 3,
+          background: "#ffffff",
         }}
       >
-        {/* ÜST BAR */}
         <Box
           sx={{
-            height: 58,
-            backgroundColor: "white",
-            borderBottom: "1px solid #e4e7ec",
             display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-end",
-            px: 3,
+            alignItems:
+              "center",
+            gap: 1,
+            mb: 2,
           }}
         >
-          <Box
-            onClick={() =>
-              router.push("/yetkili/bildirimler")
-            }
+          <DescriptionOutlined
             sx={{
-              display: "flex",
-              cursor: "pointer",
-              color: "#286B9D",
-              mr: 1,
+              color: "#1f6fae",
+            }}
+          />
+
+          <Typography
+            sx={{
+              fontSize:
+                "1.15rem",
+              fontWeight: 700,
+              color: "#0f2742",
             }}
           >
-            <NotificationsIcon />
-          </Box>
-
-          <Box
-            sx={{
-              width: 34,
-              height: 34,
-              borderRadius: "50%",
-              backgroundColor: "#EDF4F9",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "#286B9D",
-              mr: 1,
-            }}
-          >
-            <PersonIcon sx={{ fontSize: 20 }} />
-          </Box>
-
-          <Box>
-            <Typography
-              sx={{
-                fontSize: 12,
-                fontWeight: "bold",
-                color: "#17202A",
-              }}
-            >
-              Yetkili Kullanıcı
-            </Typography>
-
-            <Typography
-              sx={{
-                fontSize: 9,
-                color: "#64748B",
-              }}
-            >
-              Yetkili
-            </Typography>
-          </Box>
+            Rapor Filtreleme
+          </Typography>
         </Box>
 
-        {/* SAYFA İÇERİĞİ */}
+        <Divider sx={{ mb: 2.5 }} />
+
         <Box
           sx={{
-            px: {
-              xs: 2,
-              md: 4,
+            display: "grid",
+            gridTemplateColumns: {
+              xs: "1fr",
+              md: "1fr 1fr",
             },
-            py: 3,
-            maxWidth: 1400,
-            mx: "auto",
+            gap: 2,
           }}
         >
-          {/* BAŞLIK */}
-          <Box sx={{ mb: 3 }}>
+          {/* STAJYER */}
+
+          <FormControl fullWidth>
+            <InputLabel id="stajyer-label">
+              Stajyer
+            </InputLabel>
+
+            <Select
+              labelId="stajyer-label"
+              value={stajyerId}
+              label="Stajyer"
+              onChange={(
+                event: SelectChangeEvent
+              ) => {
+                setStajyerId(
+                  event.target.value
+                );
+              }}
+              sx={{
+                borderRadius: 1.5,
+              }}
+            >
+              <MenuItem value="">
+                Tüm Stajyerler
+              </MenuItem>
+
+              {interns.map(
+                (stajyer) => (
+                  <MenuItem
+                    key={stajyer.id}
+                    value={String(
+                      stajyer.id
+                    )}
+                  >
+                    {stajyer.name}
+                  </MenuItem>
+                )
+              )}
+            </Select>
+          </FormControl>
+
+          {/* DURUM */}
+
+          <FormControl fullWidth>
+            <InputLabel id="durum-label">
+              Rapor Durumu
+            </InputLabel>
+
+            <Select
+              labelId="durum-label"
+              value={durum}
+              label="Rapor Durumu"
+              onChange={(
+                event: SelectChangeEvent
+              ) => {
+                setDurum(
+                  event.target.value
+                );
+              }}
+              sx={{
+                borderRadius: 1.5,
+              }}
+            >
+              <MenuItem value="">
+                Tüm Durumlar
+              </MenuItem>
+
+              <MenuItem value="Bekliyor">
+                Bekliyor
+              </MenuItem>
+
+              <MenuItem value="İnceleniyor">
+                İnceleniyor
+              </MenuItem>
+
+              <MenuItem value="Onaylandı">
+                Onaylandı
+              </MenuItem>
+
+              <MenuItem value="Reddedildi">
+                Reddedildi
+              </MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+      </Paper>
+
+      {/* =========================
+          RAPOR LİSTESİ
+      ========================= */}
+
+      <Paper
+        elevation={0}
+        sx={{
+          border:
+            "1px solid #dfe5ec",
+          borderRadius: 2,
+          background: "#ffffff",
+          overflow: "hidden",
+        }}
+      >
+        {/* BAŞLIK */}
+
+        <Box
+          sx={{
+            p: {
+              xs: 2,
+              md: 3,
+            },
+            borderBottom:
+              "1px solid #dfe5ec",
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize:
+                "1.2rem",
+              fontWeight: 700,
+              color: "#0f2742",
+              mb: 0.5,
+            }}
+          >
+            Gönderilen Raporlar
+          </Typography>
+
+          <Typography
+            sx={{
+              color: "#64748b",
+              fontSize:
+                "0.9rem",
+            }}
+          >
+            Toplam{" "}
+            <strong>
+              {
+                filtrelenmisRaporlar.length
+              }
+            </strong>{" "}
+            rapor görüntüleniyor.
+          </Typography>
+        </Box>
+
+        {/* RAPORLAR */}
+
+        {filtrelenmisRaporlar.length ===
+        0 ? (
+          <Box
+            sx={{
+              py: 7,
+              textAlign: "center",
+            }}
+          >
+            <DescriptionOutlined
+              sx={{
+                fontSize: 50,
+                color: "#94a3b8",
+                mb: 1,
+              }}
+            />
+
             <Typography
               sx={{
-                fontSize: 28,
-                fontWeight: "bold",
-                color: "#0F2742",
+                color:
+                  "#475569",
+                fontWeight: 600,
                 mb: 0.5,
               }}
             >
-              Raporlar
+              Rapor bulunamadı
             </Typography>
 
             <Typography
               sx={{
-                color: "#64748B",
-                fontSize: 13,
+                color:
+                  "#94a3b8",
+                fontSize:
+                  "0.85rem",
               }}
             >
-              Stajyerlerin günlük çalışma raporlarını buradan
-              inceleyebilir ve takip edebilirsiniz.
+              Seçtiğiniz filtrelere
+              uygun rapor
+              bulunmuyor.
             </Typography>
           </Box>
-
-          {/* ÖZET KARTLARI */}
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                sm: "repeat(3, 1fr)",
-              },
-              gap: 2,
-              mb: 3,
-            }}
-          >
-            <Card
-              elevation={0}
-              sx={{
-                border: "1px solid #E4E7EC",
-                borderRadius: 2,
-              }}
-            >
-              <CardContent sx={{ p: 2 }}>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    color: "#64748B",
-                  }}
-                >
-                  Toplam Rapor
-                </Typography>
-
-                <Typography
-                  sx={{
-                    fontSize: 26,
-                    fontWeight: "bold",
-                    mt: 1,
-                  }}
-                >
-                  4
-                </Typography>
-              </CardContent>
-            </Card>
-
-            <Card
-              elevation={0}
-              sx={{
-                border: "1px solid #E4E7EC",
-                borderRadius: 2,
-              }}
-            >
-              <CardContent sx={{ p: 2 }}>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    color: "#64748B",
-                  }}
-                >
-                  İncelenecek Rapor
-                </Typography>
-
-                <Typography
-                  sx={{
-                    fontSize: 26,
-                    fontWeight: "bold",
-                    color: "#D97706",
-                    mt: 1,
-                  }}
-                >
-                  1
-                </Typography>
-              </CardContent>
-            </Card>
-
-            <Card
-              elevation={0}
-              sx={{
-                border: "1px solid #E4E7EC",
-                borderRadius: 2,
-              }}
-            >
-              <CardContent sx={{ p: 2 }}>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    color: "#64748B",
-                  }}
-                >
-                  Onaylanan Rapor
-                </Typography>
-
-                <Typography
-                  sx={{
-                    fontSize: 26,
-                    fontWeight: "bold",
-                    color: "#16A34A",
-                    mt: 1,
-                  }}
-                >
-                  1
-                </Typography>
-              </CardContent>
-            </Card>
-          </Box>
-
-          {/* ARAMA */}
-          <Card
-            elevation={0}
-            sx={{
-              border: "1px solid #E4E7EC",
-              borderRadius: 2,
-              mb: 3,
-            }}
-          >
-            <CardContent sx={{ p: 2 }}>
-              <TextField
-                fullWidth
-                size="small"
-                placeholder="Stajyer adı veya departman ara..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <SearchIcon
-                        sx={{
-                          color: "#94A3B8",
-                          mr: 1,
-                        }}
-                      />
-                    ),
-                  },
-                }}
-              />
-            </CardContent>
-          </Card>
-
-          {/* RAPOR LİSTESİ */}
-          <Card
-            elevation={0}
-            sx={{
-              border: "1px solid #E4E7EC",
-              borderRadius: 2,
-            }}
-          >
-            <CardContent sx={{ p: 2.5 }}>
-              <Typography
-                sx={{
-                  fontSize: 18,
-                  fontWeight: "bold",
-                  color: "#0F2742",
-                  mb: 2,
-                }}
+        ) : (
+          filtrelenmisRaporlar.map(
+            (
+              rapor,
+              index
+            ) => (
+              <Box
+                key={rapor.id}
               >
-                Günlük Raporlar
-              </Typography>
-
-              {filteredReports.length === 0 ? (
                 <Box
                   sx={{
-                    py: 6,
-                    textAlign: "center",
+                    p: {
+                      xs: 2,
+                      md: 2.5,
+                    },
+                    display:
+                      "flex",
+                    justifyContent:
+                      "space-between",
+                    alignItems:
+                      "flex-start",
+                    gap: 2,
+
+                    "&:hover": {
+                      background:
+                        "#fafcfe",
+                    },
                   }}
                 >
-                  <DescriptionIcon
-                    sx={{
-                      fontSize: 45,
-                      color: "#CBD5E1",
-                      mb: 1,
-                    }}
-                  />
+                  {/* RAPOR BİLGİSİ */}
 
-                  <Typography
+                  <Box
                     sx={{
-                      color: "#64748B",
+                      flex: 1,
                     }}
                   >
-                    Aramanızla eşleşen rapor bulunamadı.
-                  </Typography>
-                </Box>
-              ) : (
-                filteredReports.map((report, index) => (
-                  <Box key={report.id}>
                     <Box
                       sx={{
-                        py: 2,
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                        flexWrap: "wrap",
+                        display:
+                          "flex",
+                        alignItems:
+                          "center",
+                        gap: 1,
+                        mb: 0.8,
+                        flexWrap:
+                          "wrap",
                       }}
                     >
-                      {/* İKON */}
-                      <Box
+                      <Typography
                         sx={{
-                          width: 46,
-                          height: 46,
-                          borderRadius: 2,
-                          backgroundColor: "#EDF4F9",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "#286B9D",
+                          fontSize:
+                            "1.05rem",
+                          fontWeight: 700,
+                          color:
+                            "#0f2742",
                         }}
                       >
-                        <DescriptionIcon />
-                      </Box>
+                        {
+                          rapor.baslik
+                        }
+                      </Typography>
 
-                      {/* BİLGİ */}
-                      <Box
-                        sx={{
-                          flex: 1,
-                          minWidth: 220,
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            fontSize: 14,
-                            fontWeight: "bold",
-                            color: "#17202A",
-                          }}
-                        >
-                          {report.name}
-                        </Typography>
-
-                        <Typography
-                          sx={{
-                            fontSize: 11,
-                            color: "#64748B",
-                            mt: 0.3,
-                          }}
-                        >
-                          {report.department} • {report.date}
-                        </Typography>
-
-                        <Typography
-                          sx={{
-                            fontSize: 12,
-                            color: "#475569",
-                            mt: 0.8,
-                          }}
-                        >
-                          {report.title}
-                        </Typography>
-                      </Box>
-
-                      {/* DURUM */}
                       <Chip
-                        icon={getStatusIcon(report.status)}
-                        label={report.status}
-                        color={getStatusColor(report.status)}
+                        label={
+                          rapor.durum
+                        }
                         size="small"
                         sx={{
-                          fontSize: 10,
+                          ...durumStyle(
+                            rapor.durum
+                          ),
                           fontWeight: 600,
                         }}
                       />
-
-                      {/* DETAY */}
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={<VisibilityIcon />}
-                        onClick={() =>
-                          setSelectedReport(report)
-                        }
-                        sx={{
-                          borderColor: "#286B9D",
-                          color: "#286B9D",
-                          textTransform: "none",
-                          fontSize: 11,
-                          "&:hover": {
-                            borderColor: "#1f557d",
-                            backgroundColor: "#EDF4F9",
-                          },
-                        }}
-                      >
-                        Detay
-                      </Button>
                     </Box>
 
-                    {index !== filteredReports.length - 1 && (
-                      <Divider />
-                    )}
-                  </Box>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        </Box>
-      </Box>
+                    <Typography
+                      sx={{
+                        fontSize:
+                          "0.9rem",
+                        fontWeight: 600,
+                        color:
+                          "#1f6fae",
+                        mb: 0.5,
+                      }}
+                    >
+                      {
+                        rapor.stajyer
+                      }
+                    </Typography>
 
-      {/* RAPOR DETAY PENCERESİ */}
+                    <Typography
+                      sx={{
+                        color:
+                          "#475569",
+                        fontSize:
+                          "0.9rem",
+                        lineHeight:
+                          1.5,
+                        mb: 1,
+                      }}
+                    >
+                      {
+                        rapor.icerik
+                      }
+                    </Typography>
+
+                    <Typography
+                      sx={{
+                        color:
+                          "#94a3b8",
+                        fontSize:
+                          "0.8rem",
+                      }}
+                    >
+                      {
+                        rapor.tarih
+                      }
+                    </Typography>
+                  </Box>
+
+                  {/* BUTONLAR */}
+
+                  <Box
+                    sx={{
+                      display:
+                        "flex",
+                      gap: 0.8,
+                      alignItems:
+                        "center",
+                    }}
+                  >
+                    <IconButton
+                      onClick={() =>
+                        raporDetayAc(
+                          rapor
+                        )
+                      }
+                      aria-label="Raporu görüntüle"
+                      sx={{
+                        color:
+                          "#1f6fae",
+                        background:
+                          "#edf4f9",
+
+                        "&:hover": {
+                          background:
+                            "#dcebf4",
+                        },
+                      }}
+                    >
+                      <VisibilityOutlined />
+                    </IconButton>
+
+                    <IconButton
+                      onClick={() =>
+                        raporSil(
+                          rapor.id
+                        )
+                      }
+                      aria-label="Raporu sil"
+                      sx={{
+                        color:
+                          "#dc2626",
+
+                        "&:hover": {
+                          background:
+                            "#fee2e2",
+                        },
+                      }}
+                    >
+                      <DeleteOutlined />
+                    </IconButton>
+                  </Box>
+                </Box>
+
+                {index <
+                  filtrelenmisRaporlar.length -
+                    1 && (
+                  <Divider />
+                )}
+              </Box>
+            )
+          )
+        )}
+      </Paper>
+
+      {/* =========================
+          RAPOR DETAY MODALI
+      ========================= */}
+
       <Dialog
-        open={selectedReport !== null}
-        onClose={() => setSelectedReport(null)}
+        open={
+          selectedRapor !== null
+        }
+        onClose={() =>
+          setSelectedRapor(null)
+        }
         fullWidth
-        maxWidth="sm"
+        maxWidth="md"
       >
-        {selectedReport && (
+        {selectedRapor && (
           <>
             <DialogTitle
               sx={{
-                fontWeight: "bold",
-                color: "#0F2742",
-                borderBottom: "1px solid #E4E7EC",
+                color: "#0f2742",
+                fontWeight: 700,
               }}
             >
               Rapor Detayı
             </DialogTitle>
 
-            <DialogContent sx={{ pt: 3 }}>
+            <DialogContent
+              dividers
+            >
+              {/* ÜST BİLGİ */}
+
               <Box
                 sx={{
-                  display: "flex",
-                  alignItems: "center",
+                  display:
+                    "flex",
+                  justifyContent:
+                    "space-between",
+                  alignItems:
+                    "flex-start",
                   gap: 2,
                   mb: 3,
+                  flexWrap:
+                    "wrap",
                 }}
               >
-                <Box
-                  sx={{
-                    width: 50,
-                    height: 50,
-                    borderRadius: 2,
-                    backgroundColor: "#EDF4F9",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#286B9D",
-                  }}
-                >
-                  <DescriptionIcon />
-                </Box>
-
                 <Box>
                   <Typography
                     sx={{
-                      fontWeight: "bold",
-                      fontSize: 17,
-                      color: "#17202A",
+                      fontSize:
+                        "1.25rem",
+                      fontWeight: 700,
+                      color:
+                        "#0f2742",
+                      mb: 0.5,
                     }}
                   >
-                    {selectedReport.name}
+                    {
+                      selectedRapor.baslik
+                    }
                   </Typography>
 
                   <Typography
                     sx={{
-                      fontSize: 12,
-                      color: "#64748B",
+                      color:
+                        "#1f6fae",
+                      fontWeight: 600,
+                      mb: 0.5,
                     }}
                   >
-                    {selectedReport.department}
+                    {
+                      selectedRapor.stajyer
+                    }
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      color:
+                        "#94a3b8",
+                      fontSize:
+                        "0.85rem",
+                    }}
+                  >
+                    {
+                      selectedRapor.tarih
+                    }
                   </Typography>
                 </Box>
-              </Box>
-
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    color: "#64748B",
-                    mb: 0.5,
-                  }}
-                >
-                  Rapor Başlığı
-                </Typography>
-
-                <Typography
-                  sx={{
-                    fontWeight: 600,
-                    color: "#17202A",
-                  }}
-                >
-                  {selectedReport.title}
-                </Typography>
-              </Box>
-
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    color: "#64748B",
-                    mb: 0.5,
-                  }}
-                >
-                  Tarih
-                </Typography>
-
-                <Typography
-                  sx={{
-                    fontWeight: 600,
-                    color: "#17202A",
-                  }}
-                >
-                  {selectedReport.date}
-                </Typography>
-              </Box>
-
-              <Box sx={{ mb: 2 }}>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    color: "#64748B",
-                    mb: 0.5,
-                  }}
-                >
-                  Durum
-                </Typography>
 
                 <Chip
-                  icon={getStatusIcon(
-                    selectedReport.status
-                  )}
-                  label={selectedReport.status}
-                  color={getStatusColor(
-                    selectedReport.status
-                  )}
-                  size="small"
+                  label={
+                    selectedRapor.durum
+                  }
                   sx={{
+                    ...durumStyle(
+                      selectedRapor.durum
+                    ),
                     fontWeight: 600,
                   }}
                 />
               </Box>
 
+              {/* RAPOR İÇERİĞİ */}
+
               <Box
                 sx={{
-                  backgroundColor: "#F8FAFC",
-                  border: "1px solid #E4E7EC",
+                  p: 2.5,
+                  background:
+                    "#f8fafc",
                   borderRadius: 2,
-                  p: 2,
-                  mt: 3,
+                  mb: 3,
                 }}
               >
                 <Typography
                   sx={{
-                    fontSize: 12,
-                    color: "#64748B",
+                    fontSize:
+                      "0.85rem",
+                    fontWeight: 700,
+                    color:
+                      "#475569",
                     mb: 1,
                   }}
                 >
@@ -854,31 +786,151 @@ export default function YetkiliReportsPage() {
 
                 <Typography
                   sx={{
-                    fontSize: 14,
-                    lineHeight: 1.7,
-                    color: "#334155",
+                    color:
+                      "#334155",
+                    fontSize:
+                      "0.95rem",
+                    lineHeight:
+                      1.8,
+                    whiteSpace:
+                      "pre-line",
                   }}
                 >
-                  {selectedReport.description}
+                  {
+                    selectedRapor.icerik
+                  }
                 </Typography>
               </Box>
+
+              {/* YETKİLİ NOTU */}
+
+              <TextField
+                fullWidth
+                multiline
+                minRows={4}
+                label="Yetkili Notu"
+                value={
+                  yetkiliNotu
+                }
+                onChange={(e) =>
+                  setYetkiliNotu(
+                    e.target.value
+                  )
+                }
+                placeholder="Rapor hakkında stajyere iletmek istediğiniz notu yazın..."
+                sx={{
+                  "& .MuiOutlinedInput-root":
+                    {
+                      borderRadius:
+                        1.5,
+                    },
+                }}
+              />
             </DialogContent>
+
+            {/* AKSİYONLAR */}
 
             <DialogActions
               sx={{
-                px: 3,
-                pb: 2,
+                p: 2,
+                gap: 1,
+                flexWrap:
+                  "wrap",
               }}
             >
               <Button
-                onClick={() => setSelectedReport(null)}
+                onClick={() =>
+                  raporDurumGuncelle(
+                    "Reddedildi"
+                  )
+                }
+                startIcon={
+                  <CancelOutlined />
+                }
+                variant="outlined"
+                sx={{
+                  borderColor:
+                    "#dc2626",
+                  color:
+                    "#dc2626",
+
+                  "&:hover": {
+                    borderColor:
+                      "#b91c1c",
+                    background:
+                      "#fef2f2",
+                  },
+                }}
+              >
+                Reddet
+              </Button>
+
+              <Button
+                onClick={() =>
+                  raporDurumGuncelle(
+                    "İnceleniyor"
+                  )
+                }
+                variant="outlined"
+                sx={{
+                  borderColor:
+                    "#1f6fae",
+                  color:
+                    "#1f6fae",
+
+                  "&:hover": {
+                    borderColor:
+                      "#185d91",
+                    background:
+                      "#f0f7fc",
+                  },
+                }}
+              >
+                İnceleniyor
+              </Button>
+
+              <Button
+                onClick={() =>
+                  raporDurumGuncelle(
+                    "Onaylandı"
+                  )
+                }
+                startIcon={
+                  <CheckCircle />
+                }
                 variant="contained"
                 sx={{
-                  backgroundColor: "#286B9D",
-                  textTransform: "none",
+                  background:
+                    "#2e7d32",
+                  textTransform:
+                    "none",
+                  fontWeight: 600,
+
                   "&:hover": {
-                    backgroundColor: "#1F557D",
+                    background:
+                      "#256b29",
                   },
+                }}
+              >
+                Onayla
+              </Button>
+
+              <Button
+                onClick={() =>
+                  setSelectedRapor(
+                    null
+                  )
+                }
+                variant="outlined"
+                sx={{
+                  ml: {
+                    xs: 0,
+                    sm: "auto",
+                  },
+                  borderColor:
+                    "#cbd5e1",
+                  color:
+                    "#475569",
                 }}
               >
                 Kapat

@@ -1,5 +1,7 @@
 "use client";
 
+import { useMemo } from "react";
+
 import {
   Box,
   Card,
@@ -27,6 +29,11 @@ import {
 } from "@mui/icons-material";
 
 import { useRouter } from "next/navigation";
+
+import {
+  interns,
+  type Intern,
+} from "@/app/data/stajyerler";
 
 export default function YetkiliPage() {
   const router = useRouter();
@@ -74,32 +81,42 @@ export default function YetkiliPage() {
     },
   ];
 
-  const interns = [
-    {
-      name: "Zeliha Koyuncu",
-      department: "Yazılım",
-      status: "Aktif",
-      report: "İnceleniyor",
-    },
-    {
-      name: "Ahmet Yılmaz",
-      department: "Elektrik",
-      status: "Aktif",
-      report: "Onaylandı",
-    },
-    {
-      name: "Elif Demir",
-      department: "Yazılım",
-      status: "Aktif",
-      report: "Bekliyor",
-    },
-    {
-      name: "Mehmet Kaya",
-      department: "Ar-Ge",
-      status: "İzinli",
-      report: "Onaylandı",
-    },
-  ];
+  // =========================
+  // STAJYER İSTATİSTİKLERİ
+  // =========================
+
+  const totalInterns = interns.length;
+
+  const activeInterns = useMemo(() => {
+    return interns.filter(
+      (intern: Intern) => intern.status === "Aktif"
+    ).length;
+  }, []);
+
+  const pendingReports = useMemo(() => {
+    return interns.filter(
+      (intern: Intern) =>
+        intern.report === "Bekliyor" ||
+        intern.report === "İnceleniyor"
+    ).length;
+  }, []);
+
+  // Şimdilik örnek değer.
+  // Devam tablosunu veritabanına bağladığımızda
+  // burası gerçek veriden hesaplanacak.
+  const todayAttendance = 16;
+
+  // Kontrol panelinde gösterilecek son stajyerler
+  const recentInterns = interns.slice(0, 4);
+
+  // Son raporlar
+  const recentReports = interns
+    .filter(
+      (intern: Intern) =>
+        intern.report === "Onaylandı" ||
+        intern.report === "İnceleniyor"
+    )
+    .slice(0, 2);
 
   return (
     <Box
@@ -220,7 +237,9 @@ export default function YetkiliPage() {
           }}
         >
           <Box
-            onClick={() => router.push("/login/yetkili")}
+            onClick={() =>
+              router.push("/login/yetkili")
+            }
             sx={{
               display: "flex",
               alignItems: "center",
@@ -408,7 +427,7 @@ export default function YetkiliPage() {
                     mt: 1,
                   }}
                 >
-                  24
+                  {totalInterns}
                 </Typography>
 
                 <Typography
@@ -461,7 +480,7 @@ export default function YetkiliPage() {
                     mt: 1,
                   }}
                 >
-                  18
+                  {activeInterns}
                 </Typography>
 
                 <Typography
@@ -514,7 +533,7 @@ export default function YetkiliPage() {
                     mt: 1,
                   }}
                 >
-                  16
+                  {todayAttendance}
                 </Typography>
 
                 <Typography
@@ -523,7 +542,7 @@ export default function YetkiliPage() {
                     color: "#94A3B8",
                   }}
                 >
-                  18 aktif stajyerden
+                  {activeInterns} aktif stajyerden
                 </Typography>
               </CardContent>
             </Card>
@@ -567,7 +586,7 @@ export default function YetkiliPage() {
                     mt: 1,
                   }}
                 >
-                  7
+                  {pendingReports}
                 </Typography>
 
                 <Typography
@@ -635,71 +654,76 @@ export default function YetkiliPage() {
                   </Typography>
                 </Box>
 
-                {interns.map((intern, index) => (
-                  <Box
-                    key={intern.name}
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 1.5,
-                      py: 1.4,
-
-                      borderBottom:
-                        index !== interns.length - 1
-                          ? "1px solid #EEF1F5"
-                          : "none",
-                    }}
-                  >
+                {recentInterns.map(
+                  (intern: Intern, index) => (
                     <Box
+                      key={intern.id}
                       sx={{
-                        width: 38,
-                        height: 38,
-                        borderRadius: "50%",
-                        backgroundColor: "#EDF4F9",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
-                        color: "#286B9D",
+                        gap: 1.5,
+                        py: 1.4,
+
+                        borderBottom:
+                          index !==
+                          recentInterns.length - 1
+                            ? "1px solid #EEF1F5"
+                            : "none",
                       }}
                     >
-                      <Person sx={{ fontSize: 20 }} />
-                    </Box>
-
-                    <Box sx={{ flex: 1 }}>
-                      <Typography
+                      <Box
                         sx={{
-                          fontSize: 13,
-                          fontWeight: "bold",
+                          width: 38,
+                          height: 38,
+                          borderRadius: "50%",
+                          backgroundColor: "#EDF4F9",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#286B9D",
                         }}
                       >
-                        {intern.name}
-                      </Typography>
+                        <Person
+                          sx={{ fontSize: 20 }}
+                        />
+                      </Box>
 
-                      <Typography
+                      <Box sx={{ flex: 1 }}>
+                        <Typography
+                          sx={{
+                            fontSize: 13,
+                            fontWeight: "bold",
+                          }}
+                        >
+                          {intern.name}
+                        </Typography>
+
+                        <Typography
+                          sx={{
+                            fontSize: 10,
+                            color: "#64748B",
+                          }}
+                        >
+                          {intern.department}
+                        </Typography>
+                      </Box>
+
+                      <Chip
+                        label={intern.status}
+                        size="small"
+                        color={
+                          intern.status === "Aktif"
+                            ? "success"
+                            : "warning"
+                        }
                         sx={{
                           fontSize: 10,
-                          color: "#64748B",
+                          fontWeight: 600,
                         }}
-                      >
-                        {intern.department}
-                      </Typography>
+                      />
                     </Box>
-
-                    <Chip
-                      label={intern.status}
-                      size="small"
-                      color={
-                        intern.status === "Aktif"
-                          ? "success"
-                          : "warning"
-                      }
-                      sx={{
-                        fontSize: 10,
-                        fontWeight: 600,
-                      }}
-                    />
-                  </Box>
-                ))}
+                  )
+                )}
               </CardContent>
             </Card>
 
@@ -723,80 +747,53 @@ export default function YetkiliPage() {
                   Son Raporlar
                 </Typography>
 
-                <Box
-                  sx={{
-                    p: 1.5,
-                    backgroundColor: "#F8FAFC",
-                    borderRadius: 2,
-                    mb: 1.5,
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: 13,
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Zeliha Koyuncu
-                  </Typography>
+                {recentReports.map(
+                  (intern: Intern) => (
+                    <Box
+                      key={intern.id}
+                      sx={{
+                        p: 1.5,
+                        backgroundColor: "#F8FAFC",
+                        borderRadius: 2,
+                        mb: 1.5,
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: 13,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {intern.name}
+                      </Typography>
 
-                  <Typography
-                    sx={{
-                      fontSize: 11,
-                      color: "#64748B",
-                      mt: 0.5,
-                    }}
-                  >
-                    Günlük Çalışma Raporu
-                  </Typography>
+                      <Typography
+                        sx={{
+                          fontSize: 11,
+                          color: "#64748B",
+                          mt: 0.5,
+                        }}
+                      >
+                        Günlük Çalışma Raporu
+                      </Typography>
 
-                  <Chip
-                    label="İnceleniyor"
-                    size="small"
-                    color="warning"
-                    sx={{
-                      mt: 1,
-                      fontSize: 10,
-                    }}
-                  />
-                </Box>
-
-                <Box
-                  sx={{
-                    p: 1.5,
-                    backgroundColor: "#F8FAFC",
-                    borderRadius: 2,
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: 13,
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Ahmet Yılmaz
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      fontSize: 11,
-                      color: "#64748B",
-                      mt: 0.5,
-                    }}
-                  >
-                    Günlük Çalışma Raporu
-                  </Typography>
-
-                  <Chip
-                    label="Onaylandı"
-                    size="small"
-                    color="success"
-                    sx={{
-                      mt: 1,
-                      fontSize: 10,
-                    }}
-                  />
-                </Box>
+                      <Chip
+                        label={intern.report}
+                        size="small"
+                        color={
+                          intern.report ===
+                          "Onaylandı"
+                            ? "success"
+                            : "warning"
+                        }
+                        sx={{
+                          mt: 1,
+                          fontSize: 10,
+                        }}
+                      />
+                    </Box>
+                  )
+                )}
 
                 <Box
                   onClick={() =>
@@ -816,7 +813,9 @@ export default function YetkiliPage() {
                     Tüm raporları gör
                   </Typography>
 
-                  <ArrowForward sx={{ fontSize: 16 }} />
+                  <ArrowForward
+                    sx={{ fontSize: 16 }}
+                  />
                 </Box>
               </CardContent>
             </Card>
@@ -851,7 +850,9 @@ export default function YetkiliPage() {
 
                 <Typography
                   onClick={() =>
-                    router.push("/yetkili/duyurular")
+                    router.push(
+                      "/yetkili/duyurular"
+                    )
                   }
                   sx={{
                     fontSize: 12,
@@ -863,13 +864,15 @@ export default function YetkiliPage() {
                 </Typography>
               </Box>
 
+              {/* DUYURU 1 */}
               <Box
                 sx={{
                   display: "flex",
                   alignItems: "center",
                   gap: 1.5,
                   py: 1.5,
-                  borderBottom: "1px solid #EEF1F5",
+                  borderBottom:
+                    "1px solid #EEF1F5",
                 }}
               >
                 <Campaign
@@ -910,6 +913,7 @@ export default function YetkiliPage() {
                 </Typography>
               </Box>
 
+              {/* DUYURU 2 */}
               <Box
                 sx={{
                   display: "flex",
@@ -941,8 +945,8 @@ export default function YetkiliPage() {
                       color: "#64748B",
                     }}
                   >
-                    Stajyerlerin günlük raporlarını sisteme
-                    girmeleri gerekmektedir.
+                    Stajyerlerin günlük raporlarını
+                    sisteme girmeleri gerekmektedir.
                   </Typography>
                 </Box>
 

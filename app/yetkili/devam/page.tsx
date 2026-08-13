@@ -1,142 +1,355 @@
 "use client";
 
+import { useMemo, useState } from "react";
+
 import {
   Box,
-  Button,
   Card,
-  CardContent,
   Chip,
-  Divider,
-  TextField,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
+  SelectChangeEvent,
   Typography,
+  IconButton,
+  Divider,
 } from "@mui/material";
 
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import PeopleIcon from "@mui/icons-material/People";
-import DescriptionIcon from "@mui/icons-material/Description";
-import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-import FolderIcon from "@mui/icons-material/Folder";
-import CampaignIcon from "@mui/icons-material/Campaign";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import SettingsIcon from "@mui/icons-material/Settings";
-import LogoutIcon from "@mui/icons-material/Logout";
-import PersonIcon from "@mui/icons-material/Person";
-import SearchIcon from "@mui/icons-material/Search";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CancelIcon from "@mui/icons-material/Cancel";
-import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import {
+  Dashboard,
+  People,
+  Description,
+  EventAvailable,
+  Folder,
+  Campaign,
+  Notifications,
+  Settings,
+  Logout,
+  Person,
+  CalendarMonth,
+  CheckCircle,
+  Cancel,
+  BeachAccess,
+  Visibility,
+  ArrowBack,
+  Close,
+} from "@mui/icons-material";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-const attendanceRecords = [
-  {
-    id: 1,
-    name: "Zeliha Koyuncu",
-    department: "Yazılım",
-    date: "13 Ağustos 2026",
-    entry: "08:54",
-    exit: "-",
-    status: "Geldi",
-  },
-  {
-    id: 2,
-    name: "Ahmet Yılmaz",
-    department: "Elektrik",
-    date: "13 Ağustos 2026",
-    entry: "08:47",
-    exit: "-",
-    status: "Geldi",
-  },
-  {
-    id: 3,
-    name: "Elif Demir",
-    department: "Yazılım",
-    date: "13 Ağustos 2026",
-    entry: "09:03",
-    exit: "-",
-    status: "Geldi",
-  },
-  {
-    id: 4,
-    name: "Mehmet Kaya",
-    department: "Ar-Ge",
-    date: "13 Ağustos 2026",
-    entry: "-",
-    exit: "-",
-    status: "İzinli",
-  },
-  {
-    id: 5,
-    name: "Ayşe Yılmaz",
-    department: "Yazılım",
-    date: "13 Ağustos 2026",
-    entry: "-",
-    exit: "-",
-    status: "Gelmedi",
-  },
-];
+type DevamDurumu = "Geldi" | "Gelmedi" | "İzinli";
 
-export default function YetkiliAttendancePage() {
+type DevamKaydi = {
+  id: number;
+  stajyerId: number;
+  stajyer: string;
+  tarih: string;
+  durum: DevamDurumu;
+  aciklama: string;
+};
+
+type Stajyer = {
+  id: number;
+  ad: string;
+};
+
+export default function DevamPage() {
   const router = useRouter();
 
-  const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("Tümü");
+  /* =========================
+     STAJYERLER
+  ========================= */
+
+  const stajyerler: Stajyer[] = [
+    {
+      id: 1,
+      ad: "Zeliha Koyuncu",
+    },
+    {
+      id: 2,
+      ad: "Ahmet Yılmaz",
+    },
+    {
+      id: 3,
+      ad: "Elif Demir",
+    },
+    {
+      id: 4,
+      ad: "Mehmet Kaya",
+    },
+    {
+      id: 5,
+      ad: "Ayşe Çelik",
+    },
+  ];
+
+  /* =========================
+     DEVAM KAYITLARI
+  ========================= */
+
+  const [devamKayitlari, setDevamKayitlari] =
+    useState<DevamKaydi[]>([
+      {
+        id: 1,
+        stajyerId: 1,
+        stajyer: "Zeliha Koyuncu",
+        tarih: "13 Ağustos 2026",
+        durum: "Geldi",
+        aciklama: "",
+      },
+      {
+        id: 2,
+        stajyerId: 2,
+        stajyer: "Ahmet Yılmaz",
+        tarih: "13 Ağustos 2026",
+        durum: "Geldi",
+        aciklama: "",
+      },
+      {
+        id: 3,
+        stajyerId: 3,
+        stajyer: "Elif Demir",
+        tarih: "13 Ağustos 2026",
+        durum: "Geldi",
+        aciklama: "",
+      },
+      {
+        id: 4,
+        stajyerId: 4,
+        stajyer: "Mehmet Kaya",
+        tarih: "13 Ağustos 2026",
+        durum: "İzinli",
+        aciklama: "Önceden bildirilmiş izin.",
+      },
+      {
+        id: 5,
+        stajyerId: 5,
+        stajyer: "Ayşe Çelik",
+        tarih: "13 Ağustos 2026",
+        durum: "Gelmedi",
+        aciklama: "Devamsızlık bildirimi bulunmuyor.",
+      },
+      {
+        id: 6,
+        stajyerId: 1,
+        stajyer: "Zeliha Koyuncu",
+        tarih: "12 Ağustos 2026",
+        durum: "Geldi",
+        aciklama: "",
+      },
+      {
+        id: 7,
+        stajyerId: 2,
+        stajyer: "Ahmet Yılmaz",
+        tarih: "12 Ağustos 2026",
+        durum: "Geldi",
+        aciklama: "",
+      },
+      {
+        id: 8,
+        stajyerId: 3,
+        stajyer: "Elif Demir",
+        tarih: "12 Ağustos 2026",
+        durum: "Geldi",
+        aciklama: "",
+      },
+      {
+        id: 9,
+        stajyerId: 4,
+        stajyer: "Mehmet Kaya",
+        tarih: "12 Ağustos 2026",
+        durum: "Gelmedi",
+        aciklama: "Devamsızlık.",
+      },
+      {
+        id: 10,
+        stajyerId: 5,
+        stajyer: "Ayşe Çelik",
+        tarih: "12 Ağustos 2026",
+        durum: "Geldi",
+        aciklama: "",
+      },
+    ]);
+
+  /* =========================
+     STATE
+  ========================= */
+
+  const [stajyerId, setStajyerId] =
+    useState<string>("");
+
+  const [durum, setDurum] =
+    useState<string>("");
+
+  const [selectedKayit, setSelectedKayit] =
+    useState<DevamKaydi | null>(null);
+
+  /* =========================
+     MENÜ
+  ========================= */
 
   const menuItems = [
     {
-      icon: <DashboardIcon />,
+      icon: <Dashboard />,
       text: "Kontrol Paneli",
       path: "/yetkili",
     },
     {
-      icon: <PeopleIcon />,
+      icon: <People />,
       text: "Stajyerler",
       path: "/yetkili/stajyerler",
     },
     {
-      icon: <DescriptionIcon />,
+      icon: <Description />,
       text: "Raporlar",
       path: "/yetkili/raporlar",
     },
     {
-      icon: <EventAvailableIcon />,
+      icon: <EventAvailable />,
       text: "Devam Durumu",
       path: "/yetkili/devam",
     },
     {
-      icon: <FolderIcon />,
+      icon: <Folder />,
       text: "Belgeler",
       path: "/yetkili/belgeler",
     },
     {
-      icon: <CampaignIcon />,
+      icon: <Campaign />,
       text: "Duyurular",
       path: "/yetkili/duyurular",
     },
     {
-      icon: <NotificationsIcon />,
+      icon: <Notifications />,
       text: "Bildirimler",
       path: "/yetkili/bildirimler",
     },
     {
-      icon: <SettingsIcon />,
+      icon: <Settings />,
       text: "Ayarlar",
       path: "/yetkili/ayarlar",
     },
   ];
 
-  const filteredRecords = attendanceRecords.filter((record) => {
-    const matchesSearch = `${record.name} ${record.department}`
-      .toLowerCase()
-      .includes(search.toLowerCase());
+  /* =========================
+     FİLTRELEME
+  ========================= */
 
-    const matchesStatus =
-      statusFilter === "Tümü" ||
-      record.status === statusFilter;
+  const filtrelenmisKayitlar =
+    useMemo(() => {
+      return devamKayitlari.filter(
+        (kayit) => {
+          const stajyerUygun =
+            stajyerId === "" ||
+            kayit.stajyerId ===
+              Number(stajyerId);
 
-    return matchesSearch && matchesStatus;
-  });
+          const durumUygun =
+            durum === "" ||
+            kayit.durum === durum;
+
+          return (
+            stajyerUygun &&
+            durumUygun
+          );
+        }
+      );
+    }, [
+      devamKayitlari,
+      stajyerId,
+      durum,
+    ]);
+
+  /* =========================
+     İSTATİSTİKLER
+  ========================= */
+
+  const toplam = filtrelenmisKayitlar.length;
+
+  const geldi = filtrelenmisKayitlar.filter(
+    (kayit) => kayit.durum === "Geldi"
+  ).length;
+
+  const gelmedi = filtrelenmisKayitlar.filter(
+    (kayit) => kayit.durum === "Gelmedi"
+  ).length;
+
+  const izinli = filtrelenmisKayitlar.filter(
+    (kayit) => kayit.durum === "İzinli"
+  ).length;
+
+  /* =========================
+     DURUM STİLİ
+  ========================= */
+
+  const durumStyle = (
+    devamDurumu: DevamDurumu
+  ) => {
+    switch (devamDurumu) {
+      case "Geldi":
+        return {
+          background: "#e8f5e9",
+          color: "#2e7d32",
+        };
+
+      case "Gelmedi":
+        return {
+          background: "#ffebee",
+          color: "#c62828",
+        };
+
+      case "İzinli":
+        return {
+          background: "#fff3e0",
+          color: "#e65100",
+        };
+    }
+  };
+
+  /* =========================
+     İKON
+  ========================= */
+
+  const durumIcon = (
+    devamDurumu: DevamDurumu
+  ) => {
+    if (devamDurumu === "Geldi") {
+      return (
+        <CheckCircle
+          sx={{
+            fontSize: 18,
+            color: "#2e7d32",
+          }}
+        />
+      );
+    }
+
+    if (devamDurumu === "Gelmedi") {
+      return (
+        <Cancel
+          sx={{
+            fontSize: 18,
+            color: "#c62828",
+          }}
+        />
+      );
+    }
+
+    return (
+      <BeachAccess
+        sx={{
+          fontSize: 18,
+          color: "#e65100",
+        }}
+      />
+    );
+  };
 
   return (
     <Box
@@ -146,7 +359,10 @@ export default function YetkiliAttendancePage() {
         display: "flex",
       }}
     >
-      {/* SOL MENÜ */}
+      {/* =========================
+          SOL MENÜ
+      ========================= */}
+
       <Box
         sx={{
           width: 195,
@@ -163,6 +379,7 @@ export default function YetkiliAttendancePage() {
         }}
       >
         {/* LOGO */}
+
         <Box
           sx={{
             px: 2.2,
@@ -192,17 +409,30 @@ export default function YetkiliAttendancePage() {
         </Box>
 
         {/* MENÜ */}
-        <Box sx={{ px: 1, py: 1.5 }}>
+
+        <Box
+          sx={{
+            px: 1,
+            py: 1.5,
+          }}
+        >
           {menuItems.map((item) => {
-            const active = item.path === "/yetkili/devam";
+            const active =
+              item.path ===
+              "/yetkili/devam";
 
             return (
               <Box
                 key={item.text}
-                onClick={() => router.push(item.path)}
+                onClick={() =>
+                  router.push(
+                    item.path
+                  )
+                }
                 sx={{
                   display: "flex",
-                  alignItems: "center",
+                  alignItems:
+                    "center",
                   gap: 1.2,
                   px: 1.3,
                   py: 1.05,
@@ -210,9 +440,10 @@ export default function YetkiliAttendancePage() {
                   borderRadius: 1.5,
                   cursor: "pointer",
 
-                  backgroundColor: active
-                    ? "rgba(255,255,255,0.20)"
-                    : "transparent",
+                  backgroundColor:
+                    active
+                      ? "rgba(255,255,255,0.20)"
+                      : "transparent",
 
                   "&:hover": {
                     backgroundColor:
@@ -225,7 +456,9 @@ export default function YetkiliAttendancePage() {
                 <Box
                   sx={{
                     display: "flex",
-                    alignItems: "center",
+                    alignItems:
+                      "center",
+
                     "& svg": {
                       fontSize: 19,
                     },
@@ -237,7 +470,10 @@ export default function YetkiliAttendancePage() {
                 <Typography
                   sx={{
                     fontSize: 12,
-                    fontWeight: active ? 600 : 500,
+                    fontWeight:
+                      active
+                        ? 600
+                        : 500,
                   }}
                 >
                   {item.text}
@@ -248,6 +484,7 @@ export default function YetkiliAttendancePage() {
         </Box>
 
         {/* ÇIKIŞ */}
+
         <Box
           sx={{
             mt: "auto",
@@ -256,10 +493,15 @@ export default function YetkiliAttendancePage() {
           }}
         >
           <Box
-            onClick={() => router.push("/login/yetkili")}
+            onClick={() =>
+              router.push(
+                "/login/yetkili"
+              )
+            }
             sx={{
               display: "flex",
-              alignItems: "center",
+              alignItems:
+                "center",
               gap: 1.2,
               px: 1.3,
               py: 1,
@@ -272,7 +514,11 @@ export default function YetkiliAttendancePage() {
               },
             }}
           >
-            <LogoutIcon sx={{ fontSize: 19 }} />
+            <Logout
+              sx={{
+                fontSize: 19,
+              }}
+            />
 
             <Typography
               sx={{
@@ -286,62 +532,80 @@ export default function YetkiliAttendancePage() {
         </Box>
       </Box>
 
-      {/* SAĞ ANA ALAN */}
+      {/* =========================
+          ANA ALAN
+      ========================= */}
+
       <Box
         sx={{
           marginLeft: "195px",
-          width: "calc(100% - 195px)",
+          width:
+            "calc(100% - 195px)",
           minHeight: "100vh",
         }}
       >
         {/* ÜST BAR */}
+
         <Box
           sx={{
             height: 58,
-            backgroundColor: "white",
-            borderBottom: "1px solid #e4e7ec",
+            backgroundColor:
+              "white",
+            borderBottom:
+              "1px solid #e4e7ec",
             display: "flex",
-            alignItems: "center",
-            justifyContent: "flex-end",
+            alignItems:
+              "center",
+            justifyContent:
+              "flex-end",
             px: 3,
           }}
         >
-          <Box
+          <IconButton
             onClick={() =>
-              router.push("/yetkili/bildirimler")
+              router.push(
+                "/yetkili/bildirimler"
+              )
             }
             sx={{
-              display: "flex",
-              cursor: "pointer",
-              color: "#286B9D",
               mr: 1,
+              color: "#286B9D",
             }}
           >
-            <NotificationsIcon />
-          </Box>
+            <Notifications />
+          </IconButton>
 
           <Box
             sx={{
               width: 34,
               height: 34,
               borderRadius: "50%",
-              backgroundColor: "#EDF4F9",
+              backgroundColor:
+                "#EDF4F9",
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              alignItems:
+                "center",
+              justifyContent:
+                "center",
               color: "#286B9D",
               mr: 1,
             }}
           >
-            <PersonIcon sx={{ fontSize: 20 }} />
+            <Person
+              sx={{
+                fontSize: 20,
+              }}
+            />
           </Box>
 
           <Box>
             <Typography
               sx={{
                 fontSize: 12,
-                fontWeight: "bold",
-                color: "#17202A",
+                fontWeight:
+                  "bold",
+                color:
+                  "#17202A",
               }}
             >
               Yetkili Kullanıcı
@@ -350,7 +614,8 @@ export default function YetkiliAttendancePage() {
             <Typography
               sx={{
                 fontSize: 9,
-                color: "#64748B",
+                color:
+                  "#64748B",
               }}
             >
               Yetkili
@@ -359,6 +624,7 @@ export default function YetkiliAttendancePage() {
         </Box>
 
         {/* İÇERİK */}
+
         <Box
           sx={{
             px: {
@@ -370,13 +636,57 @@ export default function YetkiliAttendancePage() {
             mx: "auto",
           }}
         >
+          {/* GERİ */}
+
+          <Box
+            onClick={() =>
+              router.push(
+                "/yetkili"
+              )
+            }
+            sx={{
+              display:
+                "inline-flex",
+              alignItems:
+                "center",
+              gap: 0.7,
+              color:
+                "#286B9D",
+              cursor:
+                "pointer",
+              mb: 2,
+            }}
+          >
+            <ArrowBack
+              sx={{
+                fontSize: 18,
+              }}
+            />
+
+            <Typography
+              sx={{
+                fontSize: 12,
+                fontWeight: 600,
+              }}
+            >
+              Kontrol Paneline Dön
+            </Typography>
+          </Box>
+
           {/* BAŞLIK */}
-          <Box sx={{ mb: 3 }}>
+
+          <Box
+            sx={{
+              mb: 3,
+            }}
+          >
             <Typography
               sx={{
                 fontSize: 28,
-                fontWeight: "bold",
-                color: "#0F2742",
+                fontWeight:
+                  "bold",
+                color:
+                  "#0F2742",
                 mb: 0.5,
               }}
             >
@@ -385,433 +695,845 @@ export default function YetkiliAttendancePage() {
 
             <Typography
               sx={{
-                color: "#64748B",
+                color:
+                  "#64748B",
                 fontSize: 13,
               }}
             >
-              Stajyerlerin günlük devam durumlarını
-              buradan takip edebilirsiniz.
+              Stajyerlerin devam
+              durumlarını
+              buradan
+              görüntüleyebilirsiniz.
             </Typography>
           </Box>
 
-          {/* ÖZET KARTLARI */}
+          {/* =========================
+              İSTATİSTİK KARTLARI
+          ========================= */}
+
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                sm: "repeat(4, 1fr)",
-              },
+              gridTemplateColumns:
+                {
+                  xs: "1fr",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(4, 1fr)",
+                },
               gap: 2,
               mb: 3,
             }}
           >
+            {/* TOPLAM */}
+
             <Card
               elevation={0}
               sx={{
-                border: "1px solid #E4E7EC",
+                p: 2.2,
+                border:
+                  "1px solid #E4E7EC",
                 borderRadius: 2,
               }}
             >
-              <CardContent sx={{ p: 2 }}>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    color: "#64748B",
-                  }}
-                >
-                  Toplam Stajyer
-                </Typography>
+              <Typography
+                sx={{
+                  fontSize: 11,
+                  color:
+                    "#94A3B8",
+                  mb: 1,
+                }}
+              >
+                Toplam Kayıt
+              </Typography>
 
-                <Typography
-                  sx={{
-                    fontSize: 26,
-                    fontWeight: "bold",
-                    mt: 1,
-                  }}
-                >
-                  24
-                </Typography>
-              </CardContent>
+              <Typography
+                sx={{
+                  fontSize: 26,
+                  fontWeight:
+                    "bold",
+                  color:
+                    "#0F2742",
+                }}
+              >
+                {toplam}
+              </Typography>
             </Card>
 
+            {/* GELDİ */}
+
             <Card
               elevation={0}
               sx={{
-                border: "1px solid #E4E7EC",
+                p: 2.2,
+                border:
+                  "1px solid #E4E7EC",
                 borderRadius: 2,
               }}
             >
-              <CardContent sx={{ p: 2 }}>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    color: "#64748B",
-                  }}
-                >
-                  Bugün Gelen
-                </Typography>
+              <Typography
+                sx={{
+                  fontSize: 11,
+                  color:
+                    "#94A3B8",
+                  mb: 1,
+                }}
+              >
+                Geldi
+              </Typography>
 
-                <Typography
-                  sx={{
-                    fontSize: 26,
-                    fontWeight: "bold",
-                    color: "#16A34A",
-                    mt: 1,
-                  }}
-                >
-                  18
-                </Typography>
-              </CardContent>
+              <Typography
+                sx={{
+                  fontSize: 26,
+                  fontWeight:
+                    "bold",
+                  color:
+                    "#2E7D32",
+                }}
+              >
+                {geldi}
+              </Typography>
             </Card>
 
+            {/* GELMEDİ */}
+
             <Card
               elevation={0}
               sx={{
-                border: "1px solid #E4E7EC",
+                p: 2.2,
+                border:
+                  "1px solid #E4E7EC",
                 borderRadius: 2,
               }}
             >
-              <CardContent sx={{ p: 2 }}>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    color: "#64748B",
-                  }}
-                >
-                  Gelmeyen
-                </Typography>
+              <Typography
+                sx={{
+                  fontSize: 11,
+                  color:
+                    "#94A3B8",
+                  mb: 1,
+                }}
+              >
+                Gelmedi
+              </Typography>
 
-                <Typography
-                  sx={{
-                    fontSize: 26,
-                    fontWeight: "bold",
-                    color: "#DC2626",
-                    mt: 1,
-                  }}
-                >
-                  4
-                </Typography>
-              </CardContent>
+              <Typography
+                sx={{
+                  fontSize: 26,
+                  fontWeight:
+                    "bold",
+                  color:
+                    "#C62828",
+                }}
+              >
+                {gelmedi}
+              </Typography>
             </Card>
 
+            {/* İZİNLİ */}
+
             <Card
               elevation={0}
               sx={{
-                border: "1px solid #E4E7EC",
+                p: 2.2,
+                border:
+                  "1px solid #E4E7EC",
                 borderRadius: 2,
               }}
             >
-              <CardContent sx={{ p: 2 }}>
-                <Typography
-                  sx={{
-                    fontSize: 12,
-                    color: "#64748B",
-                  }}
-                >
-                  İzinli
-                </Typography>
+              <Typography
+                sx={{
+                  fontSize: 11,
+                  color:
+                    "#94A3B8",
+                  mb: 1,
+                }}
+              >
+                İzinli
+              </Typography>
 
-                <Typography
-                  sx={{
-                    fontSize: 26,
-                    fontWeight: "bold",
-                    color: "#D97706",
-                    mt: 1,
-                  }}
-                >
-                  2
-                </Typography>
-              </CardContent>
+              <Typography
+                sx={{
+                  fontSize: 26,
+                  fontWeight:
+                    "bold",
+                  color:
+                    "#E65100",
+                }}
+              >
+                {izinli}
+              </Typography>
             </Card>
           </Box>
 
-          {/* ARAMA VE FİLTRE */}
+          {/* =========================
+              FİLTRELER
+          ========================= */}
+
           <Card
             elevation={0}
             sx={{
-              border: "1px solid #E4E7EC",
+              border:
+                "1px solid #E4E7EC",
               borderRadius: 2,
               mb: 3,
             }}
           >
-            <CardContent
+            <Box
               sx={{
-                p: 2,
-                display: "flex",
-                gap: 2,
-                flexWrap: "wrap",
+                p: 2.5,
               }}
             >
-              <TextField
-                size="small"
-                placeholder="Stajyer adı veya departman ara..."
-                value={search}
-                onChange={(e) =>
-                  setSearch(e.target.value)
-                }
-                sx={{
-                  flex: 1,
-                  minWidth: 260,
-                }}
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <SearchIcon
-                        sx={{
-                          color: "#94A3B8",
-                          mr: 1,
-                        }}
-                      />
-                    ),
-                  },
-                }}
-              />
-
-              <Box
-                sx={{
-                  display: "flex",
-                  gap: 1,
-                  flexWrap: "wrap",
-                }}
-              >
-                {[
-                  "Tümü",
-                  "Geldi",
-                  "Gelmedi",
-                  "İzinli",
-                ].map((status) => (
-                  <Button
-                    key={status}
-                    variant={
-                      statusFilter === status
-                        ? "contained"
-                        : "outlined"
-                    }
-                    size="small"
-                    onClick={() =>
-                      setStatusFilter(status)
-                    }
-                    sx={{
-                      textTransform: "none",
-                      minWidth: 75,
-                      borderColor: "#286B9D",
-                      color:
-                        statusFilter === status
-                          ? "white"
-                          : "#286B9D",
-                      backgroundColor:
-                        statusFilter === status
-                          ? "#286B9D"
-                          : "transparent",
-                      "&:hover": {
-                        borderColor: "#1F557D",
-                        backgroundColor:
-                          statusFilter === status
-                            ? "#1F557D"
-                            : "#EDF4F9",
-                      },
-                    }}
-                  >
-                    {status}
-                  </Button>
-                ))}
-              </Box>
-            </CardContent>
-          </Card>
-
-          {/* DEVAM LİSTESİ */}
-          <Card
-            elevation={0}
-            sx={{
-              border: "1px solid #E4E7EC",
-              borderRadius: 2,
-            }}
-          >
-            <CardContent sx={{ p: 2.5 }}>
               <Typography
                 sx={{
-                  fontSize: 18,
-                  fontWeight: "bold",
-                  color: "#0F2742",
+                  fontSize: 15,
+                  fontWeight:
+                    "bold",
+                  color:
+                    "#0F2742",
                   mb: 2,
                 }}
               >
-                Günlük Devam Kayıtları
+                Devam Durumu Filtreleme
               </Typography>
 
-              {filteredRecords.length === 0 ? (
-                <Box
-                  sx={{
-                    py: 6,
-                    textAlign: "center",
-                  }}
-                >
-                  <EventAvailableIcon
-                    sx={{
-                      fontSize: 45,
-                      color: "#CBD5E1",
-                      mb: 1,
-                    }}
-                  />
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns:
+                    {
+                      xs: "1fr",
+                      md: "1fr 1fr",
+                    },
+                  gap: 2,
+                }}
+              >
+                {/* STAJYER */}
 
-                  <Typography
-                    sx={{
-                      color: "#64748B",
-                    }}
+                <FormControl
+                  fullWidth
+                >
+                  <InputLabel id="devam-stajyer-label">
+                    Stajyer
+                  </InputLabel>
+
+                  <Select
+                    labelId="devam-stajyer-label"
+                    value={
+                      stajyerId
+                    }
+                    label="Stajyer"
+                    onChange={(
+                      event: SelectChangeEvent
+                    ) =>
+                      setStajyerId(
+                        event
+                          .target
+                          .value
+                      )
+                    }
                   >
-                    Aramanızla eşleşen kayıt bulunamadı.
-                  </Typography>
-                </Box>
-              ) : (
-                filteredRecords.map((record, index) => (
-                  <Box key={record.id}>
+                    <MenuItem value="">
+                      Tüm Stajyerler
+                    </MenuItem>
+
+                    {stajyerler.map(
+                      (
+                        stajyer
+                      ) => (
+                        <MenuItem
+                          key={
+                            stajyer.id
+                          }
+                          value={String(
+                            stajyer.id
+                          )}
+                        >
+                          {
+                            stajyer.ad
+                          }
+                        </MenuItem>
+                      )
+                    )}
+                  </Select>
+                </FormControl>
+
+                {/* DURUM */}
+
+                <FormControl
+                  fullWidth
+                >
+                  <InputLabel id="devam-durum-label">
+                    Durum
+                  </InputLabel>
+
+                  <Select
+                    labelId="devam-durum-label"
+                    value={
+                      durum
+                    }
+                    label="Durum"
+                    onChange={(
+                      event: SelectChangeEvent
+                    ) =>
+                      setDurum(
+                        event
+                          .target
+                          .value
+                      )
+                    }
+                  >
+                    <MenuItem value="">
+                      Tüm Durumlar
+                    </MenuItem>
+
+                    <MenuItem value="Geldi">
+                      Geldi
+                    </MenuItem>
+
+                    <MenuItem value="Gelmedi">
+                      Gelmedi
+                    </MenuItem>
+
+                    <MenuItem value="İzinli">
+                      İzinli
+                    </MenuItem>
+                  </Select>
+                </FormControl>
+              </Box>
+            </Box>
+          </Card>
+
+          {/* =========================
+              DEVAM LİSTESİ
+          ========================= */}
+
+          <Card
+            elevation={0}
+            sx={{
+              border:
+                "1px solid #E4E7EC",
+              borderRadius: 2,
+              overflow: "hidden",
+            }}
+          >
+            {/* BAŞLIK */}
+
+            <Box
+              sx={{
+                px: 2.5,
+                py: 2,
+                borderBottom:
+                  "1px solid #E4E7EC",
+                backgroundColor:
+                  "#FAFBFC",
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: 15,
+                  fontWeight:
+                    "bold",
+                  color:
+                    "#0F2742",
+                }}
+              >
+                Devam Kayıtları
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: 11,
+                  color:
+                    "#64748B",
+                  mt: 0.5,
+                }}
+              >
+                {filtrelenmisKayitlar.length} kayıt
+                görüntüleniyor.
+              </Typography>
+            </Box>
+
+            {/* KAYITLAR */}
+
+            {filtrelenmisKayitlar.length >
+            0 ? (
+              filtrelenmisKayitlar.map(
+                (
+                  kayit,
+                  index
+                ) => (
+                  <Box
+                    key={
+                      kayit.id
+                    }
+                  >
                     <Box
                       sx={{
+                        px: 2.5,
                         py: 2,
-                        display: "flex",
-                        alignItems: "center",
+                        display:
+                          "grid",
+                        gridTemplateColumns:
+                          {
+                            xs: "1fr",
+                            md: "2fr 1.5fr 1fr auto",
+                          },
+                        alignItems:
+                          "center",
                         gap: 2,
-                        flexWrap: "wrap",
+
+                        "&:hover": {
+                          backgroundColor:
+                            "#FAFCFE",
+                        },
                       }}
                     >
-                      {/* PROFİL */}
+                      {/* STAJYER */}
+
                       <Box
                         sx={{
-                          width: 46,
-                          height: 46,
-                          borderRadius: "50%",
-                          backgroundColor: "#EDF4F9",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          color: "#286B9D",
+                          display:
+                            "flex",
+                          alignItems:
+                            "center",
+                          gap: 1.5,
                         }}
                       >
-                        <PersonIcon />
+                        <Box
+                          sx={{
+                            width: 40,
+                            height: 40,
+                            minWidth: 40,
+                            borderRadius:
+                              "50%",
+                            backgroundColor:
+                              "#EDF4F9",
+                            display:
+                              "flex",
+                            alignItems:
+                              "center",
+                            justifyContent:
+                              "center",
+                            color:
+                              "#286B9D",
+                          }}
+                        >
+                          <Person
+                            sx={{
+                              fontSize:
+                                21,
+                            }}
+                          />
+                        </Box>
+
+                        <Box>
+                          <Typography
+                            sx={{
+                              fontSize:
+                                13,
+                              fontWeight:
+                                "bold",
+                              color:
+                                "#1E293B",
+                            }}
+                          >
+                            {
+                              kayit.stajyer
+                            }
+                          </Typography>
+
+                          <Typography
+                            sx={{
+                              fontSize:
+                                10,
+                              color:
+                                "#94A3B8",
+                            }}
+                          >
+                            Stajyer
+                          </Typography>
+                        </Box>
                       </Box>
 
-                      {/* BİLGİ */}
-                      <Box
-                        sx={{
-                          flex: 1,
-                          minWidth: 200,
-                        }}
-                      >
+                      {/* TARİH */}
+
+                      <Box>
                         <Typography
                           sx={{
-                            fontSize: 14,
-                            fontWeight: "bold",
-                            color: "#17202A",
+                            fontSize:
+                              10,
+                            color:
+                              "#94A3B8",
+                            mb: 0.3,
                           }}
                         >
-                          {record.name}
+                          Tarih
                         </Typography>
 
                         <Typography
                           sx={{
-                            fontSize: 11,
-                            color: "#64748B",
-                            mt: 0.3,
+                            fontSize:
+                              12,
+                            fontWeight:
+                              600,
                           }}
                         >
-                          {record.department} •{" "}
-                          {record.date}
-                        </Typography>
-                      </Box>
-
-                      {/* GİRİŞ */}
-                      <Box
-                        sx={{
-                          minWidth: 75,
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            fontSize: 10,
-                            color: "#94A3B8",
-                          }}
-                        >
-                          Giriş
-                        </Typography>
-
-                        <Typography
-                          sx={{
-                            fontSize: 13,
-                            fontWeight: 600,
-                            color: "#17202A",
-                          }}
-                        >
-                          {record.entry}
-                        </Typography>
-                      </Box>
-
-                      {/* ÇIKIŞ */}
-                      <Box
-                        sx={{
-                          minWidth: 75,
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            fontSize: 10,
-                            color: "#94A3B8",
-                          }}
-                        >
-                          Çıkış
-                        </Typography>
-
-                        <Typography
-                          sx={{
-                            fontSize: 13,
-                            fontWeight: 600,
-                            color: "#17202A",
-                          }}
-                        >
-                          {record.exit}
+                          {
+                            kayit.tarih
+                          }
                         </Typography>
                       </Box>
 
                       {/* DURUM */}
+
                       <Chip
-                        icon={
-                          record.status === "Geldi" ? (
-                            <CheckCircleIcon />
-                          ) : record.status ===
-                            "İzinli" ? (
-                            <AccessTimeIcon />
-                          ) : (
-                            <CancelIcon />
-                          )
-                        }
-                        label={record.status}
-                        color={
-                          record.status === "Geldi"
-                            ? "success"
-                            : record.status ===
-                              "İzinli"
-                            ? "warning"
-                            : "error"
+                        icon={durumIcon(
+                          kayit.durum
+                        )}
+                        label={
+                          kayit.durum
                         }
                         size="small"
                         sx={{
-                          fontSize: 10,
-                          fontWeight: 600,
+                          ...durumStyle(
+                            kayit.durum
+                          ),
+                          width:
+                            "fit-content",
+                          fontWeight:
+                            600,
                         }}
                       />
+
+                      {/* DETAY */}
+
+                      <IconButton
+                        onClick={() =>
+                          setSelectedKayit(
+                            kayit
+                          )
+                        }
+                        sx={{
+                          color:
+                            "#286B9D",
+                          backgroundColor:
+                            "#EDF4F9",
+
+                          "&:hover": {
+                            backgroundColor:
+                              "#DCEBF4",
+                          },
+                        }}
+                      >
+                        <Visibility
+                          sx={{
+                            fontSize:
+                              19,
+                          }}
+                        />
+                      </IconButton>
                     </Box>
 
-                    {index !==
-                      filteredRecords.length - 1 && (
+                    {index <
+                      filtrelenmisKayitlar.length -
+                        1 && (
                       <Divider />
                     )}
                   </Box>
-                ))
-              )}
-            </CardContent>
+                )
+              )
+            ) : (
+              <Box
+                sx={{
+                  py: 7,
+                  textAlign:
+                    "center",
+                }}
+              >
+                <EventAvailable
+                  sx={{
+                    fontSize: 45,
+                    color:
+                      "#CBD5E1",
+                    mb: 1,
+                  }}
+                />
+
+                <Typography
+                  sx={{
+                    fontSize: 15,
+                    fontWeight:
+                      "bold",
+                    color:
+                      "#475569",
+                    mb: 0.5,
+                  }}
+                >
+                  Kayıt bulunamadı
+                </Typography>
+
+                <Typography
+                  sx={{
+                    fontSize: 12,
+                    color:
+                      "#94A3B8",
+                  }}
+                >
+                  Seçtiğiniz filtrelere
+                  uygun devam kaydı
+                  bulunmuyor.
+                </Typography>
+              </Box>
+            )}
           </Card>
+
+          {/* ALT BİLGİ */}
+
+          <Typography
+            sx={{
+              textAlign:
+                "center",
+              color:
+                "#94A3B8",
+              fontSize: 11,
+              mt: 3,
+            }}
+          >
+            Devam bilgileri yalnızca
+            yetkili kullanıcılar tarafından
+            görüntülenmektedir.
+          </Typography>
         </Box>
       </Box>
+
+      {/* =========================
+          DETAY MODALI
+      ========================= */}
+
+      <Dialog
+        open={
+          selectedKayit !== null
+        }
+        onClose={() =>
+          setSelectedKayit(
+            null
+          )
+        }
+        fullWidth
+        maxWidth="sm"
+      >
+        {selectedKayit && (
+          <>
+            <DialogTitle
+              sx={{
+                display:
+                  "flex",
+                alignItems:
+                  "center",
+                justifyContent:
+                  "space-between",
+                color:
+                  "#0F2742",
+                fontWeight:
+                  "bold",
+              }}
+            >
+              Devam Kaydı Detayı
+
+              <IconButton
+                onClick={() =>
+                  setSelectedKayit(
+                    null
+                  )
+                }
+              >
+                <Close />
+              </IconButton>
+            </DialogTitle>
+
+            <DialogContent
+              dividers
+            >
+              {/* PROFİL */}
+
+              <Box
+                sx={{
+                  display:
+                    "flex",
+                  alignItems:
+                    "center",
+                  gap: 2,
+                  mb: 3,
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 60,
+                    height: 60,
+                    borderRadius:
+                      "50%",
+                    backgroundColor:
+                      "#EDF4F9",
+                    display:
+                      "flex",
+                    alignItems:
+                      "center",
+                    justifyContent:
+                      "center",
+                    color:
+                      "#286B9D",
+                  }}
+                >
+                  <Person
+                    sx={{
+                      fontSize:
+                        32,
+                    }}
+                  />
+                </Box>
+
+                <Box>
+                  <Typography
+                    sx={{
+                      fontSize:
+                        20,
+                      fontWeight:
+                        "bold",
+                      color:
+                        "#0F2742",
+                    }}
+                  >
+                    {
+                      selectedKayit.stajyer
+                    }
+                  </Typography>
+
+                  <Chip
+                    icon={durumIcon(
+                      selectedKayit.durum
+                    )}
+                    label={
+                      selectedKayit.durum
+                    }
+                    size="small"
+                    sx={{
+                      ...durumStyle(
+                        selectedKayit.durum
+                      ),
+                      mt: 0.5,
+                      fontWeight:
+                        600,
+                    }}
+                  />
+                </Box>
+              </Box>
+
+              {/* TARİH */}
+
+              <Box
+                sx={{
+                  p: 2,
+                  backgroundColor:
+                    "#F8FAFC",
+                  borderRadius: 2,
+                  mb: 2,
+                }}
+              >
+                <CalendarMonth
+                  sx={{
+                    fontSize: 21,
+                    color:
+                      "#286B9D",
+                    mb: 0.5,
+                  }}
+                />
+
+                <Typography
+                  sx={{
+                    fontSize: 10,
+                    color:
+                      "#94A3B8",
+                  }}
+                >
+                  Tarih
+                </Typography>
+
+                <Typography
+                  sx={{
+                    fontSize: 14,
+                    fontWeight:
+                      600,
+                    color:
+                      "#1E293B",
+                  }}
+                >
+                  {
+                    selectedKayit.tarih
+                  }
+                </Typography>
+              </Box>
+
+              {/* AÇIKLAMA */}
+
+              <Box
+                sx={{
+                  p: 2,
+                  border:
+                    "1px solid #E4E7EC",
+                  borderRadius: 2,
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: 10,
+                    color:
+                      "#94A3B8",
+                    mb: 0.7,
+                  }}
+                >
+                  Açıklama
+                </Typography>
+
+                <Typography
+                  sx={{
+                    fontSize: 13,
+                    color:
+                      "#334155",
+                    lineHeight:
+                      1.6,
+                  }}
+                >
+                  {selectedKayit.aciklama ||
+                    "Bu kayıt için açıklama bulunmamaktadır."}
+                </Typography>
+              </Box>
+            </DialogContent>
+
+            <DialogActions
+              sx={{
+                p: 2,
+              }}
+            >
+              <Button
+                onClick={() =>
+                  setSelectedKayit(
+                    null
+                  )
+                }
+                variant="outlined"
+                sx={{
+                  borderColor:
+                    "#286B9D",
+                  color:
+                    "#286B9D",
+                }}
+              >
+                Kapat
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
     </Box>
   );
 }
