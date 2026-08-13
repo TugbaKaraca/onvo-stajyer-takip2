@@ -25,6 +25,7 @@ export default function LoginPage() {
       }}
     >
       {/* ==================== HEADER ==================== */}
+
       <Box
         component="header"
         sx={{
@@ -46,7 +47,13 @@ export default function LoginPage() {
           }}
         >
           {/* ONVO LOGO */}
-          <Link href="/">
+
+          <Link
+            href="/"
+            style={{
+              textDecoration: "none",
+            }}
+          >
             <Box
               component="img"
               src="/logo.png"
@@ -61,6 +68,7 @@ export default function LoginPage() {
           </Link>
 
           {/* HEADER BUTONLARI */}
+
           <Box
             sx={{
               display: "flex",
@@ -68,7 +76,8 @@ export default function LoginPage() {
               gap: 1.5,
             }}
           >
-            {/* KAYDOL */}
+            {/* KAYIT OL */}
+
             <Button
               variant="outlined"
               onClick={() => router.push("/kayit")}
@@ -91,6 +100,7 @@ export default function LoginPage() {
             </Button>
 
             {/* ANA SAYFA */}
+
             <Button
               variant="contained"
               onClick={() => router.push("/")}
@@ -114,7 +124,8 @@ export default function LoginPage() {
         </Box>
       </Box>
 
-      {/* ==================== GİRİŞ SEÇİM ALANI ==================== */}
+      {/* ==================== GİRİŞ ALANI ==================== */}
+
       <Box
         sx={{
           flex: 1,
@@ -145,31 +156,38 @@ export default function LoginPage() {
             }}
           >
             {/* BAŞLIK */}
-            <Typography
-              sx={{
-                fontSize: {
-                  xs: "2rem",
-                  sm: "2.4rem",
-                },
-                fontWeight: 800,
-                color: "#0f2742",
-                mb: 1,
-              }}
-            >
-              Sisteme Giriş
-            </Typography>
 
-            <Typography
+            <Box
               sx={{
-                color: "#64748b",
-                fontSize: "0.95rem",
                 mb: 4,
               }}
             >
-              Giriş yapmak istediğiniz hesabı seçin.
-            </Typography>
+              <Typography
+                sx={{
+                  fontSize: {
+                    xs: "2rem",
+                    sm: "2.4rem",
+                  },
+                  fontWeight: 800,
+                  color: "#0f2742",
+                  mb: 1,
+                }}
+              >
+                Giriş Yap
+              </Typography>
+
+              <Typography
+                sx={{
+                  color: "#64748b",
+                  fontSize: "0.95rem",
+                }}
+              >
+                Giriş yapmak istediğiniz hesabı seçin.
+              </Typography>
+            </Box>
 
             {/* ==================== STAJYER GİRİŞİ ==================== */}
+
             <Button
               fullWidth
               variant="outlined"
@@ -195,6 +213,7 @@ export default function LoginPage() {
             </Button>
 
             {/* ==================== YETKİLİ GİRİŞİ ==================== */}
+
             <Button
               fullWidth
               variant="outlined"
@@ -219,6 +238,7 @@ export default function LoginPage() {
             </Button>
 
             {/* ==================== KAYIT ==================== */}
+
             <Box
               sx={{
                 mt: 4,
@@ -260,7 +280,8 @@ export default function LoginPage() {
               </Link>
             </Box>
 
-            {/* GERİ DÖN */}
+            {/* ==================== GERİ DÖN ==================== */}
+
             <Box
               sx={{
                 mt: 2,
@@ -291,6 +312,7 @@ export default function LoginPage() {
       </Box>
 
       {/* ==================== FOOTER ==================== */}
+
       <Box
         component="footer"
         sx={{
@@ -322,6 +344,7 @@ export default function LoginPage() {
             }}
           >
             {/* LOGO */}
+
             <Box>
               <Box
                 component="img"
@@ -348,6 +371,7 @@ export default function LoginPage() {
             </Box>
 
             {/* KURUMSAL */}
+
             <Box>
               <Typography
                 sx={{
@@ -393,6 +417,7 @@ export default function LoginPage() {
             </Box>
 
             {/* DESTEK */}
+
             <Box>
               <Typography
                 sx={{
@@ -439,6 +464,7 @@ export default function LoginPage() {
           </Box>
 
           {/* ALT FOOTER */}
+
           <Box
             sx={{
               borderTop: "1px solid rgba(255,255,255,0.1)",
