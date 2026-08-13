@@ -11,16 +11,15 @@ import {
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function YetkiliLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const handleLogin = () => {
-    // Şimdilik backend bağlantısı olmadığı için
-    // dashboard yönlendirmesini daha sonra rol bazlı yapacağız.
-    console.log("Yetkili girişi");
+    router.push("/yetkili");
   };
-
   return (
     <Box
       sx={{

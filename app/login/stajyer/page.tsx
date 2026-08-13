@@ -246,7 +246,7 @@ export default function StajyerLoginPage() {
                     fontSize: "0.9rem",
                   }}
                 >
-                  KAYDOL
+                  KAYIT OL
                 </Typography>
               </Link>
             </Box>

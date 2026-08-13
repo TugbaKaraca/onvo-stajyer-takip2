@@ -79,7 +79,7 @@ export default function Home() {
                 },
               }}
             >
-              KAYDOL
+              KAYIT OL
             </Button>
 
             {/* GİRİŞ YAP */}

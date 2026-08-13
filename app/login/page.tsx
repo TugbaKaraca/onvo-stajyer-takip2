@@ -87,7 +87,7 @@ export default function LoginPage() {
                 },
               }}
             >
-              KAYDOL
+              KAYIT OL
             </Button>
 
             {/* ANA SAYFA */}
@@ -255,7 +255,7 @@ export default function LoginPage() {
                     },
                   }}
                 >
-                  KAYDOL
+                  KAYIT OL
                 </Typography>
               </Link>
             </Box>
