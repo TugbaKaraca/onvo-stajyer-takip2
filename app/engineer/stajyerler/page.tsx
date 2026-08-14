@@ -38,9 +38,10 @@ const stajyerler = [
     universite: "İstanbul Gelişim Üniversitesi",
     bolum: "Yazılım Mühendisliği",
     baslangic: "10 Ağustos 2026",
-    bitis: "5 Eylül 2026",
+    bitis: "4 Eylül 2026",
+    stajSuresi: 20,
     devamsizlik: 1,
-    rapor: "3 / 5",
+    rapor: "3 / 20",
     durum: "Aktif",
   },
   {
@@ -49,9 +50,10 @@ const stajyerler = [
     universite: "Yıldız Teknik Üniversitesi",
     bolum: "Bilgisayar Mühendisliği",
     baslangic: "10 Ağustos 2026",
-    bitis: "5 Eylül 2026",
+    bitis: "4 Eylül 2026",
+    stajSuresi: 20,
     devamsizlik: 0,
-    rapor: "4 / 5",
+    rapor: "4 / 20",
     durum: "Aktif",
   },
   {
@@ -60,9 +62,10 @@ const stajyerler = [
     universite: "İstanbul Üniversitesi",
     bolum: "Yazılım Mühendisliği",
     baslangic: "10 Ağustos 2026",
-    bitis: "5 Eylül 2026",
+    bitis: "4 Eylül 2026",
+    stajSuresi: 20,
     devamsizlik: 2,
-    rapor: "2 / 5",
+    rapor: "2 / 20",
     durum: "Aktif",
   },
   {
@@ -71,9 +74,10 @@ const stajyerler = [
     universite: "Marmara Üniversitesi",
     bolum: "Bilgisayar Mühendisliği",
     baslangic: "10 Ağustos 2026",
-    bitis: "5 Eylül 2026",
+    bitis: "4 Eylül 2026",
+    stajSuresi: 20,
     devamsizlik: 0,
-    rapor: "5 / 5",
+    rapor: "5 / 20",
     durum: "Aktif",
   },
   {
@@ -82,9 +86,10 @@ const stajyerler = [
     universite: "İstanbul Teknik Üniversitesi",
     bolum: "Yazılım Mühendisliği",
     baslangic: "10 Ağustos 2026",
-    bitis: "5 Eylül 2026",
+    bitis: "4 Eylül 2026",
+    stajSuresi: 20,
     devamsizlik: 1,
-    rapor: "3 / 5",
+    rapor: "3 / 20",
     durum: "Aktif",
   },
 ];
@@ -730,7 +735,7 @@ export default function StajyerlerPage() {
                         gridTemplateColumns: {
                           xs: "1fr",
                           sm: "repeat(2, 1fr)",
-                          md: "repeat(4, 1fr)",
+                          md: "repeat(5, 1fr)",
                         },
                         gap: 2,
                         mt: 2,
@@ -788,6 +793,32 @@ export default function StajyerlerPage() {
                         </Typography>
                       </Box>
 
+                      {/* STAJ SÜRESİ */}
+
+                      <Box>
+                        <Typography
+                          sx={{
+                            color: "#94a3b8",
+                            fontSize:
+                              "0.75rem",
+                            mb: 0.4,
+                          }}
+                        >
+                          Staj Süresi
+                        </Typography>
+
+                        <Typography
+                          sx={{
+                            color: "#334155",
+                            fontWeight: 700,
+                            fontSize:
+                              "0.85rem",
+                          }}
+                        >
+                          {stajyer.stajSuresi} gün
+                        </Typography>
+                      </Box>
+
                       {/* DEVAMSIZLIK */}
 
                       <Box>
@@ -814,7 +845,7 @@ export default function StajyerlerPage() {
                               "0.85rem",
                           }}
                         >
-                          {stajyer.devamsizlik} gün
+                          {stajyer.devamsizlik} / {stajyer.stajSuresi} gün
                         </Typography>
                       </Box>
 
@@ -1047,6 +1078,27 @@ export default function StajyerlerPage() {
                       mb: 0.5,
                     }}
                   >
+                    Staj Süresi
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      color: "#334155",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {seciliStajyer.stajSuresi} gün
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography
+                    sx={{
+                      color: "#94a3b8",
+                      fontSize: 12,
+                      mb: 0.5,
+                    }}
+                  >
                     Devamsızlık
                   </Typography>
 
@@ -1060,7 +1112,7 @@ export default function StajyerlerPage() {
                       fontWeight: 700,
                     }}
                   >
-                    {seciliStajyer.devamsizlik} gün
+                    {seciliStajyer.devamsizlik} / {seciliStajyer.stajSuresi} gün
                   </Typography>
                 </Box>
 
