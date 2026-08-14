@@ -22,7 +22,7 @@ import CampaignIcon from "@mui/icons-material/Campaign";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import SettingsIcon from "@mui/icons-material/Settings";
 import PersonIcon from "@mui/icons-material/Person";
-import LogoutIcon from "@mui/icons-material/Logout";
+
 import Link from "next/link";
 
 export default function AyarlarPage() {
@@ -85,14 +85,12 @@ export default function AyarlarPage() {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: "#f5f7fa",
+        background: "#f5f7fa",
+        display: "flex",
         color: "#17202a",
       }}
     >
-      {/* =========================
-          SOL MENÜ
-      ========================= */}
-
+      {/* ================= SOL MENÜ ================= */}
       <Box
         component="aside"
         sx={{
@@ -111,13 +109,11 @@ export default function AyarlarPage() {
         }}
       >
         {/* LOGO */}
-
         <Box
           sx={{
             px: 2.2,
             py: 2.2,
-            borderBottom:
-              "1px solid rgba(255,255,255,0.15)",
+            borderBottom: "1px solid rgba(255,255,255,0.15)",
           }}
         >
           <Typography
@@ -141,7 +137,6 @@ export default function AyarlarPage() {
         </Box>
 
         {/* MENÜ */}
-
         <Box
           sx={{
             px: 1,
@@ -208,9 +203,9 @@ export default function AyarlarPage() {
         </Box>
 
         {/* ÇIKIŞ */}
-
         <Box
           sx={{
+            mt: "auto",
             px: 1,
             pb: 2,
           }}
@@ -237,7 +232,13 @@ export default function AyarlarPage() {
                 },
               }}
             >
-              <LogoutIcon sx={{ fontSize: 19 }} />
+              <Typography
+                sx={{
+                  fontSize: 19,
+                }}
+              >
+                ⇥
+              </Typography>
 
               <Typography
                 sx={{
@@ -252,10 +253,7 @@ export default function AyarlarPage() {
         </Box>
       </Box>
 
-      {/* =========================
-          ANA ALAN
-      ========================= */}
-
+      {/* ================= ANA ALAN ================= */}
       <Box
         sx={{
           marginLeft: "195px",
@@ -263,17 +261,13 @@ export default function AyarlarPage() {
           minHeight: "100vh",
         }}
       >
-        {/* =========================
-            ÜST BAR
-        ========================= */}
-
+        {/* ================= ÜST NAVBAR ================= */}
         <Box
           component="header"
           sx={{
             height: 58,
-            backgroundColor: "white",
-            borderBottom:
-              "1px solid #e4e7ec",
+            backgroundColor: "#ffffff",
+            borderBottom: "1px solid #e4e7ec",
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-end",
@@ -302,7 +296,11 @@ export default function AyarlarPage() {
               mr: 1,
             }}
           >
-            <PersonIcon sx={{ fontSize: 20 }} />
+            <PersonIcon
+              sx={{
+                fontSize: 20,
+              }}
+            />
           </Box>
 
           <Box>
@@ -327,21 +325,20 @@ export default function AyarlarPage() {
           </Box>
         </Box>
 
-        {/* =========================
-            İÇERİK
-        ========================= */}
-
+        {/* ================= İÇERİK ================= */}
         <Box
           component="main"
           sx={{
-            p: {
-              xs: 3,
+            px: {
+              xs: 2,
               md: 4,
             },
+            py: 3,
+            maxWidth: 1400,
+            mx: "auto",
           }}
         >
           {/* BAŞLIK */}
-
           <Box sx={{ mb: 3 }}>
             <Typography
               sx={{
@@ -364,8 +361,7 @@ export default function AyarlarPage() {
             </Typography>
           </Box>
 
-          {/* HESAP BİLGİLERİ */}
-
+          {/* ================= HESAP BİLGİLERİ ================= */}
           <Paper
             elevation={0}
             sx={{
@@ -376,6 +372,7 @@ export default function AyarlarPage() {
                 md: 3,
               },
               mb: 3,
+              background: "#ffffff",
             }}
           >
             <Typography
@@ -441,8 +438,7 @@ export default function AyarlarPage() {
             </Box>
           </Paper>
 
-          {/* BİLDİRİM AYARLARI */}
-
+          {/* ================= BİLDİRİM AYARLARI ================= */}
           <Paper
             elevation={0}
             sx={{
@@ -453,6 +449,7 @@ export default function AyarlarPage() {
                 md: 3,
               },
               mb: 3,
+              background: "#ffffff",
             }}
           >
             <Typography
@@ -558,8 +555,7 @@ export default function AyarlarPage() {
             </Box>
           </Paper>
 
-          {/* SİSTEM AYARLARI */}
-
+          {/* ================= SİSTEM AYARLARI ================= */}
           <Paper
             elevation={0}
             sx={{
@@ -570,6 +566,7 @@ export default function AyarlarPage() {
                 md: 3,
               },
               mb: 3,
+              background: "#ffffff",
             }}
           >
             <Typography
@@ -631,8 +628,7 @@ export default function AyarlarPage() {
             </Box>
           </Paper>
 
-          {/* KAYDET */}
-
+          {/* ================= KAYDET ================= */}
           <Paper
             elevation={0}
             sx={{
@@ -644,6 +640,7 @@ export default function AyarlarPage() {
               justifyContent: "space-between",
               gap: 2,
               flexWrap: "wrap",
+              background: "#ffffff",
             }}
           >
             <Box>
@@ -669,7 +666,6 @@ export default function AyarlarPage() {
                 borderRadius: 1.5,
                 fontWeight: 700,
                 boxShadow: "none",
-
                 "&:hover": {
                   background: "#173b61",
                   boxShadow: "none",

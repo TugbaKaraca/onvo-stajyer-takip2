@@ -31,71 +31,65 @@ import {
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
-const stajyerler = [
+const raporlar = [
   {
     id: 1,
-    adSoyad: "Zeynep Kaya",
-    universite: "İstanbul Gelişim Üniversitesi",
+    stajyer: "Zeynep Kaya",
     bolum: "Yazılım Mühendisliği",
-    baslangic: "10 Ağustos 2026",
-    bitis: "5 Eylül 2026",
-    devamsizlik: 1,
-    rapor: "3 / 5",
-    durum: "Aktif",
+    rapor: "1. Hafta Staj Raporu",
+    tarih: "15 Ağustos 2026",
+    durum: "İnceleniyor",
+    aciklama:
+      "İlk hafta içerisinde gerçekleştirilen çalışmalar, öğrenilen teknolojiler ve yapılan görevler hakkında staj raporu.",
   },
   {
     id: 2,
-    adSoyad: "Mehmet Demir",
-    universite: "Yıldız Teknik Üniversitesi",
+    stajyer: "Mehmet Demir",
     bolum: "Bilgisayar Mühendisliği",
-    baslangic: "10 Ağustos 2026",
-    bitis: "5 Eylül 2026",
-    devamsizlik: 0,
-    rapor: "4 / 5",
-    durum: "Aktif",
+    rapor: "1. Hafta Staj Raporu",
+    tarih: "15 Ağustos 2026",
+    durum: "Onaylandı",
+    aciklama:
+      "İlk hafta içerisinde gerçekleştirilen çalışmalar ve proje sürecinde yapılan görevlerin özeti.",
   },
   {
     id: 3,
-    adSoyad: "Elif Çelik",
-    universite: "İstanbul Üniversitesi",
+    stajyer: "Elif Çelik",
     bolum: "Yazılım Mühendisliği",
-    baslangic: "10 Ağustos 2026",
-    bitis: "5 Eylül 2026",
-    devamsizlik: 2,
-    rapor: "2 / 5",
-    durum: "Aktif",
+    rapor: "1. Hafta Staj Raporu",
+    tarih: "15 Ağustos 2026",
+    durum: "İnceleniyor",
+    aciklama:
+      "Staj sürecinde gerçekleştirilen çalışmalar ve edinilen teknik kazanımlar hakkında rapor.",
   },
   {
     id: 4,
-    adSoyad: "Burak Yılmaz",
-    universite: "Marmara Üniversitesi",
+    stajyer: "Burak Yılmaz",
     bolum: "Bilgisayar Mühendisliği",
-    baslangic: "10 Ağustos 2026",
-    bitis: "5 Eylül 2026",
-    devamsizlik: 0,
-    rapor: "5 / 5",
-    durum: "Aktif",
+    rapor: "1. Hafta Staj Raporu",
+    tarih: "15 Ağustos 2026",
+    durum: "Onaylandı",
+    aciklama:
+      "Hafta boyunca gerçekleştirilen yazılım geliştirme çalışmaları ve proje görevleri.",
   },
   {
     id: 5,
-    adSoyad: "Sena Aydın",
-    universite: "İstanbul Teknik Üniversitesi",
+    stajyer: "Sena Aydın",
     bolum: "Yazılım Mühendisliği",
-    baslangic: "10 Ağustos 2026",
-    bitis: "5 Eylül 2026",
-    devamsizlik: 1,
-    rapor: "3 / 5",
-    durum: "Aktif",
+    rapor: "1. Hafta Staj Raporu",
+    tarih: "15 Ağustos 2026",
+    durum: "Bekliyor",
+    aciklama:
+      "Stajyer tarafından hazırlanması beklenen haftalık staj raporu.",
   },
 ];
 
-export default function StajyerlerPage() {
+export default function RaporlarPage() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [seciliStajyer, setSeciliStajyer] = useState<
-    (typeof stajyerler)[number] | null
-  >(null);
+  const [seciliRapor, setSeciliRapor] =
+    useState<(typeof raporlar)[number] | null>(null);
 
   const menuItems = [
     {
@@ -137,6 +131,39 @@ export default function StajyerlerPage() {
 
   const handleLogout = () => {
     router.push("/login");
+  };
+
+  const onaylanan = raporlar.filter(
+    (rapor) => rapor.durum === "Onaylandı"
+  ).length;
+
+  const incelenen = raporlar.filter(
+    (rapor) => rapor.durum === "İnceleniyor"
+  ).length;
+
+  const bekleyen = raporlar.filter(
+    (rapor) => rapor.durum === "Bekliyor"
+  ).length;
+
+  const durumRengi = (durum: string) => {
+    if (durum === "Onaylandı") {
+      return {
+        background: "#dcfce7",
+        color: "#166534",
+      };
+    }
+
+    if (durum === "İnceleniyor") {
+      return {
+        background: "#fef3c7",
+        color: "#92400e",
+      };
+    }
+
+    return {
+      background: "#fee2e2",
+      color: "#991b1b",
+    };
   };
 
   return (
@@ -224,14 +251,17 @@ export default function StajyerlerPage() {
                   justifyContent: "flex-start",
                   textTransform: "none",
                   color: "#ffffff",
+
                   backgroundColor: active
                     ? "rgba(255,255,255,0.20)"
                     : "transparent",
+
                   borderRadius: 1.5,
                   px: 1.3,
                   py: 1.05,
                   mb: 0.35,
                   minHeight: 38,
+
                   fontSize: 12,
                   fontWeight: active ? 600 : 500,
 
@@ -276,10 +306,13 @@ export default function StajyerlerPage() {
               justifyContent: "flex-start",
               textTransform: "none",
               color: "#ffffff",
+
               px: 1.3,
               py: 1,
               minHeight: 38,
+
               borderRadius: 1.5,
+
               fontSize: 12,
               fontWeight: 500,
 
@@ -318,7 +351,7 @@ export default function StajyerlerPage() {
         }}
       >
         {/* =====================================================
-            ÜST NAVBAR
+            NAVBAR
         ===================================================== */}
 
         <Box
@@ -328,9 +361,11 @@ export default function StajyerlerPage() {
             backgroundColor: "#ffffff",
             borderBottom:
               "1px solid #e4e7ec",
+
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-end",
+
             px: 3,
           }}
         >
@@ -349,9 +384,11 @@ export default function StajyerlerPage() {
               height: 34,
               borderRadius: "50%",
               backgroundColor: "#EDF4F9",
+
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+
               color: "#286B9D",
               mr: 1,
             }}
@@ -399,20 +436,16 @@ export default function StajyerlerPage() {
         >
           {/* BAŞLIK */}
 
-          <Box
-            sx={{
-              mb: 3,
-            }}
-          >
+          <Box sx={{ mb: 3 }}>
             <Box
               sx={{
                 display: "flex",
                 alignItems: "center",
                 gap: 1.5,
-                mb: 1,
+                mb: 0.7,
               }}
             >
-              <GroupsOutlined
+              <DescriptionOutlined
                 sx={{
                   color: "#1f6fae",
                   fontSize: 32,
@@ -429,7 +462,7 @@ export default function StajyerlerPage() {
                   color: "#0f2742",
                 }}
               >
-                Stajyerlerim
+                Raporlar
               </Typography>
             </Box>
 
@@ -439,8 +472,8 @@ export default function StajyerlerPage() {
                 fontSize: 13,
               }}
             >
-              Size bağlı stajyerleri ve staj süreçlerini
-              buradan takip edebilirsiniz.
+              Stajyerleriniz tarafından gönderilen
+              raporları buradan inceleyebilirsiniz.
             </Typography>
           </Box>
 
@@ -459,94 +492,7 @@ export default function StajyerlerPage() {
               mb: 3,
             }}
           >
-            {/* TOPLAM STAJYER */}
-
-            <Card
-              elevation={0}
-              sx={{
-                border:
-                  "1px solid #dfe5ec",
-                borderRadius: 2,
-                background: "#ffffff",
-              }}
-            >
-              <CardContent>
-                <GroupsOutlined
-                  sx={{
-                    color: "#1f6fae",
-                    fontSize: 30,
-                    mb: 1,
-                  }}
-                />
-
-                <Typography
-                  sx={{
-                    color: "#64748b",
-                    fontSize: "0.85rem",
-                  }}
-                >
-                  Toplam Stajyer
-                </Typography>
-
-                <Typography
-                  sx={{
-                    color: "#0f2742",
-                    fontSize: "2rem",
-                    fontWeight: 800,
-                  }}
-                >
-                  {stajyerler.length}
-                </Typography>
-              </CardContent>
-            </Card>
-
-            {/* DEVAMSIZLIK */}
-
-            <Card
-              elevation={0}
-              sx={{
-                border:
-                  "1px solid #dfe5ec",
-                borderRadius: 2,
-                background: "#ffffff",
-              }}
-            >
-              <CardContent>
-                <EventBusyOutlined
-                  sx={{
-                    color: "#e65100",
-                    fontSize: 30,
-                    mb: 1,
-                  }}
-                />
-
-                <Typography
-                  sx={{
-                    color: "#64748b",
-                    fontSize: "0.85rem",
-                  }}
-                >
-                  Devamsızlığı Olan
-                </Typography>
-
-                <Typography
-                  sx={{
-                    color: "#0f2742",
-                    fontSize: "2rem",
-                    fontWeight: 800,
-                  }}
-                >
-                  {
-                    stajyerler.filter(
-                      (stajyer) =>
-                        stajyer.devamsizlik > 0
-                    ).length
-                  }
-                </Typography>
-              </CardContent>
-            </Card>
-
-            {/* RAPORLAR */}
+            {/* ONAYLANAN */}
 
             <Card
               elevation={0}
@@ -572,7 +518,7 @@ export default function StajyerlerPage() {
                     fontSize: "0.85rem",
                   }}
                 >
-                  Stajyer Sayısı
+                  Onaylanan Rapor
                 </Typography>
 
                 <Typography
@@ -582,14 +528,96 @@ export default function StajyerlerPage() {
                     fontWeight: 800,
                   }}
                 >
-                  {stajyerler.length}
+                  {onaylanan}
+                </Typography>
+              </CardContent>
+            </Card>
+
+            {/* İNCELENEN */}
+
+            <Card
+              elevation={0}
+              sx={{
+                border:
+                  "1px solid #dfe5ec",
+                borderRadius: 2,
+                background: "#ffffff",
+              }}
+            >
+              <CardContent>
+                <DescriptionOutlined
+                  sx={{
+                    color: "#d97706",
+                    fontSize: 30,
+                    mb: 1,
+                  }}
+                />
+
+                <Typography
+                  sx={{
+                    color: "#64748b",
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  İncelenen Rapor
+                </Typography>
+
+                <Typography
+                  sx={{
+                    color: "#0f2742",
+                    fontSize: "2rem",
+                    fontWeight: 800,
+                  }}
+                >
+                  {incelenen}
+                </Typography>
+              </CardContent>
+            </Card>
+
+            {/* BEKLEYEN */}
+
+            <Card
+              elevation={0}
+              sx={{
+                border:
+                  "1px solid #dfe5ec",
+                borderRadius: 2,
+                background: "#ffffff",
+              }}
+            >
+              <CardContent>
+                <DescriptionOutlined
+                  sx={{
+                    color: "#dc2626",
+                    fontSize: 30,
+                    mb: 1,
+                  }}
+                />
+
+                <Typography
+                  sx={{
+                    color: "#64748b",
+                    fontSize: "0.85rem",
+                  }}
+                >
+                  Bekleyen Rapor
+                </Typography>
+
+                <Typography
+                  sx={{
+                    color: "#0f2742",
+                    fontSize: "2rem",
+                    fontWeight: 800,
+                  }}
+                >
+                  {bekleyen}
                 </Typography>
               </CardContent>
             </Card>
           </Box>
 
           {/* =====================================================
-              STAJYER LİSTESİ
+              RAPOR LİSTESİ
           ===================================================== */}
 
           <Card
@@ -617,7 +645,7 @@ export default function StajyerlerPage() {
                   mb: 0.5,
                 }}
               >
-                Stajyer Listesi
+                Stajyer Raporları
               </Typography>
 
               <Typography
@@ -627,13 +655,11 @@ export default function StajyerlerPage() {
                   mb: 2,
                 }}
               >
-                Size bağlı stajyerlerin güncel durumlarını
-                görüntüleyebilirsiniz.
+                Gönderilen raporları ve inceleme
+                durumlarını görüntüleyebilirsiniz.
               </Typography>
 
               <Divider sx={{ mb: 2 }} />
-
-              {/* LİSTE */}
 
               <Box
                 sx={{
@@ -642,251 +668,209 @@ export default function StajyerlerPage() {
                   gap: 1.5,
                 }}
               >
-                {stajyerler.map((stajyer) => (
-                  <Box
-                    key={stajyer.id}
-                    sx={{
-                      border:
-                        "1px solid #e2e8f0",
-                      borderRadius: 2,
-                      p: {
-                        xs: 2,
-                        md: 2.5,
-                      },
+                {raporlar.map((rapor) => {
+                  const renk = durumRengi(
+                    rapor.durum
+                  );
 
-                      transition:
-                        "all 0.2s ease",
-
-                      "&:hover": {
-                        borderColor: "#b8c7d9",
-                        boxShadow:
-                          "0 4px 15px rgba(15,39,66,0.06)",
-                      },
-                    }}
-                  >
-                    {/* ÜST KISIM */}
-
+                  return (
                     <Box
+                      key={rapor.id}
                       sx={{
-                        display: "flex",
-                        justifyContent:
-                          "space-between",
-                        alignItems: {
-                          xs: "flex-start",
-                          sm: "center",
+                        border:
+                          "1px solid #e2e8f0",
+                        borderRadius: 2,
+                        p: {
+                          xs: 2,
+                          md: 2.5,
                         },
-                        flexDirection: {
-                          xs: "column",
-                          sm: "row",
+
+                        transition:
+                          "all 0.2s ease",
+
+                        "&:hover": {
+                          borderColor:
+                            "#b8c7d9",
+                          boxShadow:
+                            "0 4px 15px rgba(15,39,66,0.06)",
                         },
-                        gap: 1.5,
                       }}
                     >
-                      {/* AD */}
-
-                      <Box>
-                        <Typography
-                          sx={{
-                            fontWeight: 800,
-                            color: "#0f2742",
-                            fontSize:
-                              "1.05rem",
-                          }}
-                        >
-                          {stajyer.adSoyad}
-                        </Typography>
-
-                        <Typography
-                          sx={{
-                            color: "#64748b",
-                            fontSize:
-                              "0.85rem",
-                            mt: 0.3,
-                          }}
-                        >
-                          {stajyer.bolum}
-                        </Typography>
-                      </Box>
-
-                      {/* DURUM */}
-
-                      <Chip
-                        label={stajyer.durum}
-                        size="small"
+                      <Box
                         sx={{
-                          background:
-                            "#dcfce7",
-                          color: "#166534",
-                          fontWeight: 700,
+                          display: "flex",
+                          alignItems: {
+                            xs: "flex-start",
+                            md: "center",
+                          },
+                          justifyContent:
+                            "space-between",
+                          flexDirection: {
+                            xs: "column",
+                            md: "row",
+                          },
+                          gap: 2,
                         }}
-                      />
-                    </Box>
+                      >
+                        {/* RAPOR BİLGİSİ */}
 
-                    {/* DETAYLAR */}
-
-                    <Box
-                      sx={{
-                        display: "grid",
-                        gridTemplateColumns: {
-                          xs: "1fr",
-                          sm: "repeat(2, 1fr)",
-                          md: "repeat(4, 1fr)",
-                        },
-                        gap: 2,
-                        mt: 2,
-                      }}
-                    >
-                      {/* ÜNİVERSİTE */}
-
-                      <Box>
-                        <Typography
+                        <Box
                           sx={{
-                            color: "#94a3b8",
-                            fontSize:
-                              "0.75rem",
-                            mb: 0.4,
+                            display: "flex",
+                            alignItems:
+                              "flex-start",
+                            gap: 1.5,
                           }}
                         >
-                          Üniversite
-                        </Typography>
+                          <Box
+                            sx={{
+                              width: 42,
+                              height: 42,
+                              borderRadius: 1.5,
+                              background:
+                                "#EDF4F9",
+                              display: "flex",
+                              alignItems:
+                                "center",
+                              justifyContent:
+                                "center",
+                              flexShrink: 0,
+                            }}
+                          >
+                            <DescriptionOutlined
+                              sx={{
+                                color:
+                                  "#286B9D",
+                                fontSize: 22,
+                              }}
+                            />
+                          </Box>
 
-                        <Typography
+                          <Box>
+                            <Typography
+                              sx={{
+                                fontWeight: 800,
+                                color:
+                                  "#0f2742",
+                                fontSize:
+                                  "0.95rem",
+                              }}
+                            >
+                              {rapor.rapor}
+                            </Typography>
+
+                            <Typography
+                              sx={{
+                                color:
+                                  "#64748b",
+                                fontSize:
+                                  "0.8rem",
+                                mt: 0.3,
+                              }}
+                            >
+                              {rapor.stajyer}
+                            </Typography>
+
+                            <Typography
+                              sx={{
+                                color:
+                                  "#94a3b8",
+                                fontSize:
+                                  "0.75rem",
+                                mt: 0.2,
+                              }}
+                            >
+                              {rapor.bolum}
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        {/* DURUM */}
+
+                        <Chip
+                          label={rapor.durum}
+                          size="small"
                           sx={{
-                            color: "#334155",
-                            fontSize:
-                              "0.85rem",
+                            background:
+                              renk.background,
+                            color:
+                              renk.color,
+                            fontWeight: 700,
                           }}
-                        >
-                          {stajyer.universite}
-                        </Typography>
+                        />
                       </Box>
 
-                      {/* STAJ TARİHİ */}
+                      {/* ALT BİLGİLER */}
 
-                      <Box>
-                        <Typography
-                          sx={{
-                            color: "#94a3b8",
-                            fontSize:
-                              "0.75rem",
-                            mb: 0.4,
-                          }}
-                        >
-                          Staj Tarihi
-                        </Typography>
-
-                        <Typography
-                          sx={{
-                            color: "#334155",
-                            fontSize:
-                              "0.85rem",
-                          }}
-                        >
-                          {stajyer.baslangic}
-                          <br />
-                          {stajyer.bitis}
-                        </Typography>
-                      </Box>
-
-                      {/* DEVAMSIZLIK */}
-
-                      <Box>
-                        <Typography
-                          sx={{
-                            color: "#94a3b8",
-                            fontSize:
-                              "0.75rem",
-                            mb: 0.4,
-                          }}
-                        >
-                          Devamsızlık
-                        </Typography>
-
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: {
+                            xs: "flex-start",
+                            md: "center",
+                          },
+                          justifyContent:
+                            "space-between",
+                          flexDirection: {
+                            xs: "column",
+                            md: "row",
+                          },
+                          gap: 2,
+                          mt: 2,
+                          pt: 2,
+                          borderTop:
+                            "1px solid #f1f5f9",
+                        }}
+                      >
                         <Typography
                           sx={{
                             color:
-                              stajyer.devamsizlik >
-                              0
-                                ? "#c2410c"
-                                : "#166534",
-                            fontWeight: 700,
+                              "#64748b",
                             fontSize:
-                              "0.85rem",
+                              "0.8rem",
                           }}
                         >
-                          {stajyer.devamsizlik} gün
+                          Gönderim Tarihi:{" "}
+                          <strong>
+                            {rapor.tarih}
+                          </strong>
                         </Typography>
-                      </Box>
 
-                      {/* RAPOR */}
-
-                      <Box>
-                        <Typography
+                        <Button
+                          variant="outlined"
+                          size="small"
+                          startIcon={
+                            <VisibilityOutlined />
+                          }
+                          onClick={() =>
+                            setSeciliRapor(
+                              rapor
+                            )
+                          }
                           sx={{
-                            color: "#94a3b8",
-                            fontSize:
-                              "0.75rem",
-                            mb: 0.4,
-                          }}
-                        >
-                          Rapor
-                        </Typography>
-
-                        <Typography
-                          sx={{
-                            color: "#334155",
-                            fontWeight: 700,
-                            fontSize:
-                              "0.85rem",
-                          }}
-                        >
-                          {stajyer.rapor}
-                        </Typography>
-                      </Box>
-                    </Box>
-
-                    {/* BUTON */}
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        justifyContent:
-                          "flex-end",
-                        mt: 2,
-                      }}
-                    >
-                      <Button
-                        variant="outlined"
-                        size="small"
-                        startIcon={
-                          <VisibilityOutlined />
-                        }
-                        onClick={() =>
-                          setSeciliStajyer(
-                            stajyer
-                          )
-                        }
-                        sx={{
-                          borderColor:
-                            "#cbd5e1",
-                          color: "#0f2742",
-                          textTransform:
-                            "none",
-                          borderRadius: 1.5,
-
-                          "&:hover": {
                             borderColor:
+                              "#cbd5e1",
+                            color:
                               "#0f2742",
-                            background:
-                              "#f5f8fb",
-                          },
-                        }}
-                      >
-                        Detayları Gör
-                      </Button>
+                            textTransform:
+                              "none",
+                            borderRadius:
+                              1.5,
+
+                            "&:hover": {
+                              borderColor:
+                                "#0f2742",
+                              background:
+                                "#f5f8fb",
+                            },
+                          }}
+                        >
+                          Raporu Görüntüle
+                        </Button>
+                      </Box>
                     </Box>
-                  </Box>
-                ))}
+                  );
+                })}
               </Box>
             </CardContent>
           </Card>
@@ -894,18 +878,18 @@ export default function StajyerlerPage() {
       </Box>
 
       {/* =====================================================
-          STAJYER DETAY PENCERESİ
+          RAPOR DETAY MODALI
       ===================================================== */}
 
       <Dialog
-        open={Boolean(seciliStajyer)}
+        open={Boolean(seciliRapor)}
         onClose={() =>
-          setSeciliStajyer(null)
+          setSeciliRapor(null)
         }
         fullWidth
         maxWidth="sm"
       >
-        {seciliStajyer && (
+        {seciliRapor && (
           <>
             <DialogTitle
               sx={{
@@ -914,11 +898,11 @@ export default function StajyerlerPage() {
                 pr: 6,
               }}
             >
-              {seciliStajyer.adSoyad}
+              {seciliRapor.rapor}
 
               <IconButton
                 onClick={() =>
-                  setSeciliStajyer(null)
+                  setSeciliRapor(null)
                 }
                 sx={{
                   position: "absolute",
@@ -939,7 +923,8 @@ export default function StajyerlerPage() {
                   mb: 2,
                 }}
               >
-                {seciliStajyer.bolum}
+                {seciliRapor.stajyer} •{" "}
+                {seciliRapor.bolum}
               </Typography>
 
               <Divider sx={{ mb: 2 }} />
@@ -952,6 +937,7 @@ export default function StajyerlerPage() {
                     sm: "1fr 1fr",
                   },
                   gap: 2,
+                  mb: 3,
                 }}
               >
                 <Box>
@@ -962,7 +948,7 @@ export default function StajyerlerPage() {
                       mb: 0.5,
                     }}
                   >
-                    Üniversite
+                    Stajyer
                   </Typography>
 
                   <Typography
@@ -971,7 +957,28 @@ export default function StajyerlerPage() {
                       fontWeight: 600,
                     }}
                   >
-                    {seciliStajyer.universite}
+                    {seciliRapor.stajyer}
+                  </Typography>
+                </Box>
+
+                <Box>
+                  <Typography
+                    sx={{
+                      color: "#94a3b8",
+                      fontSize: 12,
+                      mb: 0.5,
+                    }}
+                  >
+                    Gönderim Tarihi
+                  </Typography>
+
+                  <Typography
+                    sx={{
+                      color: "#334155",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {seciliRapor.tarih}
                   </Typography>
                 </Box>
 
@@ -987,127 +994,79 @@ export default function StajyerlerPage() {
                   </Typography>
 
                   <Chip
-                    label={seciliStajyer.durum}
+                    label={seciliRapor.durum}
                     size="small"
                     sx={{
-                      background: "#dcfce7",
-                      color: "#166534",
+                      background:
+                        durumRengi(
+                          seciliRapor.durum
+                        ).background,
+                      color:
+                        durumRengi(
+                          seciliRapor.durum
+                        ).color,
                       fontWeight: 700,
                     }}
                   />
                 </Box>
+              </Box>
 
-                <Box>
-                  <Typography
-                    sx={{
-                      color: "#94a3b8",
-                      fontSize: 12,
-                      mb: 0.5,
-                    }}
-                  >
-                    Staj Başlangıcı
-                  </Typography>
+              <Typography
+                sx={{
+                  color: "#0f2742",
+                  fontWeight: 700,
+                  mb: 1,
+                }}
+              >
+                Rapor Özeti
+              </Typography>
 
-                  <Typography
-                    sx={{
-                      color: "#334155",
-                      fontWeight: 600,
-                    }}
-                  >
-                    {seciliStajyer.baslangic}
-                  </Typography>
-                </Box>
-
-                <Box>
-                  <Typography
-                    sx={{
-                      color: "#94a3b8",
-                      fontSize: 12,
-                      mb: 0.5,
-                    }}
-                  >
-                    Staj Bitişi
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      color: "#334155",
-                      fontWeight: 600,
-                    }}
-                  >
-                    {seciliStajyer.bitis}
-                  </Typography>
-                </Box>
-
-                <Box>
-                  <Typography
-                    sx={{
-                      color: "#94a3b8",
-                      fontSize: 12,
-                      mb: 0.5,
-                    }}
-                  >
-                    Devamsızlık
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      color:
-                        seciliStajyer.devamsizlik >
-                        0
-                          ? "#c2410c"
-                          : "#166534",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {seciliStajyer.devamsizlik} gün
-                  </Typography>
-                </Box>
-
-                <Box>
-                  <Typography
-                    sx={{
-                      color: "#94a3b8",
-                      fontSize: 12,
-                      mb: 0.5,
-                    }}
-                  >
-                    Rapor Durumu
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      color: "#334155",
-                      fontWeight: 700,
-                    }}
-                  >
-                    {seciliStajyer.rapor}
-                  </Typography>
-                </Box>
+              <Box
+                sx={{
+                  background: "#f8fafc",
+                  border:
+                    "1px solid #e2e8f0",
+                  borderRadius: 2,
+                  p: 2,
+                  mb: 3,
+                }}
+              >
+                <Typography
+                  sx={{
+                    color: "#475569",
+                    fontSize: 14,
+                    lineHeight: 1.7,
+                  }}
+                >
+                  {seciliRapor.aciklama}
+                </Typography>
               </Box>
 
               <Box
                 sx={{
                   display: "flex",
-                  justifyContent: "flex-end",
-                  mt: 3,
+                  justifyContent:
+                    "flex-end",
                 }}
               >
                 <Button
                   variant="contained"
                   onClick={() =>
-                    setSeciliStajyer(null)
+                    setSeciliRapor(null)
                   }
                   sx={{
                     background: "#0f2742",
-                    textTransform: "none",
+                    textTransform:
+                      "none",
                     borderRadius: 1.5,
                     px: 3,
                     boxShadow: "none",
 
                     "&:hover": {
-                      background: "#173b61",
-                      boxShadow: "none",
+                      background:
+                        "#173b61",
+                      boxShadow:
+                        "none",
                     },
                   }}
                 >

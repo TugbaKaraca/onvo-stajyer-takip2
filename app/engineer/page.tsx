@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   Divider,
+  IconButton,
   Typography,
 } from "@mui/material";
 
@@ -16,7 +17,9 @@ import {
   DescriptionOutlined,
   CampaignOutlined,
   PersonOutlined,
+  SettingsOutlined,
   LogoutOutlined,
+  NotificationsOutlined,
 } from "@mui/icons-material";
 
 import { usePathname, useRouter } from "next/navigation";
@@ -56,6 +59,11 @@ export default function EngineerPage() {
       icon: <PersonOutlined />,
       path: "/engineer/profil",
     },
+    {
+      label: "Ayarlar",
+      icon: <SettingsOutlined />,
+      path: "/engineer/ayarlar",
+    },
   ];
 
   const handleLogout = () => {
@@ -68,80 +76,60 @@ export default function EngineerPage() {
         minHeight: "100vh",
         background: "#f5f7fa",
         display: "flex",
+        color: "#17202a",
       }}
     >
-      {/* =========================
+      {/* =====================================================
           SOL MENÜ
-      ========================= */}
+      ===================================================== */}
 
       <Box
         component="aside"
         sx={{
-          width: 260,
+          width: 195,
           minHeight: "100vh",
-          background: "#0f2742",
+          background:
+            "linear-gradient(180deg, #0F2742 0%, #286B9D 100%)",
           color: "#ffffff",
+          position: "fixed",
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 10,
           display: {
             xs: "none",
             md: "flex",
           },
           flexDirection: "column",
-          position: "fixed",
-          left: 0,
-          top: 0,
-          bottom: 0,
         }}
       >
         {/* LOGO */}
 
         <Box
           sx={{
-            height: 80,
-            display: "flex",
-            alignItems: "center",
-            px: 3,
+            px: 2.2,
+            py: 2.2,
             borderBottom:
-              "1px solid rgba(255,255,255,0.1)",
-          }}
-        >
-          <Box
-            component="img"
-            src="/logo.png"
-            alt="ONVO"
-            sx={{
-              width: 110,
-              filter: "brightness(0) invert(1)",
-            }}
-          />
-        </Box>
-
-        {/* KULLANICI */}
-
-        <Box
-          sx={{
-            px: 2.5,
-            py: 2.5,
-            borderBottom:
-              "1px solid rgba(255,255,255,0.1)",
+              "1px solid rgba(255,255,255,0.15)",
           }}
         >
           <Typography
             sx={{
-              fontWeight: 700,
-              fontSize: "0.95rem",
+              fontSize: 23,
+              fontWeight: "bold",
             }}
           >
-            Ahmet Yılmaz
+            ONVO
           </Typography>
 
           <Typography
             sx={{
-              color: "#94a3b8",
-              fontSize: "0.8rem",
-              mt: 0.5,
+              fontSize: 11,
+              opacity: 0.9,
+              mt: 0.3,
             }}
           >
-            Yazılım Mühendisi
+            Stajyer Takip Sistemi
           </Typography>
         </Box>
 
@@ -149,26 +137,13 @@ export default function EngineerPage() {
 
         <Box
           sx={{
-            px: 1.5,
-            py: 2,
+            px: 1,
+            py: 1.5,
             flex: 1,
           }}
         >
-          <Typography
-            sx={{
-              color: "#64748b",
-              fontSize: "0.7rem",
-              fontWeight: 700,
-              px: 1.5,
-              mb: 1,
-              textTransform: "uppercase",
-            }}
-          >
-            Mühendis Paneli
-          </Typography>
-
           {menuItems.map((item) => {
-            const aktif =
+            const active =
               pathname === item.path;
 
             return (
@@ -182,31 +157,46 @@ export default function EngineerPage() {
                 sx={{
                   justifyContent: "flex-start",
                   textTransform: "none",
-                  color: aktif
+
+                  color: active
                     ? "#ffffff"
-                    : "#cbd5e1",
-                  background: aktif
-                    ? "#1f6fae"
+                    : "#ffffff",
+
+                  backgroundColor: active
+                    ? "rgba(255,255,255,0.20)"
                     : "transparent",
+
                   borderRadius: 1.5,
-                  px: 1.5,
-                  py: 1.2,
-                  mb: 0.5,
-                  fontWeight: aktif
-                    ? 700
+
+                  px: 1.3,
+                  py: 1.05,
+
+                  mb: 0.35,
+
+                  minHeight: 38,
+
+                  fontSize: 12,
+
+                  fontWeight: active
+                    ? 600
                     : 500,
 
                   "& .MuiButton-startIcon": {
-                    color: aktif
-                      ? "#ffffff"
-                      : "#94a3b8",
+                    marginRight: "9px",
+                    marginLeft: "0px",
+
+                    "& svg": {
+                      fontSize: 19,
+                    },
                   },
 
                   "&:hover": {
-                    background: aktif
-                      ? "#1f6fae"
-                      : "rgba(255,255,255,0.06)",
+                    backgroundColor:
+                      "rgba(255,255,255,0.14)",
                   },
+
+                  transition:
+                    "background-color 0.2s",
                 }}
               >
                 {item.label}
@@ -219,9 +209,9 @@ export default function EngineerPage() {
 
         <Box
           sx={{
-            p: 1.5,
-            borderTop:
-              "1px solid rgba(255,255,255,0.1)",
+            mt: "auto",
+            px: 1,
+            pb: 2,
           }}
         >
           <Button
@@ -230,15 +220,31 @@ export default function EngineerPage() {
             onClick={handleLogout}
             sx={{
               justifyContent: "flex-start",
-              color: "#fca5a5",
               textTransform: "none",
-              px: 1.5,
-              py: 1.2,
+
+              color: "#ffffff",
+
+              px: 1.3,
+              py: 1,
+
+              minHeight: 38,
+
               borderRadius: 1.5,
 
+              fontSize: 12,
+              fontWeight: 500,
+
+              "& .MuiButton-startIcon": {
+                marginRight: "9px",
+
+                "& svg": {
+                  fontSize: 19,
+                },
+              },
+
               "&:hover": {
-                background:
-                  "rgba(220,38,38,0.12)",
+                backgroundColor:
+                  "rgba(255,255,255,0.14)",
               },
             }}
           >
@@ -247,73 +253,92 @@ export default function EngineerPage() {
         </Box>
       </Box>
 
-      {/* =========================
-          ANA İÇERİK
-      ========================= */}
+      {/* =====================================================
+          ANA ALAN
+      ===================================================== */}
 
       <Box
         component="main"
         sx={{
           flex: 1,
+
           ml: {
             xs: 0,
-            md: "260px",
+            md: "195px",
           },
+
           minHeight: "100vh",
         }}
       >
-        {/* ÜST BAR */}
+        {/* =====================================================
+            ÜST NAVBAR
+        ===================================================== */}
 
         <Box
+          component="header"
           sx={{
-            height: 80,
-            background: "#ffffff",
+            height: 58,
+
+            backgroundColor: "#ffffff",
+
             borderBottom:
-              "1px solid #dfe5ec",
+              "1px solid #e4e7ec",
+
             display: "flex",
             alignItems: "center",
-            justifyContent: "space-between",
-            px: {
-              xs: 2,
-              md: 4,
-            },
+
+            justifyContent: "flex-end",
+
+            px: 3,
           }}
         >
-          <Box>
-            <Typography
-              sx={{
-                fontSize: "1.25rem",
-                fontWeight: 800,
-                color: "#0f2742",
-              }}
-            >
-              Mühendis Paneli
-            </Typography>
+          {/* BİLDİRİMLER */}
 
-            <Typography
-              sx={{
-                color: "#64748b",
-                fontSize: "0.8rem",
-              }}
-            >
-              Stajyerlerinizi buradan
-              yönetebilirsiniz.
-            </Typography>
-          </Box>
+          <IconButton
+            sx={{
+              mr: 1,
+              color: "#286B9D",
+            }}
+          >
+            <NotificationsOutlined />
+          </IconButton>
+
+          {/* PROFİL İKONU */}
 
           <Box
             sx={{
-              display: {
-                xs: "none",
-                sm: "block",
-              },
+              width: 34,
+              height: 34,
+
+              borderRadius: "50%",
+
+              backgroundColor:
+                "#EDF4F9",
+
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+
+              color: "#286B9D",
+
+              mr: 1,
             }}
           >
+            <PersonOutlined
+              sx={{
+                fontSize: 20,
+              }}
+            />
+          </Box>
+
+          {/* KULLANICI */}
+
+          <Box>
             <Typography
               sx={{
-                color: "#475569",
-                fontSize: "0.85rem",
-                fontWeight: 600,
+                fontSize: 12,
+                fontWeight: "bold",
+                color: "#17202A",
               }}
             >
               Ahmet Yılmaz
@@ -321,9 +346,8 @@ export default function EngineerPage() {
 
             <Typography
               sx={{
-                color: "#94a3b8",
-                fontSize: "0.75rem",
-                textAlign: "right",
+                fontSize: 9,
+                color: "#64748B",
               }}
             >
               Yazılım Geliştirme
@@ -331,7 +355,9 @@ export default function EngineerPage() {
           </Box>
         </Box>
 
-        {/* SAYFA */}
+        {/* =====================================================
+            SAYFA İÇERİĞİ
+        ===================================================== */}
 
         <Box
           sx={{
@@ -350,8 +376,11 @@ export default function EngineerPage() {
                   xs: "1.7rem",
                   md: "2rem",
                 },
+
                 fontWeight: 800,
+
                 color: "#0f2742",
+
                 mb: 0.7,
               }}
             >
@@ -361,36 +390,45 @@ export default function EngineerPage() {
             <Typography
               sx={{
                 color: "#64748b",
+                fontSize: 13,
               }}
             >
               Mühendis panelinden size bağlı
-              stajyerlerin süreçlerini
-              takip edebilirsiniz.
+              stajyerlerin süreçlerini takip
+              edebilirsiniz.
             </Typography>
           </Box>
 
-          {/* ÖZET KARTLARI */}
+          {/* =====================================================
+              ÖZET KARTLARI
+          ===================================================== */}
 
           <Box
             sx={{
               display: "grid",
+
               gridTemplateColumns: {
                 xs: "1fr",
                 sm: "repeat(2, 1fr)",
                 lg: "repeat(3, 1fr)",
               },
+
               gap: 2,
+
               mb: 3,
             }}
           >
-            {/* STAJYER */}
+            {/* STAJYERLER */}
 
             <Card
               elevation={0}
               sx={{
                 border:
                   "1px solid #dfe5ec",
+
                 borderRadius: 2,
+
+                background: "#ffffff",
               }}
             >
               <CardContent>
@@ -430,7 +468,10 @@ export default function EngineerPage() {
               sx={{
                 border:
                   "1px solid #dfe5ec",
+
                 borderRadius: 2,
+
+                background: "#ffffff",
               }}
             >
               <CardContent>
@@ -470,7 +511,10 @@ export default function EngineerPage() {
               sx={{
                 border:
                   "1px solid #dfe5ec",
+
                 borderRadius: 2,
+
+                background: "#ffffff",
               }}
             >
               <CardContent>
@@ -504,14 +548,18 @@ export default function EngineerPage() {
             </Card>
           </Box>
 
-          {/* SON İŞLEMLER */}
+          {/* =====================================================
+              HIZLI İŞLEMLER
+          ===================================================== */}
 
           <Card
             elevation={0}
             sx={{
               border:
                 "1px solid #dfe5ec",
+
               borderRadius: 2,
+
               background: "#ffffff",
             }}
           >
@@ -550,18 +598,20 @@ export default function EngineerPage() {
               <Box
                 sx={{
                   display: "grid",
+
                   gridTemplateColumns: {
                     xs: "1fr",
                     sm: "repeat(3, 1fr)",
                   },
+
                   gap: 1.5,
                 }}
               >
+                {/* STAJYERLER */}
+
                 <Button
                   variant="outlined"
-                  startIcon={
-                    <GroupsOutlined />
-                  }
+                  startIcon={<GroupsOutlined />}
                   onClick={() =>
                     router.push(
                       "/engineer/stajyerler"
@@ -569,15 +619,26 @@ export default function EngineerPage() {
                   }
                   sx={{
                     py: 1.3,
+
                     borderColor:
                       "#cbd5e1",
+
                     color: "#0f2742",
-                    textTransform:
-                      "none",
+
+                    textTransform: "none",
+
+                    "&:hover": {
+                      borderColor:
+                        "#286B9D",
+                      backgroundColor:
+                        "#f5f9fc",
+                    },
                   }}
                 >
                   Stajyerlerimi Gör
                 </Button>
+
+                {/* DEVAMSIZLIK */}
 
                 <Button
                   variant="outlined"
@@ -591,15 +652,26 @@ export default function EngineerPage() {
                   }
                   sx={{
                     py: 1.3,
+
                     borderColor:
                       "#cbd5e1",
+
                     color: "#0f2742",
-                    textTransform:
-                      "none",
+
+                    textTransform: "none",
+
+                    "&:hover": {
+                      borderColor:
+                        "#286B9D",
+                      backgroundColor:
+                        "#f5f9fc",
+                    },
                   }}
                 >
                   Devamsızlık Gir
                 </Button>
+
+                {/* RAPORLAR */}
 
                 <Button
                   variant="outlined"
@@ -613,11 +685,20 @@ export default function EngineerPage() {
                   }
                   sx={{
                     py: 1.3,
+
                     borderColor:
                       "#cbd5e1",
+
                     color: "#0f2742",
-                    textTransform:
-                      "none",
+
+                    textTransform: "none",
+
+                    "&:hover": {
+                      borderColor:
+                        "#286B9D",
+                      backgroundColor:
+                        "#f5f9fc",
+                    },
                   }}
                 >
                   Raporları Gör
