@@ -30,6 +30,7 @@ import CancelOutlined from "@mui/icons-material/CancelOutlined";
 import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
+import BusinessIcon from "@mui/icons-material/Business";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import FolderIcon from "@mui/icons-material/Folder";
 import CampaignIcon from "@mui/icons-material/Campaign";
@@ -233,6 +234,7 @@ export default function RaporlarPage() {
           {[
             [<DashboardIcon />, "Kontrol Paneli", "/yetkili"],
             [<PeopleIcon />, "Stajyerler", "/yetkili/stajyerler"],
+            [<BusinessIcon />, "Departman Yönetimi", "/yetkili/departmanlar"],
             [<DescriptionOutlined />, "Raporlar", "/yetkili/raporlar"],
             [<EventAvailableIcon />, "Devam Durumu", "/yetkili/devam"],
             [<FolderIcon />, "Belgeler", "/yetkili/belgeler"],

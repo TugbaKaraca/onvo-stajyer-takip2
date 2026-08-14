@@ -14,6 +14,7 @@ import {
 import {
   Dashboard,
   People,
+  Business,
   Description,
   EventAvailable,
   Folder,
@@ -48,6 +49,11 @@ export default function YetkiliPage() {
       icon: <People />,
       text: "Stajyerler",
       path: "/yetkili/stajyerler",
+    },
+    {
+      icon: <Business />,
+      text: "Departman Yönetimi",
+      path: "/yetkili/departmanlar",
     },
     {
       icon: <Description />,
@@ -172,7 +178,12 @@ export default function YetkiliPage() {
         </Box>
 
         {/* MENÜ */}
-        <Box sx={{ px: 1, py: 1.5 }}>
+        <Box
+          sx={{
+            px: 1,
+            py: 1.5,
+          }}
+        >
           {menuItems.map((item) => {
             const active = item.path === "/yetkili";
 

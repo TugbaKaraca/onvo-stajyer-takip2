@@ -71,6 +71,11 @@ export default function StajyerlerPage() {
       path: "/yetkili/stajyerler",
     },
     {
+      icon: <Business />,
+      text: "Departman Yönetimi",
+      path: "/yetkili/departmanlar",
+    },
+    {
       icon: <Description />,
       text: "Raporlar",
       path: "/yetkili/raporlar",

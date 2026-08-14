@@ -24,6 +24,7 @@ import {
 import {
   Dashboard,
   People,
+  Business,
   Description,
   EventAvailable,
   Folder,
@@ -204,6 +205,11 @@ export default function DevamPage() {
       icon: <People />,
       text: "Stajyerler",
       path: "/yetkili/stajyerler",
+    },
+    {
+      icon: <Business />,
+      text: "Departman Yönetimi",
+      path: "/yetkili/departmanlar",
     },
     {
       icon: <Description />,

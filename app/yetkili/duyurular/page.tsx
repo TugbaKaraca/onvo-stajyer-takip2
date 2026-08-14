@@ -17,6 +17,7 @@ import {
 
 import GridViewIcon from "@mui/icons-material/GridView";
 import GroupsIcon from "@mui/icons-material/Groups";
+import BusinessIcon from "@mui/icons-material/Business";
 import DescriptionIcon from "@mui/icons-material/Description";
 import EventAvailableIcon from "@mui/icons-material/EventAvailable";
 import FolderIcon from "@mui/icons-material/Folder";
@@ -162,6 +163,7 @@ export default function DuyurularPage() {
           {[
             { icon: <GridViewIcon />, text: "Kontrol Paneli", path: "/yetkili" },
             { icon: <GroupsIcon />, text: "Stajyerler", path: "/yetkili/stajyerler" },
+            { icon: <BusinessIcon />, text: "Departman Yönetimi", path: "/yetkili/departmanlar" },
             { icon: <DescriptionIcon />, text: "Raporlar", path: "/yetkili/raporlar" },
             { icon: <EventAvailableIcon />, text: "Devam Durumu", path: "/yetkili/devam" },
             { icon: <FolderIcon />, text: "Belgeler", path: "/yetkili/belgeler" },
