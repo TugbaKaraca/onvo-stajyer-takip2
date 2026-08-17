@@ -7,6 +7,11 @@ import {
   TextField,
   Paper,
   IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Chip,
 } from "@mui/material";
 
 import GridViewIcon from "@mui/icons-material/GridView";
@@ -21,43 +26,110 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import PersonIcon from "@mui/icons-material/Person";
 import SearchIcon from "@mui/icons-material/Search";
 import DownloadIcon from "@mui/icons-material/Download";
+import CloseIcon from "@mui/icons-material/Close";
 
 import Link from "next/link";
 import { useState } from "react";
 
 export default function BelgelerPage() {
   const [search, setSearch] = useState("");
+  const [seciliBelge, setSeciliBelge] = useState<Belge | null>(null);
+  const [goruntuleOpen, setGoruntuleOpen] = useState(false);
+  const [dosyaBulunamadi, setDosyaBulunamadi] = useState(false);
 
-  const belgeler = [
+  type Belge = {
+    id: number;
+    ad: string;
+    departman: string;
+    belge: string;
+    tarih: string;
+    durum: "Onaylandı" | "Bekliyor" | "Eksik" | "Reddedildi";
+    dosyaUrl?: string;
+    dosyaTipi: "pdf" | "word";
+  };
+
+  const belgeler: Belge[] = [
     {
+      id: 1,
       ad: "Zeliha Koyuncu",
       departman: "Yazılım",
       belge: "Staj Başvuru Formu",
       tarih: "10 Ağustos 2026",
       durum: "Onaylandı",
+      dosyaUrl: "/belgeler/zeliha-staj-basvuru-formu.pdf",
+      dosyaTipi: "pdf",
     },
     {
+      id: 2,
       ad: "Ahmet Yılmaz",
       departman: "Elektrik",
       belge: "Staj Sözleşmesi",
       tarih: "11 Ağustos 2026",
       durum: "Bekliyor",
+      dosyaUrl: "/belgeler/ahmet-staj-sozlesmesi.pdf",
+      dosyaTipi: "pdf",
     },
     {
+      id: 3,
       ad: "Elif Demir",
       departman: "Yazılım",
       belge: "Staj Başvuru Formu",
       tarih: "12 Ağustos 2026",
       durum: "Onaylandı",
+      dosyaUrl: "/belgeler/elif-staj-basvuru-formu.pdf",
+      dosyaTipi: "pdf",
     },
     {
+      id: 4,
       ad: "Mehmet Kaya",
       departman: "Ar-Ge",
       belge: "Staj Sözleşmesi",
       tarih: "12 Ağustos 2026",
       durum: "Bekliyor",
+      dosyaUrl: "/belgeler/mehmet-staj-sozlesmesi.pdf",
+      dosyaTipi: "pdf",
     },
   ];
+
+  const belgeGoruntule = (belge: Belge) => {
+    setSeciliBelge(belge);
+    setDosyaBulunamadi(false);
+    setGoruntuleOpen(true);
+  };
+
+  const belgeKapat = () => {
+    setGoruntuleOpen(false);
+    setSeciliBelge(null);
+    setDosyaBulunamadi(false);
+  };
+
+  const belgeIndir = () => {
+    if (!seciliBelge?.dosyaUrl) return;
+
+    const link = document.createElement("a");
+    link.href = seciliBelge.dosyaUrl;
+    link.download = seciliBelge.dosyaUrl.split("/").pop() || "belge";
+    link.target = "_blank";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const durumRengi = (durum: Belge["durum"]) => {
+    if (durum === "Onaylandı") {
+      return { background: "#dcfce7", color: "#15803d" };
+    }
+
+    if (durum === "Reddedildi") {
+      return { background: "#fee2e2", color: "#b91c1c" };
+    }
+
+    if (durum === "Eksik") {
+      return { background: "#f1f5f9", color: "#475569" };
+    }
+
+    return { background: "#fef3c7", color: "#b45309" };
+  };
 
   const filtrelenmisBelgeler = belgeler.filter((belge) => {
     const aranacak = search.toLowerCase();
@@ -318,6 +390,104 @@ export default function BelgelerPage() {
             </Typography>
           </Box>
 
+          {/* BİLGİ / ÖZET KARTLARI */}
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "repeat(2, 1fr)",
+                lg: "repeat(4, 1fr)",
+              },
+              gap: 2,
+              mb: 3,
+            }}
+          >
+            {[
+              {
+                label: "Toplam Belge",
+                value: belgeler.length,
+                icon: <FolderIcon />,
+                bg: "#eaf3fa",
+                color: "#286b9d",
+              },
+              {
+                label: "Onaylanan",
+                value: belgeler.filter((b) => b.durum === "Onaylandı").length,
+                icon: <EventAvailableIcon />,
+                bg: "#dcfce7",
+                color: "#15803d",
+              },
+              {
+                label: "Bekleyen",
+                value: belgeler.filter((b) => b.durum === "Bekliyor").length,
+                icon: <DescriptionIcon />,
+                bg: "#fef3c7",
+                color: "#b45309",
+              },
+              {
+                label: "Eksik / Reddedilen",
+                value: belgeler.filter(
+                  (b) => b.durum === "Eksik" || b.durum === "Reddedildi"
+                ).length,
+                icon: <FolderIcon />,
+                bg: "#f1f5f9",
+                color: "#64748b",
+              },
+            ].map((kart) => (
+              <Paper
+                key={kart.label}
+                elevation={0}
+                sx={{
+                  p: 2.2,
+                  border: "1px solid #e2e8f0",
+                  borderRadius: 2,
+                  background: "#ffffff",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  minHeight: 96,
+                }}
+              >
+                <Box>
+                  <Typography
+                    sx={{
+                      color: "#94a3b8",
+                      fontSize: 11,
+                      mb: 0.5,
+                    }}
+                  >
+                    {kart.label}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: "#0f2742",
+                      fontSize: 25,
+                      fontWeight: 800,
+                    }}
+                  >
+                    {kart.value}
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    width: 42,
+                    height: 42,
+                    borderRadius: 1.5,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    background: kart.bg,
+                    color: kart.color,
+                  }}
+                >
+                  {kart.icon}
+                </Box>
+              </Paper>
+            ))}
+          </Box>
+
           {/* ARAMA ALANI */}
 
           <Paper
@@ -382,6 +552,9 @@ export default function BelgelerPage() {
                 }}
               >
                 Stajyer Belgeleri
+              </Typography>
+              <Typography sx={{ mt: 0.5, color: "#64748b", fontSize: 12 }}>
+                {filtrelenmisBelgeler.length} belge görüntüleniyor
               </Typography>
             </Box>
 
@@ -572,13 +745,15 @@ export default function BelgelerPage() {
 
                   <Button
                     variant="outlined"
-                    startIcon={<DownloadIcon />}
+                    startIcon={<DescriptionIcon />}
+                    onClick={() => belgeGoruntule(belge)}
                     sx={{
                       borderColor: "#286b9d",
                       color: "#286b9d",
                       textTransform: "none",
                       borderRadius: 1.5,
                       fontWeight: 600,
+                      minWidth: 125,
 
                       "&:hover": {
                         borderColor: "#0f2742",
@@ -594,6 +769,226 @@ export default function BelgelerPage() {
           </Paper>
         </Box>
       </Box>
+
+      <Dialog
+        open={goruntuleOpen}
+        onClose={belgeKapat}
+        fullWidth
+        maxWidth="lg"
+        sx={{
+          "& .MuiDialog-paper": {
+            borderRadius: 2.5,
+            overflow: "hidden",
+          },
+        }}
+      >
+        {seciliBelge && (
+          <>
+            <DialogTitle
+              sx={{
+                px: 3,
+                py: 2,
+                borderBottom: "1px solid #e2e8f0",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 2,
+              }}
+            >
+              <Box>
+                <Typography
+                  sx={{
+                    color: "#0f2742",
+                    fontSize: 19,
+                    fontWeight: 800,
+                  }}
+                >
+                  {seciliBelge.belge}
+                </Typography>
+
+                <Box
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 1,
+                    mt: 0.8,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  <Typography sx={{ color: "#64748b", fontSize: 12 }}>
+                    {seciliBelge.ad} • {seciliBelge.departman}
+                  </Typography>
+
+                  <Chip
+                    label={seciliBelge.durum}
+                    size="small"
+                    sx={{
+                      ...durumRengi(seciliBelge.durum),
+                      fontWeight: 700,
+                      fontSize: 10,
+                    }}
+                  />
+                </Box>
+              </Box>
+
+              <IconButton onClick={belgeKapat} aria-label="Kapat">
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+
+            <DialogContent
+              sx={{
+                p: 0,
+                background: "#eef2f6",
+                minHeight: 620,
+              }}
+            >
+              {seciliBelge.dosyaUrl &&
+              seciliBelge.dosyaTipi === "pdf" &&
+              !dosyaBulunamadi ? (
+                <Box
+                  sx={{
+                    width: "100%",
+                    height: {
+                      xs: 500,
+                      md: 680,
+                    },
+                    background: "#525659",
+                  }}
+                >
+                  <iframe
+                    src={`${seciliBelge.dosyaUrl}#toolbar=1&navpanes=0`}
+                    title={seciliBelge.belge}
+                    onError={() => setDosyaBulunamadi(true)}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      border: "none",
+                      display: "block",
+                    }}
+                  />
+                </Box>
+              ) : (
+                <Box
+                  sx={{
+                    minHeight: 620,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    p: 4,
+                  }}
+                >
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      maxWidth: 500,
+                      width: "100%",
+                      p: 4,
+                      textAlign: "center",
+                      border: "1px solid #e2e8f0",
+                      borderRadius: 2.5,
+                    }}
+                  >
+                    <DescriptionIcon
+                      sx={{
+                        fontSize: 58,
+                        color: "#286b9d",
+                        mb: 1.5,
+                      }}
+                    />
+
+                    <Typography
+                      sx={{
+                        fontSize: 18,
+                        fontWeight: 800,
+                        color: "#0f2742",
+                        mb: 1,
+                      }}
+                    >
+                      {seciliBelge.belge}
+                    </Typography>
+
+                    <Typography
+                      sx={{
+                        color: "#64748b",
+                        fontSize: 13,
+                        lineHeight: 1.7,
+                        mb: 2.5,
+                      }}
+                    >
+                      {dosyaBulunamadi
+                        ? "Bu belge için tanımlanan dosya bulunamadı. Gerçek PDF dosyasını public/belgeler klasörüne eklediğinizde burada doğrudan görüntülenecektir."
+                        : "Bu dosya türü tarayıcı içinde önizlenemiyor. Dosyayı indirerek cihazınızda açabilirsiniz."}
+                    </Typography>
+
+                    <Button
+                      variant="contained"
+                      startIcon={<DownloadIcon />}
+                      onClick={belgeIndir}
+                      disabled={!seciliBelge.dosyaUrl || dosyaBulunamadi}
+                      sx={{
+                        background: "#1f6fae",
+                        textTransform: "none",
+                        borderRadius: 1.5,
+                        "&:hover": {
+                          background: "#185d91",
+                        },
+                      }}
+                    >
+                      Belgeyi İndir
+                    </Button>
+                  </Paper>
+                </Box>
+              )}
+            </DialogContent>
+
+            <DialogActions
+              sx={{
+                px: 3,
+                py: 1.5,
+                borderTop: "1px solid #e2e8f0",
+                justifyContent: "space-between",
+              }}
+            >
+              <Typography sx={{ color: "#94a3b8", fontSize: 11 }}>
+                Yüklenme tarihi: {seciliBelge.tarih}
+              </Typography>
+
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Button
+                  variant="outlined"
+                  startIcon={<DownloadIcon />}
+                  onClick={belgeIndir}
+                  disabled={!seciliBelge.dosyaUrl}
+                  sx={{
+                    textTransform: "none",
+                    borderRadius: 1.5,
+                    borderColor: "#286b9d",
+                    color: "#286b9d",
+                  }}
+                >
+                  İndir
+                </Button>
+
+                <Button
+                  variant="contained"
+                  onClick={belgeKapat}
+                  sx={{
+                    textTransform: "none",
+                    borderRadius: 1.5,
+                    background: "#1f6fae",
+                    "&:hover": {
+                      background: "#185d91",
+                    },
+                  }}
+                >
+                  Kapat
+                </Button>
+              </Box>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
     </Box>
   );
 }

@@ -24,6 +24,9 @@ import {
 } from "@mui/material";
 
 import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
+import SearchIcon from "@mui/icons-material/Search";
+import FilterAltOutlined from "@mui/icons-material/FilterAltOutlined";
+import AssessmentOutlined from "@mui/icons-material/AssessmentOutlined";
 import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
 import CheckCircle from "@mui/icons-material/CheckCircle";
 import CancelOutlined from "@mui/icons-material/CancelOutlined";
@@ -68,6 +71,9 @@ export default function RaporlarPage() {
   const [durum, setDurum] =
     useState<string>("");
 
+  const [arama, setArama] =
+    useState<string>("");
+
   const [selectedRapor, setSelectedRapor] =
     useState<Rapor | null>(null);
 
@@ -88,11 +94,31 @@ export default function RaporlarPage() {
         durum === "" ||
         rapor.durum === durum;
 
+      const aramaMetni = arama.trim().toLocaleLowerCase("tr-TR");
+      const aramaUygun =
+        aramaMetni === "" ||
+        rapor.baslik.toLocaleLowerCase("tr-TR").includes(aramaMetni) ||
+        rapor.stajyer.toLocaleLowerCase("tr-TR").includes(aramaMetni) ||
+        rapor.icerik.toLocaleLowerCase("tr-TR").includes(aramaMetni);
+
       return (
         stajyerUygun &&
-        durumUygun
+        durumUygun &&
+        aramaUygun
       );
     });
+
+  const toplamRapor = raporlar.length;
+  const bekleyenRapor = raporlar.filter((r) => r.durum === "Bekliyor").length;
+  const incelenenRapor = raporlar.filter((r) => r.durum === "İnceleniyor").length;
+  const onaylananRapor = raporlar.filter((r) => r.durum === "Onaylandı").length;
+  const reddedilenRapor = raporlar.filter((r) => r.durum === "Reddedildi").length;
+
+  const filtreleriTemizle = () => {
+    setStajyerId("");
+    setDurum("");
+    setArama("");
+  };
 
   /* =========================
      RAPOR DETAY
@@ -400,19 +426,116 @@ export default function RaporlarPage() {
       </Box>
 
       {/* =========================
+          RAPOR ÖZETİ
+      ========================= */}
+
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "repeat(2, 1fr)",
+            lg: "repeat(5, 1fr)",
+          },
+          gap: 1.5,
+          mb: 3,
+        }}
+      >
+        {[
+          {
+            label: "Toplam Rapor",
+            value: toplamRapor,
+            icon: <AssessmentOutlined />,
+            bg: "#eaf3fa",
+            color: "#1f6fae",
+          },
+          {
+            label: "Bekliyor",
+            value: bekleyenRapor,
+            icon: <DescriptionOutlined />,
+            bg: "#fff4db",
+            color: "#b45309",
+          },
+          {
+            label: "İnceleniyor",
+            value: incelenenRapor,
+            icon: <VisibilityOutlined />,
+            bg: "#e3f2fd",
+            color: "#1565c0",
+          },
+          {
+            label: "Onaylandı",
+            value: onaylananRapor,
+            icon: <CheckCircle />,
+            bg: "#e8f5e9",
+            color: "#2e7d32",
+          },
+          {
+            label: "Reddedildi",
+            value: reddedilenRapor,
+            icon: <CancelOutlined />,
+            bg: "#ffebee",
+            color: "#c62828",
+          },
+        ].map((kart) => (
+          <Paper
+            key={kart.label}
+            elevation={0}
+            sx={{
+              p: 2,
+              border: "1px solid #dfe5ec",
+              borderRadius: 2,
+              background: "#fff",
+              minHeight: 92,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Box>
+              <Typography sx={{ color: "#94a3b8", fontSize: 11, mb: 0.5 }}>
+                {kart.label}
+              </Typography>
+              <Typography
+                sx={{
+                  color: "#0f2742",
+                  fontSize: 24,
+                  lineHeight: 1,
+                  fontWeight: 800,
+                }}
+              >
+                {kart.value}
+              </Typography>
+            </Box>
+            <Box
+              sx={{
+                width: 40,
+                height: 40,
+                borderRadius: 1.5,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                background: kart.bg,
+                color: kart.color,
+                "& svg": { fontSize: 21 },
+              }}
+            >
+              {kart.icon}
+            </Box>
+          </Paper>
+        ))}
+      </Box>
+
+      {/* =========================
           FİLTRELER
       ========================= */}
 
       <Paper
         elevation={0}
         sx={{
-          border:
-            "1px solid #dfe5ec",
+          border: "1px solid #dfe5ec",
           borderRadius: 2,
-          p: {
-            xs: 2,
-            md: 3,
-          },
+          p: { xs: 2, md: 3 },
           mb: 3,
           background: "#ffffff",
         }}
@@ -420,28 +543,37 @@ export default function RaporlarPage() {
         <Box
           sx={{
             display: "flex",
-            alignItems:
-              "center",
-            gap: 1,
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 2,
             mb: 2,
+            flexWrap: "wrap",
           }}
         >
-          <DescriptionOutlined
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <FilterAltOutlined sx={{ color: "#1f6fae" }} />
+            <Typography
+              sx={{
+                fontSize: "1.15rem",
+                fontWeight: 700,
+                color: "#0f2742",
+              }}
+            >
+              Rapor Filtreleme
+            </Typography>
+          </Box>
+
+          <Button
+            size="small"
+            onClick={filtreleriTemizle}
             sx={{
               color: "#1f6fae",
-            }}
-          />
-
-          <Typography
-            sx={{
-              fontSize:
-                "1.15rem",
-              fontWeight: 700,
-              color: "#0f2742",
+              textTransform: "none",
+              fontWeight: 600,
             }}
           >
-            Rapor Filtreleme
-          </Typography>
+            Filtreleri Temizle
+          </Button>
         </Box>
 
         <Divider sx={{ mb: 2.5 }} />
@@ -451,93 +583,66 @@ export default function RaporlarPage() {
             display: "grid",
             gridTemplateColumns: {
               xs: "1fr",
-              md: "1fr 1fr",
+              md: "1.2fr 1fr 1fr",
             },
             gap: 2,
           }}
         >
-          {/* STAJYER */}
+          <TextField
+            fullWidth
+            value={arama}
+            onChange={(e) => setArama(e.target.value)}
+            placeholder="Rapor, stajyer veya içerik ara..."
+            slotProps={{
+              input: {
+                startAdornment: (
+                  <SearchIcon sx={{ color: "#94a3b8", mr: 1 }} />
+                ),
+              },
+            }}
+            sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: 1.5,
+              },
+            }}
+          />
 
           <FormControl fullWidth>
-            <InputLabel id="stajyer-label">
-              Stajyer
-            </InputLabel>
-
+            <InputLabel id="stajyer-label">Stajyer</InputLabel>
             <Select
               labelId="stajyer-label"
               value={stajyerId}
               label="Stajyer"
-              onChange={(
-                event: SelectChangeEvent
-              ) => {
-                setStajyerId(
-                  event.target.value
-                );
+              onChange={(event: SelectChangeEvent) => {
+                setStajyerId(event.target.value);
               }}
-              sx={{
-                borderRadius: 1.5,
-              }}
+              sx={{ borderRadius: 1.5 }}
             >
-              <MenuItem value="">
-                Tüm Stajyerler
-              </MenuItem>
-
-              {interns.map(
-                (stajyer) => (
-                  <MenuItem
-                    key={stajyer.id}
-                    value={String(
-                      stajyer.id
-                    )}
-                  >
-                    {stajyer.name}
-                  </MenuItem>
-                )
-              )}
+              <MenuItem value="">Tüm Stajyerler</MenuItem>
+              {interns.map((stajyer) => (
+                <MenuItem key={stajyer.id} value={String(stajyer.id)}>
+                  {stajyer.name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
-          {/* DURUM */}
-
           <FormControl fullWidth>
-            <InputLabel id="durum-label">
-              Rapor Durumu
-            </InputLabel>
-
+            <InputLabel id="durum-label">Rapor Durumu</InputLabel>
             <Select
               labelId="durum-label"
               value={durum}
               label="Rapor Durumu"
-              onChange={(
-                event: SelectChangeEvent
-              ) => {
-                setDurum(
-                  event.target.value
-                );
+              onChange={(event: SelectChangeEvent) => {
+                setDurum(event.target.value);
               }}
-              sx={{
-                borderRadius: 1.5,
-              }}
+              sx={{ borderRadius: 1.5 }}
             >
-              <MenuItem value="">
-                Tüm Durumlar
-              </MenuItem>
-
-              <MenuItem value="Bekliyor">
-                Bekliyor
-              </MenuItem>
-
-              <MenuItem value="İnceleniyor">
-                İnceleniyor
-              </MenuItem>
-
-              <MenuItem value="Onaylandı">
-                Onaylandı
-              </MenuItem>
-
-              <MenuItem value="Reddedildi">
-                Reddedildi
-              </MenuItem>
+              <MenuItem value="">Tüm Durumlar</MenuItem>
+              <MenuItem value="Bekliyor">Bekliyor</MenuItem>
+              <MenuItem value="İnceleniyor">İnceleniyor</MenuItem>
+              <MenuItem value="Onaylandı">Onaylandı</MenuItem>
+              <MenuItem value="Reddedildi">Reddedildi</MenuItem>
             </Select>
           </FormControl>
         </Box>
@@ -588,13 +693,8 @@ export default function RaporlarPage() {
                 "0.9rem",
             }}
           >
-            Toplam{" "}
-            <strong>
-              {
-                filtrelenmisRaporlar.length
-              }
-            </strong>{" "}
-            rapor görüntüleniyor.
+            {filtrelenmisRaporlar.length} rapor görüntüleniyor
+            {arama || stajyerId || durum ? " • Filtre aktif" : ""}.
           </Typography>
         </Box>
 
@@ -663,9 +763,18 @@ export default function RaporlarPage() {
                       "flex-start",
                     gap: 2,
 
+                    borderLeft:
+                      `3px solid ${
+                        rapor.durum === "Onaylandı"
+                          ? "#2e7d32"
+                          : rapor.durum === "Reddedildi"
+                          ? "#dc2626"
+                          : rapor.durum === "İnceleniyor"
+                          ? "#1f6fae"
+                          : "#f59e0b"
+                      }`,
                     "&:hover": {
-                      background:
-                        "#fafcfe",
+                      background: "#f8fbfd",
                     },
                   }}
                 >

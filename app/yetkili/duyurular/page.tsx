@@ -1,18 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import {
   Box,
   Button,
   Chip,
+  Paper,
   Divider,
   IconButton,
   MenuItem,
-  Paper,
   Select,
   TextField,
   Typography,
+  FormControl,
+  InputLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from "@mui/material";
 
 import GridViewIcon from "@mui/icons-material/GridView";
@@ -29,6 +35,11 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import DeleteOutlined from "@mui/icons-material/DeleteOutlined";
 import CampaignOutlined from "@mui/icons-material/CampaignOutlined";
 import AddIcon from "@mui/icons-material/Add";
+import EditOutlined from "@mui/icons-material/EditOutlined";
+import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
+import SearchIcon from "@mui/icons-material/Search";
+import DraftsOutlinedIcon from "@mui/icons-material/DraftsOutlined";
+import CloseIcon from "@mui/icons-material/Close";
 
 import Link from "next/link";
 
@@ -38,6 +49,7 @@ type Duyuru = {
   icerik: string;
   tarih: string;
   durum: "Yayında" | "Taslak";
+  kategori: "Genel" | "Staj" | "Belge" | "Devam";
 };
 
 export default function DuyurularPage() {
@@ -49,6 +61,7 @@ export default function DuyurularPage() {
         "Stajyerlerin staj başlangıç tarihleri ve gerekli belgeleri kontrol etmeleri gerekmektedir.",
       tarih: "13 Ağustos 2026",
       durum: "Yayında",
+      kategori: "Staj",
     },
     {
       id: 2,
@@ -57,6 +70,7 @@ export default function DuyurularPage() {
         "Stajyerlerin günlük devam durumlarını düzenli olarak kontrol etmeleri gerekmektedir.",
       tarih: "12 Ağustos 2026",
       durum: "Yayında",
+      kategori: "Devam",
     },
     {
       id: 3,
@@ -65,6 +79,7 @@ export default function DuyurularPage() {
         "Staj sürecinde gerekli belgelerin eksiksiz olarak sisteme yüklenmesi gerekmektedir.",
       tarih: "10 Ağustos 2026",
       durum: "Taslak",
+      kategori: "Belge",
     },
   ]);
 
@@ -72,41 +87,113 @@ export default function DuyurularPage() {
   const [icerik, setIcerik] = useState("");
   const [durum, setDurum] =
     useState<"Yayında" | "Taslak">("Taslak");
+  const [kategori, setKategori] =
+    useState<Duyuru["kategori"]>("Genel");
+  const [arama, setArama] = useState("");
+  const [durumFiltre, setDurumFiltre] = useState<"Tümü" | "Yayında" | "Taslak">("Tümü");
+  const [kategoriFiltre, setKategoriFiltre] = useState<"Tümü" | Duyuru["kategori"]>("Tümü");
+  const [duzenlenenId, setDuzenlenenId] = useState<number | null>(null);
+  const [detayOpen, setDetayOpen] = useState(false);
+  const [seciliDuyuru, setSeciliDuyuru] = useState<Duyuru | null>(null);
+  const [mesaj, setMesaj] = useState("");
 
-  const duyuruEkle = () => {
-    if (!baslik.trim() || !icerik.trim()) {
-      return;
-    }
-
-    const yeniDuyuru: Duyuru = {
-      id: Date.now(),
-      baslik: baslik.trim(),
-      icerik: icerik.trim(),
-      tarih: new Date().toLocaleDateString("tr-TR", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      }),
-      durum,
-    };
-
-    setDuyurular((prev) => [
-      yeniDuyuru,
-      ...prev,
-    ]);
-
+  const formuTemizle = () => {
     setBaslik("");
     setIcerik("");
     setDurum("Taslak");
+    setKategori("Genel");
+    setDuzenlenenId(null);
+  };
+
+  const duyuruEkle = () => {
+    if (!baslik.trim() || !icerik.trim()) {
+      setMesaj("Başlık ve içerik alanları zorunludur.");
+      window.setTimeout(() => setMesaj(""), 3000);
+      return;
+    }
+
+    if (duzenlenenId !== null) {
+      setDuyurular((prev) =>
+        prev.map((duyuru) =>
+          duyuru.id === duzenlenenId
+            ? {
+                ...duyuru,
+                baslik: baslik.trim(),
+                icerik: icerik.trim(),
+                durum,
+                kategori,
+              }
+            : duyuru
+        )
+      );
+      setMesaj("Duyuru başarıyla güncellendi.");
+    } else {
+      const yeniDuyuru: Duyuru = {
+        id: Date.now(),
+        baslik: baslik.trim(),
+        icerik: icerik.trim(),
+        tarih: new Date().toLocaleDateString("tr-TR", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        }),
+        durum,
+        kategori,
+      };
+
+      setDuyurular((prev) => [yeniDuyuru, ...prev]);
+      setMesaj("Duyuru başarıyla oluşturuldu.");
+    }
+
+    formuTemizle();
+    window.setTimeout(() => setMesaj(""), 3000);
   };
 
   const duyuruSil = (id: number) => {
+    setDuyurular((prev) => prev.filter((duyuru) => duyuru.id !== id));
+  };
+
+  const duyuruDuzenle = (duyuru: Duyuru) => {
+    setDuzenlenenId(duyuru.id);
+    setBaslik(duyuru.baslik);
+    setIcerik(duyuru.icerik);
+    setDurum(duyuru.durum);
+    setKategori(duyuru.kategori);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const duyuruDetay = (duyuru: Duyuru) => {
+    setSeciliDuyuru(duyuru);
+    setDetayOpen(true);
+  };
+
+  const yayinla = (id: number) => {
     setDuyurular((prev) =>
-      prev.filter(
-        (duyuru) => duyuru.id !== id
+      prev.map((duyuru) =>
+        duyuru.id === id ? { ...duyuru, durum: "Yayında" } : duyuru
       )
     );
+    setMesaj("Duyuru yayına alındı.");
+    window.setTimeout(() => setMesaj(""), 3000);
   };
+
+  const filtrelenmisDuyurular = useMemo(() => {
+    const q = arama.toLocaleLowerCase("tr-TR").trim();
+
+    return duyurular.filter((duyuru) => {
+      const metin = `${duyuru.baslik} ${duyuru.icerik} ${duyuru.kategori}`
+        .toLocaleLowerCase("tr-TR");
+
+      return (
+        metin.includes(q) &&
+        (durumFiltre === "Tümü" || duyuru.durum === durumFiltre) &&
+        (kategoriFiltre === "Tümü" || duyuru.kategori === kategoriFiltre)
+      );
+    });
+  }, [duyurular, arama, durumFiltre, kategoriFiltre]);
+
+  const yayindaki = duyurular.filter((d) => d.durum === "Yayında").length;
+  const taslaklar = duyurular.filter((d) => d.durum === "Taslak").length;
 
   return (
     <Box
@@ -364,9 +451,101 @@ export default function DuyurularPage() {
                 fontSize: 13,
               }}
             >
-              Stajyerlere yönelik duyuruları
-              buradan yönetebilirsiniz.
+              Stajyerlere yönelik duyuruları oluşturun, düzenleyin ve yayın durumlarını yönetin.
             </Typography>
+          </Box>
+
+          {mesaj && (
+            <Paper
+              elevation={0}
+              sx={{
+                mb: 2,
+                px: 2,
+                py: 1.4,
+                borderRadius: 1.8,
+                border: "1px solid #bbf7d0",
+                background: "#f0fdf4",
+                color: "#15803d",
+                fontSize: 13,
+                fontWeight: 600,
+              }}
+            >
+              {mesaj}
+            </Paper>
+          )}
+
+          {/* ==================== ÖZET ==================== */}
+
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                sm: "repeat(3, 1fr)",
+              },
+              gap: 2,
+              mb: 3,
+            }}
+          >
+            {[
+              {
+                title: "Toplam Duyuru",
+                value: duyurular.length,
+                icon: <CampaignOutlined />,
+              },
+              {
+                title: "Yayında",
+                value: yayindaki,
+                icon: <CampaignOutlined />,
+              },
+              {
+                title: "Taslak",
+                value: taslaklar,
+                icon: <DraftsOutlinedIcon />,
+              },
+            ].map((item) => (
+              <Paper
+                key={item.title}
+                elevation={0}
+                sx={{
+                  border: "1px solid #dfe5ec",
+                  borderRadius: 2.2,
+                  p: 2,
+                  background: "#fff",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  transition: "0.2s",
+                  "&:hover": {
+                    transform: "translateY(-2px)",
+                    boxShadow: "0 7px 18px rgba(15,39,66,0.07)",
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    width: 42,
+                    height: 42,
+                    borderRadius: 1.5,
+                    background: "#edf4f9",
+                    color: "#1f6fae",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {item.icon}
+                </Box>
+                <Box>
+                  <Typography sx={{ fontSize: 11, color: "#64748b" }}>
+                    {item.title}
+                  </Typography>
+                  <Typography sx={{ fontSize: 23, fontWeight: 800, color: "#0f2742" }}>
+                    {item.value}
+                  </Typography>
+                </Box>
+              </Paper>
+            ))}
           </Box>
 
           {/* ==================== YENİ DUYURU ==================== */}
@@ -406,7 +585,7 @@ export default function DuyurularPage() {
                   color: "#0f2742",
                 }}
               >
-                Yeni Duyuru Oluştur
+                {duzenlenenId !== null ? "Duyuruyu Düzenle" : "Yeni Duyuru Oluştur"}
               </Typography>
             </Box>
 
@@ -440,31 +619,44 @@ export default function DuyurularPage() {
               sx={{ mb: 2 }}
             />
 
-            {/* DURUM */}
+            {/* KATEGORİ + DURUM */}
 
-            <Select
-              fullWidth
-              value={durum}
-              onChange={(e) =>
-                setDurum(
-                  e.target.value as
-                    | "Yayında"
-                    | "Taslak"
-                )
-              }
+            <Box
               sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                gap: 2,
                 mb: 2,
-                background: "#ffffff",
               }}
             >
-              <MenuItem value="Taslak">
-                Taslak
-              </MenuItem>
+              <FormControl fullWidth>
+                <InputLabel id="duyuru-kategori-label">Kategori</InputLabel>
+                <Select
+                  labelId="duyuru-kategori-label"
+                  label="Kategori"
+                  value={kategori}
+                  onChange={(e) => setKategori(e.target.value as Duyuru["kategori"])}
+                >
+                  <MenuItem value="Genel">Genel</MenuItem>
+                  <MenuItem value="Staj">Staj</MenuItem>
+                  <MenuItem value="Belge">Belge</MenuItem>
+                  <MenuItem value="Devam">Devam</MenuItem>
+                </Select>
+              </FormControl>
 
-              <MenuItem value="Yayında">
-                Yayında
-              </MenuItem>
-            </Select>
+              <FormControl fullWidth>
+                <InputLabel id="duyuru-durum-label">Durum</InputLabel>
+                <Select
+                  labelId="duyuru-durum-label"
+                  label="Durum"
+                  value={durum}
+                  onChange={(e) => setDurum(e.target.value as "Yayında" | "Taslak")}
+                >
+                  <MenuItem value="Taslak">Taslak</MenuItem>
+                  <MenuItem value="Yayında">Yayında</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
 
             {/* EKLE */}
 
@@ -483,8 +675,18 @@ export default function DuyurularPage() {
                 },
               }}
             >
-              Duyuru Ekle
+              {duzenlenenId !== null ? "Değişiklikleri Kaydet" : "Duyuru Ekle"}
             </Button>
+
+            {duzenlenenId !== null && (
+              <Button
+                variant="text"
+                onClick={formuTemizle}
+                sx={{ ml: 1, textTransform: "none", color: "#64748b" }}
+              >
+                Düzenlemeyi İptal Et
+              </Button>
+            )}
           </Paper>
 
           {/* ==================== MEVCUT DUYURULAR ==================== */}
@@ -502,16 +704,85 @@ export default function DuyurularPage() {
               background: "#ffffff",
             }}
           >
-            <Typography
+            <Box
               sx={{
-                fontSize: "1.2rem",
-                fontWeight: 700,
-                color: "#0f2742",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 2,
+                flexWrap: "wrap",
                 mb: 1,
               }}
             >
-              Mevcut Duyurular
-            </Typography>
+              <Box>
+                <Typography
+                  sx={{
+                    fontSize: "1.2rem",
+                    fontWeight: 700,
+                    color: "#0f2742",
+                  }}
+                >
+                  Duyuru Yönetimi
+                </Typography>
+                <Typography sx={{ color: "#64748b", fontSize: 12, mt: 0.3 }}>
+                  {filtrelenmisDuyurular.length} duyuru listeleniyor
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: { xs: "1fr", md: "1.7fr 1fr 1fr" },
+                gap: 1.5,
+                mb: 2,
+              }}
+            >
+              <TextField
+                size="small"
+                fullWidth
+                placeholder="Duyurularda ara..."
+                value={arama}
+                onChange={(e) => setArama(e.target.value)}
+                slotProps={{
+                  input: {
+                    startAdornment: <SearchIcon sx={{ mr: 1, color: "#94a3b8" }} />,
+                  },
+                }}
+              />
+
+              <FormControl size="small" fullWidth>
+                <InputLabel id="filtre-durum-label">Durum</InputLabel>
+                <Select
+                  labelId="filtre-durum-label"
+                  label="Durum"
+                  value={durumFiltre}
+                  onChange={(e) => setDurumFiltre(e.target.value as typeof durumFiltre)}
+                >
+                  <MenuItem value="Tümü">Tümü</MenuItem>
+                  <MenuItem value="Yayında">Yayında</MenuItem>
+                  <MenuItem value="Taslak">Taslak</MenuItem>
+                </Select>
+              </FormControl>
+
+              <FormControl size="small" fullWidth>
+                <InputLabel id="filtre-kategori-label">Kategori</InputLabel>
+                <Select
+                  labelId="filtre-kategori-label"
+                  label="Kategori"
+                  value={kategoriFiltre}
+                  onChange={(e) =>
+                    setKategoriFiltre(e.target.value as typeof kategoriFiltre)
+                  }
+                >
+                  <MenuItem value="Tümü">Tümü</MenuItem>
+                  <MenuItem value="Genel">Genel</MenuItem>
+                  <MenuItem value="Staj">Staj</MenuItem>
+                  <MenuItem value="Belge">Belge</MenuItem>
+                  <MenuItem value="Devam">Devam</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
 
             <Typography
               sx={{
@@ -520,8 +791,7 @@ export default function DuyurularPage() {
                 mb: 2,
               }}
             >
-              Sistemde kayıtlı duyuruları
-              buradan görüntüleyebilirsiniz.
+              Duyuruları arayın, filtreleyin, düzenleyin veya doğrudan yayına alın.
             </Typography>
 
             <Divider sx={{ mb: 1 }} />
@@ -562,7 +832,15 @@ export default function DuyurularPage() {
                         alignItems:
                           "flex-start",
                         gap: 2,
+                        borderRadius: 1.5,
+                        px: 1,
+                        cursor: "pointer",
+                        transition: "0.2s",
+                        "&:hover": {
+                          background: "#f8fafc",
+                        },
                       }}
+                      onClick={() => duyuruDetay(duyuru)}
                     >
                       <Box sx={{ flex: 1 }}>
                         {/* BAŞLIK + DURUM */}
@@ -594,23 +872,32 @@ export default function DuyurularPage() {
                           </Typography>
 
                           <Chip
-                            label={
-                              duyuru.durum
-                            }
+                            label={duyuru.durum}
                             size="small"
+                            icon={
+                              duyuru.durum === "Yayında"
+                                ? <CampaignOutlined />
+                                : <DraftsOutlinedIcon />
+                            }
                             sx={{
-                              fontWeight:
-                                600,
+                              fontWeight: 600,
                               background:
-                                duyuru.durum ===
-                                "Yayında"
-                                  ? "#e8f5e9"
-                                  : "#fff3e0",
+                                duyuru.durum === "Yayında" ? "#e8f5e9" : "#fff3e0",
                               color:
-                                duyuru.durum ===
-                                "Yayında"
-                                  ? "#2e7d32"
-                                  : "#e65100",
+                                duyuru.durum === "Yayında" ? "#2e7d32" : "#e65100",
+                              "& .MuiChip-icon": { color: "inherit" },
+                            }}
+                          />
+
+                          <Chip
+                            label={duyuru.kategori}
+                            size="small"
+                            variant="outlined"
+                            sx={{
+                              borderColor: "#cbd5e1",
+                              color: "#475569",
+                              fontSize: 10,
+                              fontWeight: 600,
                             }}
                           />
                         </Box>
@@ -649,26 +936,60 @@ export default function DuyurularPage() {
                         </Typography>
                       </Box>
 
-                      {/* SİL */}
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.3 }}>
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            duyuruDetay(duyuru);
+                          }}
+                          sx={{ color: "#286B9D" }}
+                          aria-label="Duyuruyu görüntüle"
+                        >
+                          <VisibilityOutlined />
+                        </IconButton>
 
-                      <IconButton
-                        onClick={() =>
-                          duyuruSil(
-                            duyuru.id
-                          )
-                        }
-                        sx={{
-                          color:
-                            "#dc2626",
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            duyuruDuzenle(duyuru);
+                          }}
+                          sx={{ color: "#475569" }}
+                          aria-label="Duyuruyu düzenle"
+                        >
+                          <EditOutlined />
+                        </IconButton>
 
-                          "&:hover": {
-                            background:
-                              "#fee2e2",
-                          },
-                        }}
-                      >
-                        <DeleteOutlined />
-                      </IconButton>
+                        {duyuru.durum === "Taslak" && (
+                          <IconButton
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              yayinla(duyuru.id);
+                            }}
+                            sx={{ color: "#15803d" }}
+                            aria-label="Duyuruyu yayınla"
+                          >
+                            <CampaignOutlined />
+                          </IconButton>
+                        )}
+
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            duyuruSil(duyuru.id);
+                          }}
+                          sx={{
+                            color: "#dc2626",
+                            "&:hover": { background: "#fee2e2" },
+                          }}
+                          aria-label="Duyuruyu sil"
+                        >
+                          <DeleteOutlined />
+                        </IconButton>
+                      </Box>
                     </Box>
 
                     {index <
@@ -683,6 +1004,112 @@ export default function DuyurularPage() {
           </Paper>
         </Box>
       </Box>
+
+      <Dialog
+        open={detayOpen}
+        onClose={() => {
+          setDetayOpen(false);
+          setSeciliDuyuru(null);
+        }}
+        fullWidth
+        maxWidth="sm"
+      >
+        {seciliDuyuru && (
+          <>
+            <DialogTitle
+              sx={{
+                color: "#0f2742",
+                fontWeight: 800,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                gap: 2,
+              }}
+            >
+              <Box>
+                <Typography sx={{ fontSize: 20, fontWeight: 800, color: "#0f2742" }}>
+                  {seciliDuyuru.baslik}
+                </Typography>
+                <Box sx={{ display: "flex", gap: 0.8, mt: 1 }}>
+                  <Chip
+                    label={seciliDuyuru.durum}
+                    size="small"
+                    sx={{
+                      background: seciliDuyuru.durum === "Yayında" ? "#e8f5e9" : "#fff3e0",
+                      color: seciliDuyuru.durum === "Yayında" ? "#2e7d32" : "#e65100",
+                      fontWeight: 600,
+                    }}
+                  />
+                  <Chip
+                    label={seciliDuyuru.kategori}
+                    size="small"
+                    variant="outlined"
+                  />
+                </Box>
+              </Box>
+              <IconButton onClick={() => setDetayOpen(false)}>
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+
+            <DialogContent dividers>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 2,
+                  borderRadius: 1.8,
+                  background: "#f8fafc",
+                  border: "1px solid #e2e8f0",
+                  mb: 2,
+                }}
+              >
+                <Typography
+                  sx={{
+                    color: "#334155",
+                    fontSize: 14,
+                    lineHeight: 1.8,
+                    whiteSpace: "pre-wrap",
+                  }}
+                >
+                  {seciliDuyuru.icerik}
+                </Typography>
+              </Paper>
+
+              <Typography sx={{ color: "#94a3b8", fontSize: 12 }}>
+                Oluşturulma tarihi: {seciliDuyuru.tarih}
+              </Typography>
+            </DialogContent>
+
+            <DialogActions sx={{ p: 2 }}>
+              {seciliDuyuru.durum === "Taslak" && (
+                <Button
+                  onClick={() => {
+                    yayinla(seciliDuyuru.id);
+                    setSeciliDuyuru((prev) =>
+                      prev ? { ...prev, durum: "Yayında" } : prev
+                    );
+                  }}
+                  startIcon={<CampaignOutlined />}
+                  sx={{ textTransform: "none", color: "#15803d", mr: "auto" }}
+                >
+                  Yayına Al
+                </Button>
+              )}
+              <Button
+                onClick={() => setDetayOpen(false)}
+                variant="contained"
+                sx={{
+                  background: "#1f6fae",
+                  textTransform: "none",
+                  "&:hover": { background: "#185d91" },
+                }}
+              >
+                Kapat
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
     </Box>
   );
 }

@@ -195,6 +195,7 @@ export default function BildirimlerPage() {
   const [arama, setArama] = useState("");
   const [kategoriFiltre, setKategoriFiltre] = useState("Tümü");
   const [durumFiltre, setDurumFiltre] = useState("Tümü");
+  const [oncelikFiltre, setOncelikFiltre] = useState("Tümü");
   const [mesaj, setMesaj] = useState("");
 
   // ===================================================
@@ -281,12 +282,18 @@ export default function BildirimlerPage() {
   };
 
   const tumunuOkunduYap = () => {
-    setBildirimler((prev) =>
-      prev.map((bildirim) => ({
+    setBildirimler((prev) => {
+      const okunmamisVar = prev.some((bildirim) => !bildirim.okundu);
+
+      if (!okunmamisVar) {
+        return prev;
+      }
+
+      return prev.map((bildirim) => ({
         ...bildirim,
         okundu: true,
-      }))
-    );
+      }));
+    });
 
     setMesaj("Tüm bildirimler okundu olarak işaretlendi.");
     window.setTimeout(() => setMesaj(""), 3000);
@@ -298,6 +305,10 @@ export default function BildirimlerPage() {
 
   const bugun = bildirimler.filter(
     (bildirim) => bildirim.tarih === "13 Ağustos 2026"
+  ).length;
+
+  const acilBildirimler = bildirimler.filter(
+    (bildirim) => bildirim.oncelik === "Acil" && !bildirim.okundu
   ).length;
 
   const filtrelenmisBildirimler = useMemo(() => {
@@ -319,9 +330,13 @@ export default function BildirimlerPage() {
         (durumFiltre === "Okundu" && bildirim.okundu) ||
         (durumFiltre === "Okunmamış" && !bildirim.okundu);
 
-      return aramaUyuyor && kategoriUyuyor && durumUyuyor;
+      const oncelikUyuyor =
+        oncelikFiltre === "Tümü" ||
+        bildirim.oncelik === oncelikFiltre;
+
+      return aramaUyuyor && kategoriUyuyor && durumUyuyor && oncelikUyuyor;
     });
-  }, [bildirimler, arama, kategoriFiltre, durumFiltre]);
+  }, [bildirimler, arama, kategoriFiltre, durumFiltre, oncelikFiltre]);
 
   // ===================================================
   // STAJYER ADI
@@ -653,12 +668,26 @@ export default function BildirimlerPage() {
           }}
         >
           <IconButton
-            sx={{
-              mr: 1,
-              color: "#286B9D",
+            onClick={() => {
+              const ilkOkunmamis = bildirimler.find((b) => !b.okundu);
+              if (ilkOkunmamis) bildirimiAc(ilkOkunmamis);
             }}
+            aria-label="Bildirimleri aç"
+            sx={{ mr: 1, color: "#286B9D", position: "relative" }}
           >
             <NotificationsIcon />
+            {okunmamis > 0 && (
+              <Box sx={{
+                position: "absolute", top: 6, right: 5,
+                minWidth: 17, height: 17, px: 0.4,
+                borderRadius: "10px", background: "#dc2626",
+                color: "#fff", fontSize: 9, fontWeight: 800,
+                display: "flex", alignItems: "center",
+                justifyContent: "center", border: "2px solid #fff"
+              }}>
+                {okunmamis > 9 ? "9+" : okunmamis}
+              </Box>
+            )}
           </IconButton>
 
           <Box
@@ -748,7 +777,7 @@ export default function BildirimlerPage() {
                   fontSize: 13,
                 }}
               >
-                Sistem bildirimlerini yönetin ve stajyerlere yeni bildirimler gönderin.
+                Sistem bildirimlerini yönetin, önceliklendirin ve stajyerlere yeni bildirimler gönderin.
               </Typography>
             </Box>
 
@@ -801,7 +830,8 @@ export default function BildirimlerPage() {
               display: "grid",
               gridTemplateColumns: {
                 xs: "1fr",
-                sm: "repeat(3, 1fr)",
+                sm: "repeat(2, 1fr)",
+                lg: "repeat(4, 1fr)",
               },
               gap: 2,
               mb: 3,
@@ -822,6 +852,11 @@ export default function BildirimlerPage() {
                 title: "Bugünkü Bildirim",
                 value: bugun,
                 icon: <ScheduleIcon />,
+              },
+              {
+                title: "Acil Bildirim",
+                value: acilBildirimler,
+                icon: <PriorityHighIcon />,
               },
             ].map((item) => (
               <Paper
@@ -965,7 +1000,23 @@ export default function BildirimlerPage() {
                 </Select>
               </FormControl>
 
+              <FormControl size="small" fullWidth>
+                <InputLabel id="oncelik-filtre-label">Öncelik</InputLabel>
+                <Select
+                  labelId="oncelik-filtre-label"
+                  label="Öncelik"
+                  value={oncelikFiltre}
+                  onChange={(e) => setOncelikFiltre(e.target.value)}
+                >
+                  <MenuItem value="Tümü">Tümü</MenuItem>
+                  <MenuItem value="Normal">Normal</MenuItem>
+                  <MenuItem value="Önemli">Önemli</MenuItem>
+                  <MenuItem value="Acil">Acil</MenuItem>
+                </Select>
+              </FormControl>
+
               <Button
+                type="button"
                 variant="outlined"
                 onClick={tumunuOkunduYap}
                 disabled={okunmamis === 0}
@@ -975,12 +1026,54 @@ export default function BildirimlerPage() {
                   whiteSpace: "nowrap",
                   borderColor: "#cbd5e1",
                   color: "#475569",
+                  fontWeight: 600,
+                  "&:hover": {
+                    borderColor: "#1f6fae",
+                    background: "#f0f7fc",
+                  },
+                  "&.Mui-disabled": {
+                    borderColor: "#e2e8f0",
+                    color: "#94a3b8",
+                  },
                 }}
               >
-                Tümünü Okundu Yap
+                {okunmamis > 0 ? "Tümünü Okundu Yap" : "Hepsi Okundu"}
               </Button>
             </Box>
           </Paper>
+
+          <Box
+            sx={{
+              mt: -1.5,
+              mb: 2.5,
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 1,
+            }}
+          >
+            <Typography sx={{ fontSize: 11.5, color: "#64748b" }}>
+              {filtrelenmisBildirimler.length} bildirim gösteriliyor
+            </Typography>
+
+            <Button
+              size="small"
+              onClick={() => {
+                setArama("");
+                setKategoriFiltre("Tümü");
+                setDurumFiltre("Tümü");
+                setOncelikFiltre("Tümü");
+              }}
+              sx={{
+                textTransform: "none",
+                color: "#64748b",
+                fontWeight: 600,
+              }}
+            >
+              Filtreleri Temizle
+            </Button>
+          </Box>
 
           {/* MEVCUT BİLDİRİMLER */}
 
@@ -1055,13 +1148,18 @@ export default function BildirimlerPage() {
                         justifyContent: "space-between",
                         alignItems: "flex-start",
                         gap: 2,
-                        background: bildirim.okundu
-                          ? "#fff"
-                          : "#f8fbfe",
+                        background: bildirim.okundu ? "#fff" : "#f8fbfe",
                         borderLeft: bildirim.okundu
                           ? "3px solid transparent"
                           : "3px solid #1f6fae",
+                        borderRadius: 1.5,
+                        cursor: "pointer",
+                        transition: "0.2s",
+                        "&:hover": {
+                          background: bildirim.okundu ? "#f8fafc" : "#f2f8fc",
+                        },
                       }}
+                      onClick={() => bildirimiAc(bildirim)}
                     >
                       <Box sx={{ flex: 1 }}>
                         <Box
@@ -1177,6 +1275,10 @@ export default function BildirimlerPage() {
                             fontSize: "0.95rem",
                             lineHeight: 1.6,
                             mb: 1,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
                           }}
                         >
                           {bildirim.icerik}
@@ -1202,7 +1304,10 @@ export default function BildirimlerPage() {
                         <Button
                           size="small"
                           startIcon={<NotificationsOutlined />}
-                          onClick={() => bildirimiAc(bildirim)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            bildirimiAc(bildirim);
+                          }}
                           sx={{
                             textTransform: "none",
                             color: "#1f6fae",
@@ -1214,9 +1319,10 @@ export default function BildirimlerPage() {
                         </Button>
 
                         <IconButton
-                          onClick={() =>
-                            bildirimSil(bildirim.id)
-                          }
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            bildirimSil(bildirim.id);
+                          }}
                           aria-label="Bildirimi sil"
                           sx={{
                             color: "#dc2626",

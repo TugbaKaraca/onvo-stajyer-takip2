@@ -6,12 +6,13 @@ import {
   Box,
   Button,
   Card,
+  CardContent,
   Chip,
   Dialog,
-  DialogActions,
-  DialogContent,
   DialogTitle,
-  IconButton,
+  DialogContent,
+  DialogActions,
+  MenuItem,
   InputAdornment,
   TextField,
   Typography,
@@ -20,6 +21,7 @@ import {
 import {
   Dashboard,
   People,
+  Business,
   Description,
   EventAvailable,
   Folder,
@@ -29,167 +31,89 @@ import {
   Logout,
   Person,
   Search,
+  Add,
   Visibility,
-  ArrowBack,
-  Close,
-  Email,
-  Business,
   CalendarMonth,
-  Work,
 } from "@mui/icons-material";
 
 import { useRouter } from "next/navigation";
 
-type Intern = {
-  name: string;
-  email: string;
-  department: string;
-  position: string;
-  start: string;
-  end: string;
-  status: "Aktif" | "İzinli";
-  report: string;
-  attendance: string;
-};
+import {
+  interns,
+  type Intern,
+} from "@/app/data/stajyerler";
 
 export default function StajyerlerPage() {
   const router = useRouter();
 
   const [search, setSearch] = useState("");
-  const [selectedIntern, setSelectedIntern] =
-    useState<Intern | null>(null);
+  const [statusFilter, setStatusFilter] = useState<
+    "Tümü" | "Aktif" | "İzinli"
+  >("Tümü");
 
-  const menuItems = [
-    {
-      icon: <Dashboard />,
-      text: "Kontrol Paneli",
-      path: "/yetkili",
-    },
-    {
-      icon: <People />,
-      text: "Stajyerler",
-      path: "/yetkili/stajyerler",
-    },
-    {
-      icon: <Business />,
-      text: "Departman Yönetimi",
-      path: "/yetkili/departmanlar",
-    },
-    {
-      icon: <Description />,
-      text: "Raporlar",
-      path: "/yetkili/raporlar",
-    },
-    {
-      icon: <EventAvailable />,
-      text: "Devam Durumu",
-      path: "/yetkili/devam",
-    },
-    {
-      icon: <Folder />,
-      text: "Belgeler",
-      path: "/yetkili/belgeler",
-    },
-    {
-      icon: <Campaign />,
-      text: "Duyurular",
-      path: "/yetkili/duyurular",
-    },
-    {
-      icon: <Notifications />,
-      text: "Bildirimler",
-      path: "/yetkili/bildirimler",
-    },
-    {
-      icon: <Settings />,
-      text: "Ayarlar",
-      path: "/yetkili/ayarlar",
-    },
-  ];
+  const [internList, setInternList] = useState<Intern[]>(interns);
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [newIntern, setNewIntern] = useState({
+    name: "",
+    email: "",
+    department: "",
+    position: "",
+    status: "Aktif" as "Aktif" | "İzinli",
+    start: "",
+    end: "",
+  });
 
-  const interns: Intern[] = [
-    {
-      name: "Zeliha Koyuncu",
-      email: "zeliha@example.com",
-      department: "Yazılım",
-      position: "Yazılım Mühendisliği Stajyeri",
-      start: "10 Ağustos 2026",
-      end: "04 Eylül 2026",
-      status: "Aktif",
-      report: "İnceleniyor",
-      attendance: "12 / 20 gün",
-    },
-    {
-      name: "Ahmet Yılmaz",
-      email: "ahmet@example.com",
-      department: "Elektrik",
-      position: "Elektrik-Elektronik Stajyeri",
-      start: "10 Ağustos 2026",
-      end: "04 Eylül 2026",
-      status: "Aktif",
-      report: "Onaylandı",
-      attendance: "12 / 20 gün",
-    },
-    {
-      name: "Elif Demir",
-      email: "elif@example.com",
-      department: "Yazılım",
-      position: "Frontend Stajyeri",
-      start: "11 Ağustos 2026",
-      end: "05 Eylül 2026",
-      status: "Aktif",
-      report: "Bekliyor",
-      attendance: "11 / 20 gün",
-    },
-    {
-      name: "Mehmet Kaya",
-      email: "mehmet@example.com",
-      department: "Ar-Ge",
-      position: "Ar-Ge Stajyeri",
-      start: "08 Ağustos 2026",
-      end: "02 Eylül 2026",
-      status: "İzinli",
-      report: "Onaylandı",
-      attendance: "10 / 20 gün",
-    },
-    {
-      name: "Ayşe Çelik",
-      email: "ayse@example.com",
-      department: "Üretim",
-      position: "Üretim Stajyeri",
-      start: "12 Ağustos 2026",
-      end: "08 Eylül 2026",
-      status: "Aktif",
-      report: "Bekliyor",
-      attendance: "9 / 20 gün",
-    },
-  ];
+  // =========================
+  // STAJYERLERİ FİLTRELE
+  // =========================
 
-  // ARAMA
   const filteredInterns = useMemo(() => {
-    const searchText = search.trim().toLocaleLowerCase("tr-TR");
+    return internList.filter((intern: Intern) => {
+      const searchText = search.toLowerCase();
 
-    if (!searchText) {
-      return interns;
+      const matchesSearch =
+        intern.name.toLowerCase().includes(searchText) ||
+        intern.email.toLowerCase().includes(searchText) ||
+        intern.department.toLowerCase().includes(searchText) ||
+        intern.position.toLowerCase().includes(searchText);
+
+      const matchesStatus =
+        statusFilter === "Tümü" ||
+        intern.status === statusFilter;
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [internList, search, statusFilter]);
+
+  // =========================
+  // RAPOR DURUMU
+  // =========================
+
+  const getReportColor = (
+    status: Intern["report"]
+  ) => {
+    if (status === "Onaylandı") {
+      return "success";
     }
 
-    return interns.filter((intern) => {
-      return (
-        intern.name
-          .toLocaleLowerCase("tr-TR")
-          .includes(searchText) ||
-        intern.email
-          .toLocaleLowerCase("tr-TR")
-          .includes(searchText) ||
-        intern.department
-          .toLocaleLowerCase("tr-TR")
-          .includes(searchText) ||
-        intern.position
-          .toLocaleLowerCase("tr-TR")
-          .includes(searchText)
-      );
-    });
-  }, [search]);
+    if (status === "İnceleniyor") {
+      return "warning";
+    }
+
+    return "default";
+  };
+
+  const menuItems = [
+    { icon: <Dashboard />, text: "Kontrol Paneli", path: "/yetkili" },
+    { icon: <People />, text: "Stajyerler", path: "/yetkili/stajyerler" },
+    { icon: <Business />, text: "Departman Yönetimi", path: "/yetkili/departmanlar" },
+    { icon: <Description />, text: "Raporlar", path: "/yetkili/raporlar" },
+    { icon: <EventAvailable />, text: "Devam Durumu", path: "/yetkili/devam" },
+    { icon: <Folder />, text: "Belgeler", path: "/yetkili/belgeler" },
+    { icon: <Campaign />, text: "Duyurular", path: "/yetkili/duyurular" },
+    { icon: <Notifications />, text: "Bildirimler", path: "/yetkili/bildirimler" },
+    { icon: <Settings />, text: "Ayarlar", path: "/yetkili/ayarlar" },
+  ];
 
   return (
     <Box
@@ -203,8 +127,7 @@ export default function StajyerlerPage() {
       <Box
         sx={{
           width: 195,
-          background:
-            "linear-gradient(180deg, #0F2742 0%, #286B9D 100%)",
+          background: "linear-gradient(180deg, #0F2742 0%, #286B9D 100%)",
           color: "white",
           display: "flex",
           flexDirection: "column",
@@ -220,26 +143,13 @@ export default function StajyerlerPage() {
           sx={{
             px: 2.2,
             py: 2.2,
-            borderBottom:
-              "1px solid rgba(255,255,255,0.15)",
+            borderBottom: "1px solid rgba(255,255,255,0.15)",
           }}
         >
-          <Typography
-            sx={{
-              fontSize: 23,
-              fontWeight: "bold",
-            }}
-          >
+          <Typography sx={{ fontSize: 23, fontWeight: "bold" }}>
             ONVO
           </Typography>
-
-          <Typography
-            sx={{
-              fontSize: 11,
-              opacity: 0.9,
-              mt: 0.3,
-            }}
-          >
+          <Typography sx={{ fontSize: 11, opacity: 0.9, mt: 0.3 }}>
             Stajyer Takip Sistemi
           </Typography>
         </Box>
@@ -247,8 +157,7 @@ export default function StajyerlerPage() {
         {/* MENÜ */}
         <Box sx={{ px: 1, py: 1.5 }}>
           {menuItems.map((item) => {
-            const active =
-              item.path === "/yetkili/stajyerler";
+            const active = item.path === "/yetkili/stajyerler";
 
             return (
               <Box
@@ -263,16 +172,12 @@ export default function StajyerlerPage() {
                   mb: 0.35,
                   borderRadius: 1.5,
                   cursor: "pointer",
-
                   backgroundColor: active
                     ? "rgba(255,255,255,0.20)"
                     : "transparent",
-
                   "&:hover": {
-                    backgroundColor:
-                      "rgba(255,255,255,0.14)",
+                    backgroundColor: "rgba(255,255,255,0.14)",
                   },
-
                   transition: "0.2s",
                 }}
               >
@@ -280,15 +185,11 @@ export default function StajyerlerPage() {
                   sx={{
                     display: "flex",
                     alignItems: "center",
-
-                    "& svg": {
-                      fontSize: 19,
-                    },
+                    "& svg": { fontSize: 19 },
                   }}
                 >
                   {item.icon}
                 </Box>
-
                 <Typography
                   sx={{
                     fontSize: 12,
@@ -303,38 +204,24 @@ export default function StajyerlerPage() {
         </Box>
 
         {/* ÇIKIŞ */}
-        <Box
-          sx={{
-            mt: "auto",
-            px: 1,
-            pb: 2,
-          }}
-        >
+        <Box sx={{ mt: "auto", px: 1, pb: 2 }}>
           <Box
-            onClick={() => router.push("/login/yetkili")}
+            onClick={() => router.push("/")}
             sx={{
               display: "flex",
               alignItems: "center",
               gap: 1.2,
               px: 1.3,
-              py: 1,
+              py: 1.05,
               borderRadius: 1.5,
               cursor: "pointer",
-
               "&:hover": {
-                backgroundColor:
-                  "rgba(255,255,255,0.14)",
+                backgroundColor: "rgba(255,255,255,0.14)",
               },
             }}
           >
             <Logout sx={{ fontSize: 19 }} />
-
-            <Typography
-              sx={{
-                fontSize: 12,
-                fontWeight: 500,
-              }}
-            >
+            <Typography sx={{ fontSize: 12, fontWeight: 500 }}>
               Çıkış Yap
             </Typography>
           </Box>
@@ -351,6 +238,7 @@ export default function StajyerlerPage() {
       >
         {/* ÜST BAR */}
         <Box
+          component="header"
           sx={{
             height: 58,
             backgroundColor: "white",
@@ -361,18 +249,6 @@ export default function StajyerlerPage() {
             px: 3,
           }}
         >
-          <IconButton
-            onClick={() =>
-              router.push("/yetkili/bildirimler")
-            }
-            sx={{
-              mr: 1,
-              color: "#286B9D",
-            }}
-          >
-            <Notifications />
-          </IconButton>
-
           <Box
             sx={{
               width: 34,
@@ -388,7 +264,6 @@ export default function StajyerlerPage() {
           >
             <Person sx={{ fontSize: 20 }} />
           </Box>
-
           <Box>
             <Typography
               sx={{
@@ -399,13 +274,7 @@ export default function StajyerlerPage() {
             >
               Yetkili Kullanıcı
             </Typography>
-
-            <Typography
-              sx={{
-                fontSize: 9,
-                color: "#64748B",
-              }}
-            >
+            <Typography sx={{ fontSize: 9, color: "#64748B" }}>
               Yetkili
             </Typography>
           </Box>
@@ -413,40 +282,14 @@ export default function StajyerlerPage() {
 
         {/* İÇERİK */}
         <Box
+          component="main"
           sx={{
-            px: {
-              xs: 2,
-              md: 4,
-            },
+            minHeight: "calc(100vh - 58px)",
+            backgroundColor: "#F5F7FA",
+            px: { xs: 2, md: 4 },
             py: 3,
-            maxWidth: 1400,
-            mx: "auto",
           }}
         >
-          {/* GERİ DÖN */}
-          <Box
-            onClick={() => router.push("/yetkili")}
-            sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 0.7,
-              color: "#286B9D",
-              cursor: "pointer",
-              mb: 2,
-            }}
-          >
-            <ArrowBack sx={{ fontSize: 18 }} />
-
-            <Typography
-              sx={{
-                fontSize: 12,
-                fontWeight: 600,
-              }}
-            >
-              Kontrol Paneline Dön
-            </Typography>
-          </Box>
-
           {/* BAŞLIK */}
           <Box
             sx={{
@@ -478,298 +321,681 @@ export default function StajyerlerPage() {
 
               <Typography
                 sx={{
-                  color: "#64748B",
                   fontSize: 13,
+                  color: "#64748B",
                 }}
               >
-                Sistemde kayıtlı stajyerleri buradan
-                görüntüleyebilirsiniz.
+                Sistemde kayıtlı stajyerleri buradan yönetebilirsiniz.
               </Typography>
             </Box>
 
-            <Chip
-              icon={<People />}
-              label={`${filteredInterns.length} Stajyer`}
+            <Button
+              variant="contained"
+              startIcon={<Add />}
+              onClick={() => setAddDialogOpen(true)}
               sx={{
-                backgroundColor: "#EAF2F8",
-                color: "#286B9D",
-                fontWeight: 600,
+                backgroundColor: "#286B9D",
+                textTransform: "none",
+                borderRadius: 1.5,
+                px: 2,
+                "&:hover": {
+                  backgroundColor: "#1F587F",
+                },
               }}
-            />
+            >
+              Stajyer Ekle
+            </Button>
           </Box>
 
-          {/* ARAMA */}
+          {/* ARAMA + FİLTRE */}
           <Card
             elevation={0}
             sx={{
               border: "1px solid #E4E7EC",
               borderRadius: 2,
+              mb: 3,
+            }}
+          >
+            <CardContent sx={{ p: 2 }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: {
+                    xs: "column",
+                    md: "row",
+                  },
+                  gap: 2,
+                  alignItems: {
+                    xs: "stretch",
+                    md: "center",
+                  },
+                }}
+              >
+                {/* ARAMA */}
+                <TextField
+                  fullWidth
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="Stajyer ara..."
+                  size="small"
+                  variant="outlined"
+                  sx={{
+                    "& .MuiOutlinedInput-root": {
+                      borderRadius: 1.5,
+                      backgroundColor: "#FFFFFF",
+                    },
+                  }}
+                  slotProps={{
+                    input: {
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <Search
+                            sx={{
+                              color: "#94A3B8",
+                              fontSize: 20,
+                            }}
+                          />
+                        </InputAdornment>
+                      ),
+                    },
+                  }}
+                />
+
+                {/* DURUM FİLTRELERİ */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    gap: 1,
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {(["Tümü", "Aktif", "İzinli"] as const).map((status) => (
+                    <Button
+                      key={status}
+                      variant={
+                        statusFilter === status ? "contained" : "outlined"
+                      }
+                      onClick={() => setStatusFilter(status)}
+                      sx={{
+                        minWidth: 75,
+                        textTransform: "none",
+                        borderRadius: 1.5,
+                        ...(statusFilter === status
+                          ? {
+                              backgroundColor: "#286B9D",
+                              "&:hover": {
+                                backgroundColor: "#1F587F",
+                              },
+                            }
+                          : {
+                              color: "#64748B",
+                              borderColor: "#CBD5E1",
+                            }),
+                      }}
+                    >
+                      {status}
+                    </Button>
+                  ))}
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* SONUÇ BİLGİSİ */}
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
               mb: 2,
             }}
           >
-            <Box sx={{ p: 2 }}>
-              <TextField
-                fullWidth
-                value={search}
-                onChange={(event) =>
-                  setSearch(event.target.value)
-                }
-                placeholder="Stajyer adı, e-posta veya departman ara..."
-                size="small"
-                slotProps={{
-                  input: {
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <Search
-                          sx={{
-                            color: "#94A3B8",
-                          }}
-                        />
-                      </InputAdornment>
-                    ),
-                  },
-                }}
-              />
-            </Box>
-          </Card>
-
-          {/* ARAMA SONUCU */}
-          {search.trim() && (
             <Typography
               sx={{
-                fontSize: 12,
+                fontSize: 14,
                 color: "#64748B",
-                mb: 2,
               }}
             >
-              "{search}" için{" "}
-              <strong>{filteredInterns.length}</strong>{" "}
-              sonuç bulundu.
+              {filteredInterns.length} stajyer gösteriliyor
             </Typography>
-          )}
+          </Box>
 
-          {/* STAJYER LİSTESİ */}
-          <Card
-            elevation={0}
+          {/* STAJYER KARTLARI */}
+          <Box
             sx={{
-              border: "1px solid #E4E7EC",
-              borderRadius: 2,
-              overflow: "hidden",
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "1fr",
+                md: "1fr 1fr",
+                xl: "1fr 1fr 1fr",
+              },
+              gap: 2,
             }}
           >
-            {/* BAŞLIK */}
-            <Box
-              sx={{
-                px: 2.5,
-                py: 2,
-                borderBottom: "1px solid #E4E7EC",
-                backgroundColor: "#FAFBFC",
-              }}
-            >
-              <Typography
+            {filteredInterns.map((intern: Intern) => (
+              <Card
+                key={intern.id}
+                elevation={0}
                 sx={{
-                  fontSize: 15,
-                  fontWeight: "bold",
-                  color: "#0F2742",
+                  border: "1px solid #E4E7EC",
+                  borderRadius: 2,
+                  backgroundColor: "#FFFFFF",
+                  transition: "0.2s",
+                  "&:hover": {
+                    boxShadow: "0 6px 20px rgba(15,39,66,0.08)",
+                    transform: "translateY(-2px)",
+                  },
                 }}
               >
-                Stajyer Listesi
-              </Typography>
-            </Box>
-
-            {/* LİSTE */}
-            {filteredInterns.length > 0 ? (
-              filteredInterns.map((intern, index) => (
-                <Box
-                  key={intern.email}
-                  sx={{
-                    px: 2.5,
-                    py: 2,
-                    display: "grid",
-                    gridTemplateColumns: {
-                      xs: "1fr",
-                      md: "2fr 1.2fr 1.5fr 1.2fr 1fr auto",
-                    },
-                    alignItems: "center",
-                    gap: 2,
-
-                    borderBottom:
-                      index !== filteredInterns.length - 1
-                        ? "1px solid #EEF1F5"
-                        : "none",
-
-                    "&:hover": {
-                      backgroundColor: "#FAFCFE",
-                    },
-                  }}
-                >
-                  {/* STAJYER */}
+                <CardContent sx={{ p: 2.5 }}>
+                  {/* ÜST KISIM */}
                   <Box
                     sx={{
                       display: "flex",
-                      alignItems: "center",
-                      gap: 1.5,
+                      justifyContent: "space-between",
+                      alignItems: "flex-start",
+                      mb: 2,
                     }}
                   >
                     <Box
                       sx={{
-                        width: 40,
-                        height: 40,
-                        minWidth: 40,
-                        borderRadius: "50%",
-                        backgroundColor: "#EDF4F9",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center",
-                        color: "#286B9D",
+                        gap: 1.5,
                       }}
                     >
-                      <Person sx={{ fontSize: 21 }} />
+                      <Box
+                        sx={{
+                          width: 48,
+                          height: 48,
+                          borderRadius: "50%",
+                          backgroundColor: "#EDF4F9",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#286B9D",
+                          flexShrink: 0,
+                        }}
+                      >
+                        <Person sx={{ fontSize: 25 }} />
+                      </Box>
+
+                      <Box>
+                        <Typography
+                          sx={{
+                            fontSize: 15,
+                            fontWeight: "bold",
+                            color: "#0F2742",
+                          }}
+                        >
+                          {intern.name}
+                        </Typography>
+
+                        <Typography
+                          sx={{
+                            fontSize: 11,
+                            color: "#64748B",
+                            mt: 0.3,
+                          }}
+                        >
+                          {intern.position}
+                        </Typography>
+                      </Box>
                     </Box>
 
-                    <Box>
+                    <Chip
+                      label={intern.status}
+                      size="small"
+                      color={
+                        intern.status === "Aktif" ? "success" : "warning"
+                      }
+                      sx={{
+                        fontSize: 10,
+                        fontWeight: 600,
+                      }}
+                    />
+                  </Box>
+
+                  {/* BİLGİLER */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 1.2,
+                      mb: 2,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: 11,
+                          color: "#64748B",
+                          width: 75,
+                        }}
+                      >
+                        Pozisyon
+                      </Typography>
+
+                      <Typography
+                        sx={{
+                          fontSize: 11,
+                          color: "#17202A",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {intern.position}
+                      </Typography>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: 11,
+                          color: "#64748B",
+                          width: 75,
+                        }}
+                      >
+                        Departman
+                      </Typography>
+
+                      <Typography
+                        sx={{
+                          fontSize: 11,
+                          color: "#17202A",
+                          fontWeight: 500,
+                        }}
+                      >
+                        {intern.department}
+                      </Typography>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1,
+                      }}
+                    >
+                      <CalendarMonth
+                        sx={{
+                          fontSize: 17,
+                          color: "#286B9D",
+                        }}
+                      />
+
+                      <Typography
+                        sx={{
+                          fontSize: 11,
+                          color: "#64748B",
+                        }}
+                      >
+                        {intern.start}
+                      </Typography>
+
+                      <Typography
+                        sx={{
+                          fontSize: 11,
+                          color: "#94A3B8",
+                        }}
+                      >
+                        →
+                      </Typography>
+
+                      <Typography
+                        sx={{
+                          fontSize: 11,
+                          color: "#64748B",
+                        }}
+                      >
+                        {intern.end}
+                      </Typography>
+                    </Box>
+                  </Box>
+
+                  <Box
+                    sx={{
+                      borderTop: "1px solid #EEF1F5",
+                      mb: 2,
+                    }}
+                  />
+
+                  {/* ALT İSTATİSTİKLER */}
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 1.5,
+                      mb: 2,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        backgroundColor: "#F8FAFC",
+                        borderRadius: 1.5,
+                        p: 1.3,
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.7,
+                          mb: 0.5,
+                        }}
+                      >
+                        <Description
+                          sx={{
+                            fontSize: 16,
+                            color: "#286B9D",
+                          }}
+                        />
+
+                        <Typography
+                          sx={{
+                            fontSize: 10,
+                            color: "#64748B",
+                          }}
+                        >
+                          Rapor
+                        </Typography>
+                      </Box>
+
                       <Typography
                         sx={{
                           fontSize: 13,
                           fontWeight: "bold",
-                          color: "#1E293B",
+                          color: "#17202A",
                         }}
                       >
-                        {intern.name}
+                        {intern.report}
                       </Typography>
 
+                      <Chip
+                        label={intern.report}
+                        size="small"
+                        color={getReportColor(intern.report)}
+                        sx={{
+                          mt: 0.7,
+                          fontSize: 9,
+                          height: 22,
+                        }}
+                      />
+                    </Box>
+
+                    <Box
+                      sx={{
+                        backgroundColor: "#F8FAFC",
+                        borderRadius: 1.5,
+                        p: 1.3,
+                      }}
+                    >
                       <Typography
                         sx={{
                           fontSize: 10,
                           color: "#64748B",
+                          mb: 0.5,
                         }}
                       >
-                        {intern.email}
+                        Devamsızlık
+                      </Typography>
+
+                      <Typography
+                        sx={{
+                          fontSize: 13,
+                          fontWeight: "bold",
+                          color: "#17202A",
+                        }}
+                      >
+                        {intern.attendance}
                       </Typography>
                     </Box>
                   </Box>
 
-                  {/* DEPARTMAN */}
-                  <Box>
-                    <Typography
-                      sx={{
-                        fontSize: 10,
-                        color: "#94A3B8",
-                        mb: 0.3,
-                      }}
-                    >
-                      Departman
-                    </Typography>
-
-                    <Typography
-                      sx={{
-                        fontSize: 12,
-                        fontWeight: 600,
-                      }}
-                    >
-                      {intern.department}
-                    </Typography>
-                  </Box>
-
-                  {/* POZİSYON */}
-                  <Box>
-                    <Typography
-                      sx={{
-                        fontSize: 10,
-                        color: "#94A3B8",
-                        mb: 0.3,
-                      }}
-                    >
-                      Pozisyon
-                    </Typography>
-
-                    <Typography
-                      sx={{
-                        fontSize: 12,
-                      }}
-                    >
-                      {intern.position}
-                    </Typography>
-                  </Box>
-
-                  {/* TARİH */}
-                  <Box>
-                    <Typography
-                      sx={{
-                        fontSize: 10,
-                        color: "#94A3B8",
-                        mb: 0.3,
-                      }}
-                    >
-                      Staj Tarihi
-                    </Typography>
-
-                    <Typography
-                      sx={{
-                        fontSize: 11,
-                      }}
-                    >
-                      {intern.start}
-                    </Typography>
-
-                    <Typography
-                      sx={{
-                        fontSize: 10,
-                        color: "#64748B",
-                      }}
-                    >
-                      → {intern.end}
-                    </Typography>
-                  </Box>
-
-                  {/* DURUM */}
-                  <Chip
-                    label={intern.status}
-                    size="small"
-                    color={
-                      intern.status === "Aktif"
-                        ? "success"
-                        : "warning"
-                    }
-                    sx={{
-                      width: "fit-content",
-                      fontSize: 10,
-                      fontWeight: 600,
-                    }}
-                  />
-
-                  {/* DETAY */}
-                  <IconButton
+                  {/* DETAY BUTONU */}
+                  <Button
+                    fullWidth
+                    variant="outlined"
+                    startIcon={<Visibility />}
                     onClick={() =>
-                      setSelectedIntern(intern)
+                      router.push(`/yetkili/stajyerler/${intern.id}`)
                     }
                     sx={{
+                      textTransform: "none",
+                      borderRadius: 1.5,
                       color: "#286B9D",
-                      backgroundColor: "#EDF4F9",
-
+                      borderColor: "#CBD5E1",
                       "&:hover": {
-                        backgroundColor: "#DCEBF4",
+                        borderColor: "#286B9D",
+                        backgroundColor: "#F4F8FB",
                       },
                     }}
                   >
-                    <Visibility
-                      sx={{
-                        fontSize: 19,
-                      }}
-                    />
-                  </IconButton>
-                </Box>
-              ))
-            ) : (
+                    Stajyer Detaylarını Gör
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </Box>
+
+          {/* STAJYER EKLE DİYALOĞU */}
+          <Dialog
+            open={addDialogOpen}
+            onClose={() => setAddDialogOpen(false)}
+            fullWidth
+            maxWidth="sm"
+          >
+            <DialogTitle
+              sx={{
+                fontWeight: "bold",
+                color: "#0F2742",
+                borderBottom: "1px solid #E4E7EC",
+              }}
+            >
+              Yeni Stajyer Ekle
+            </DialogTitle>
+
+            <DialogContent sx={{ pt: 3 }}>
               <Box
                 sx={{
-                  py: 7,
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
+                  gap: 2,
+                  mt: 0.5,
+                }}
+              >
+                <TextField
+                  label="Ad Soyad"
+                  fullWidth
+                  required
+                  value={newIntern.name}
+                  onChange={(e) =>
+                    setNewIntern((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                />
+
+                <TextField
+                  label="E-posta"
+                  type="email"
+                  fullWidth
+                  required
+                  value={newIntern.email}
+                  onChange={(e) =>
+                    setNewIntern((prev) => ({ ...prev, email: e.target.value }))
+                  }
+                />
+
+                <TextField
+                  label="Pozisyon"
+                  fullWidth
+                  required
+                  value={newIntern.position}
+                  onChange={(e) =>
+                    setNewIntern((prev) => ({
+                      ...prev,
+                      position: e.target.value,
+                    }))
+                  }
+                />
+
+                <TextField
+                  label="Departman"
+                  fullWidth
+                  required
+                  value={newIntern.department}
+                  onChange={(e) =>
+                    setNewIntern((prev) => ({
+                      ...prev,
+                      department: e.target.value,
+                    }))
+                  }
+                />
+
+                <TextField
+                  select
+                  label="Durum"
+                  fullWidth
+                  value={newIntern.status}
+                  onChange={(e) =>
+                    setNewIntern((prev) => ({
+                      ...prev,
+                      status: e.target.value as "Aktif" | "İzinli",
+                    }))
+                  }
+                >
+                  <MenuItem value="Aktif">Aktif</MenuItem>
+                  <MenuItem value="İzinli">İzinli</MenuItem>
+                </TextField>
+
+                <TextField
+                  label="Başlangıç Tarihi"
+                  type="date"
+                  fullWidth
+                  slotProps={{
+                    inputLabel: {
+                      shrink: true,
+                    },
+                  }}
+                  value={newIntern.start}
+                  onChange={(e) =>
+                    setNewIntern((prev) => ({ ...prev, start: e.target.value }))
+                  }
+                />
+
+                <TextField
+                  label="Bitiş Tarihi"
+                  type="date"
+                  fullWidth
+                  slotProps={{
+                    inputLabel: {
+                      shrink: true,
+                    },
+                  }}
+                  value={newIntern.end}
+                  onChange={(e) =>
+                    setNewIntern((prev) => ({ ...prev, end: e.target.value }))
+                  }
+                />
+              </Box>
+            </DialogContent>
+
+            <DialogActions
+              sx={{
+                px: 3,
+                py: 2,
+                borderTop: "1px solid #E4E7EC",
+              }}
+            >
+              <Button
+                onClick={() => setAddDialogOpen(false)}
+                sx={{
+                  textTransform: "none",
+                  color: "#64748B",
+                }}
+              >
+                Vazgeç
+              </Button>
+
+              <Button
+                variant="contained"
+                disabled={
+                  !newIntern.name.trim() ||
+                  !newIntern.email.trim() ||
+                  !newIntern.position.trim() ||
+                  !newIntern.department.trim()
+                }
+                onClick={() => {
+                  const createdIntern = {
+                    id: Date.now(),
+                    name: newIntern.name.trim(),
+                    email: newIntern.email.trim(),
+                    department: newIntern.department.trim(),
+                    position: newIntern.position.trim(),
+                    status: newIntern.status,
+                    start: newIntern.start || "Belirtilmedi",
+                    end: newIntern.end || "Belirtilmedi",
+                    report: "İnceleniyor",
+                    attendance: "0 Gün",
+                  } as Intern;
+
+                  setInternList((prev) => [createdIntern, ...prev]);
+                  setSearch("");
+                  setStatusFilter("Tümü");
+                  setNewIntern({
+                    name: "",
+                    email: "",
+                    department: "",
+                    position: "",
+                    status: "Aktif",
+                    start: "",
+                    end: "",
+                  });
+                  setAddDialogOpen(false);
+                }}
+                sx={{
+                  textTransform: "none",
+                  borderRadius: 1.5,
+                  backgroundColor: "#286B9D",
+                  "&:hover": {
+                    backgroundColor: "#1F587F",
+                  },
+                }}
+              >
+                Stajyeri Ekle
+              </Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* SONUÇ YOK */}
+          {filteredInterns.length === 0 && (
+            <Card
+              elevation={0}
+              sx={{
+                border: "1px solid #E4E7EC",
+                borderRadius: 2,
+                mt: 2,
+              }}
+            >
+              <CardContent
+                sx={{
+                  py: 6,
                   textAlign: "center",
                 }}
               >
                 <Search
                   sx={{
-                    fontSize: 42,
+                    fontSize: 45,
                     color: "#CBD5E1",
                     mb: 1,
                   }}
@@ -777,9 +1003,9 @@ export default function StajyerlerPage() {
 
                 <Typography
                   sx={{
-                    fontSize: 15,
+                    fontSize: 16,
                     fontWeight: "bold",
-                    color: "#475569",
+                    color: "#0F2742",
                     mb: 0.5,
                   }}
                 >
@@ -789,363 +1015,16 @@ export default function StajyerlerPage() {
                 <Typography
                   sx={{
                     fontSize: 12,
-                    color: "#94A3B8",
+                    color: "#64748B",
                   }}
                 >
-                  Arama kriterlerinizi değiştirerek tekrar
-                  deneyebilirsiniz.
+                  Arama veya filtre kriterlerinizi değiştirmeyi deneyin.
                 </Typography>
-              </Box>
-            )}
-          </Card>
-
-          {/* ALT BİLGİ */}
-          <Typography
-            sx={{
-              textAlign: "center",
-              color: "#94A3B8",
-              fontSize: 11,
-              mt: 3,
-            }}
-          >
-            Stajyer bilgileri yetkili kullanıcılar tarafından
-            görüntülenmektedir.
-          </Typography>
+              </CardContent>
+            </Card>
+          )}
         </Box>
       </Box>
-
-      {/* STAJYER DETAY PENCERESİ */}
-      <Dialog
-        open={selectedIntern !== null}
-        onClose={() => setSelectedIntern(null)}
-        fullWidth
-        maxWidth="sm"
-      >
-        {selectedIntern && (
-          <>
-            <DialogTitle
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                color: "#0F2742",
-                fontWeight: "bold",
-              }}
-            >
-              Stajyer Detayları
-
-              <IconButton
-                onClick={() => setSelectedIntern(null)}
-              >
-                <Close />
-              </IconButton>
-            </DialogTitle>
-
-            <DialogContent dividers>
-              {/* PROFİL */}
-              <Box
-                sx={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 2,
-                  mb: 3,
-                }}
-              >
-                <Box
-                  sx={{
-                    width: 64,
-                    height: 64,
-                    borderRadius: "50%",
-                    backgroundColor: "#EDF4F9",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "#286B9D",
-                  }}
-                >
-                  <Person sx={{ fontSize: 34 }} />
-                </Box>
-
-                <Box>
-                  <Typography
-                    sx={{
-                      fontSize: 20,
-                      fontWeight: "bold",
-                      color: "#0F2742",
-                    }}
-                  >
-                    {selectedIntern.name}
-                  </Typography>
-
-                  <Chip
-                    label={selectedIntern.status}
-                    size="small"
-                    color={
-                      selectedIntern.status === "Aktif"
-                        ? "success"
-                        : "warning"
-                    }
-                    sx={{
-                      mt: 0.5,
-                      fontWeight: 600,
-                    }}
-                  />
-                </Box>
-              </Box>
-
-              {/* BİLGİLER */}
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: {
-                    xs: "1fr",
-                    sm: "1fr 1fr",
-                  },
-                  gap: 2,
-                }}
-              >
-                <Box
-                  sx={{
-                    p: 2,
-                    backgroundColor: "#F8FAFC",
-                    borderRadius: 2,
-                  }}
-                >
-                  <Email
-                    sx={{
-                      fontSize: 20,
-                      color: "#286B9D",
-                      mb: 0.5,
-                    }}
-                  />
-
-                  <Typography
-                    sx={{
-                      fontSize: 10,
-                      color: "#94A3B8",
-                    }}
-                  >
-                    E-posta
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      fontSize: 13,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {selectedIntern.email}
-                  </Typography>
-                </Box>
-
-                <Box
-                  sx={{
-                    p: 2,
-                    backgroundColor: "#F8FAFC",
-                    borderRadius: 2,
-                  }}
-                >
-                  <Business
-                    sx={{
-                      fontSize: 20,
-                      color: "#286B9D",
-                      mb: 0.5,
-                    }}
-                  />
-
-                  <Typography
-                    sx={{
-                      fontSize: 10,
-                      color: "#94A3B8",
-                    }}
-                  >
-                    Departman
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      fontSize: 13,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {selectedIntern.department}
-                  </Typography>
-                </Box>
-
-                <Box
-                  sx={{
-                    p: 2,
-                    backgroundColor: "#F8FAFC",
-                    borderRadius: 2,
-                  }}
-                >
-                  <Work
-                    sx={{
-                      fontSize: 20,
-                      color: "#286B9D",
-                      mb: 0.5,
-                    }}
-                  />
-
-                  <Typography
-                    sx={{
-                      fontSize: 10,
-                      color: "#94A3B8",
-                    }}
-                  >
-                    Pozisyon
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      fontSize: 13,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {selectedIntern.position}
-                  </Typography>
-                </Box>
-
-                <Box
-                  sx={{
-                    p: 2,
-                    backgroundColor: "#F8FAFC",
-                    borderRadius: 2,
-                  }}
-                >
-                  <CalendarMonth
-                    sx={{
-                      fontSize: 20,
-                      color: "#286B9D",
-                      mb: 0.5,
-                    }}
-                  />
-
-                  <Typography
-                    sx={{
-                      fontSize: 10,
-                      color: "#94A3B8",
-                    }}
-                  >
-                    Staj Tarihi
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      fontSize: 13,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {selectedIntern.start}
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      fontSize: 11,
-                      color: "#64748B",
-                    }}
-                  >
-                    → {selectedIntern.end}
-                  </Typography>
-                </Box>
-              </Box>
-
-              {/* RAPOR VE DEVAM */}
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: {
-                    xs: "1fr",
-                    sm: "1fr 1fr",
-                  },
-                  gap: 2,
-                  mt: 2,
-                }}
-              >
-                <Box
-                  sx={{
-                    p: 2,
-                    borderRadius: 2,
-                    border: "1px solid #E4E7EC",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: 10,
-                      color: "#94A3B8",
-                      mb: 0.5,
-                    }}
-                  >
-                    Son Rapor Durumu
-                  </Typography>
-
-                  <Chip
-                    label={selectedIntern.report}
-                    size="small"
-                    color={
-                      selectedIntern.report ===
-                      "Onaylandı"
-                        ? "success"
-                        : selectedIntern.report ===
-                          "Bekliyor"
-                        ? "warning"
-                        : "info"
-                    }
-                    sx={{
-                      fontWeight: 600,
-                    }}
-                  />
-                </Box>
-
-                <Box
-                  sx={{
-                    p: 2,
-                    borderRadius: 2,
-                    border: "1px solid #E4E7EC",
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: 10,
-                      color: "#94A3B8",
-                      mb: 0.5,
-                    }}
-                  >
-                    Devam Durumu
-                  </Typography>
-
-                  <Typography
-                    sx={{
-                      fontSize: 14,
-                      fontWeight: "bold",
-                      color: "#0F2742",
-                    }}
-                  >
-                    {selectedIntern.attendance}
-                  </Typography>
-                </Box>
-              </Box>
-            </DialogContent>
-
-            <DialogActions
-              sx={{
-                p: 2,
-              }}
-            >
-              <Button
-                onClick={() => setSelectedIntern(null)}
-                variant="outlined"
-                sx={{
-                  borderColor: "#286B9D",
-                  color: "#286B9D",
-                }}
-              >
-                Kapat
-              </Button>
-            </DialogActions>
-          </>
-        )}
-      </Dialog>
     </Box>
   );
 }
