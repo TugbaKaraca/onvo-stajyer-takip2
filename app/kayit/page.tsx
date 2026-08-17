@@ -10,12 +10,28 @@ import {
 } from "@mui/material";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function KayitPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordAgain, setShowPasswordAgain] = useState(false);
+  const [qrToken, setQrToken] = useState<string | null>(null);
+  const [checkingQr, setCheckingQr] = useState(true);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (token && token.trim()) {
+      setQrToken(token);
+    } else {
+      setQrToken(null);
+    }
+
+    setCheckingQr(false);
+  }, []);
+  const [school, setSchool] = useState("");
+  const [department, setDepartment] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
@@ -37,6 +53,107 @@ export default function KayitPage() {
       4
     )}/${numbers.slice(4, 8)}`;
   };
+
+  if (checkingQr) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#f5f7fa",
+        }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            p: 4,
+            borderRadius: 3,
+            border: "1px solid #e5e7eb",
+            textAlign: "center",
+            background: "#fff",
+          }}
+        >
+          <Typography sx={{ color: "#0f2742", fontWeight: 700 }}>
+            QR kodu kontrol ediliyor...
+          </Typography>
+        </Paper>
+      </Box>
+    );
+  }
+
+  if (!qrToken) {
+    return (
+      <Box
+        sx={{
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          background: "#f5f7fa",
+          px: 2,
+        }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            width: "100%",
+            maxWidth: 500,
+            p: { xs: 3, sm: 5 },
+            borderRadius: 3,
+            border: "1px solid #e5e7eb",
+            textAlign: "center",
+            background: "#fff",
+            boxShadow: "0 12px 35px rgba(15,39,66,0.08)",
+          }}
+        >
+          <Typography
+            sx={{
+              fontSize: "1.7rem",
+              fontWeight: 800,
+              color: "#0f2742",
+              mb: 1.5,
+            }}
+          >
+            QR Kodu Gerekli
+          </Typography>
+
+          <Typography
+            sx={{
+              color: "#64748b",
+              fontSize: "0.95rem",
+              lineHeight: 1.7,
+              mb: 3,
+            }}
+          >
+            Stajyer kaydı yalnızca şirket tarafından paylaşılan QR kod
+            üzerinden yapılabilir. Lütfen şirketinizin QR kodunu okutun.
+          </Typography>
+
+          <Button
+            component={Link}
+            href="/login/stajyer"
+            variant="contained"
+            sx={{
+              background: "#0f2742",
+              borderRadius: 1.5,
+              px: 4,
+              py: 1.3,
+              fontWeight: 700,
+              boxShadow: "none",
+              "&:hover": {
+                background: "#173b61",
+                boxShadow: "none",
+              },
+            }}
+          >
+            STAJYER GİRİŞİNE DÖN
+          </Button>
+        </Paper>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -136,6 +253,37 @@ export default function KayitPage() {
               boxShadow: "0 12px 35px rgba(15,39,66,0.08)",
             }}
           >
+            {/* ==================== QR DOĞRULAMA ==================== */}
+            <Box
+              sx={{
+                mb: 3,
+                p: 2,
+                borderRadius: 2,
+                background: "#eef7f1",
+                border: "1px solid #cce8d5",
+              }}
+            >
+              <Typography
+                sx={{
+                  color: "#166534",
+                  fontSize: "0.82rem",
+                  fontWeight: 700,
+                  mb: 0.5,
+                }}
+              >
+                Şirket QR kodu doğrulandı
+              </Typography>
+              <Typography
+                sx={{
+                  color: "#64748b",
+                  fontSize: "0.75rem",
+                  lineHeight: 1.5,
+                }}
+              >
+                Kayıt işleminize devam edebilirsiniz.
+              </Typography>
+            </Box>
+
             {/* ==================== BAŞLIK ==================== */}
             <Box
               sx={{
@@ -275,6 +423,38 @@ export default function KayitPage() {
                   : "Şifreyi göster"}
               </Button>
             </Box>
+
+            {/* ==================== OKUL ==================== */}
+            <TextField
+              fullWidth
+              label="Okul"
+              placeholder="Üniversite / okul adı"
+              value={school}
+              onChange={(e) => setSchool(e.target.value)}
+              variant="outlined"
+              sx={{
+                mb: 2.5,
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 1.5,
+                },
+              }}
+            />
+
+            {/* ==================== BÖLÜM ==================== */}
+            <TextField
+              fullWidth
+              label="Bölüm"
+              placeholder="Bölümünüz"
+              value={department}
+              onChange={(e) => setDepartment(e.target.value)}
+              variant="outlined"
+              sx={{
+                mb: 3,
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: 1.5,
+                },
+              }}
+            />
 
             {/* ==================== STAJ BİLGİLERİ ==================== */}
             <Typography

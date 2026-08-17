@@ -225,7 +225,6 @@ export default function LoginPage() {
               }
               sx={{
                 height: 90,
-                mb: 2,
                 borderRadius: 2,
                 borderColor: "#0f2742",
                 color: "#0f2742",
@@ -241,33 +240,6 @@ export default function LoginPage() {
               }}
             >
               YETKİLİ GİRİŞİ
-            </Button>
-
-            {/* ==================== MÜHENDİS GİRİŞİ ==================== */}
-
-            <Button
-              fullWidth
-              variant="outlined"
-              onClick={() =>
-                router.push("/login/muhendis")
-              }
-              sx={{
-                height: 90,
-                borderRadius: 2,
-                borderColor: "#0f2742",
-                color: "#0f2742",
-                fontSize: "1.05rem",
-                fontWeight: 700,
-                transition: "all 0.2s ease",
-
-                "&:hover": {
-                  background: "#0f2742",
-                  color: "#ffffff",
-                  borderColor: "#0f2742",
-                },
-              }}
-            >
-              MÜHENDİS GİRİŞİ
             </Button>
 
             {/* ==================== KAYIT ==================== */}
@@ -305,8 +277,7 @@ export default function LoginPage() {
                     cursor: "pointer",
 
                     "&:hover": {
-                      textDecoration:
-                        "underline",
+                      textDecoration: "underline",
                     },
                   }}
                 >

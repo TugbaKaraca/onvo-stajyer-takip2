@@ -1,4 +1,3 @@
-
 "use client";
 
 import {
@@ -11,15 +10,43 @@ import {
 } from "@mui/material";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function StajyerLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
+  const [qrToken, setQrToken] = useState("");
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (token) {
+      setQrToken(token);
+      sessionStorage.setItem("stajyer_qr_token", token);
+    }
+  }, []);
 
   const handleLogin = () => {
-    // Şimdilik sadece dashboard'a yönlendiriyoruz.
-    // Gerçek kullanıcı doğrulamasını backend bağladığımızda yapacağız.
-    window.location.href = "/dashboard";
+    /*
+     * Şimdilik backend olmadığı için supervisor seçimini
+     * localStorage üzerinden kontrol ediyoruz.
+     *
+     * Supervisor daha önce seçilmişse:
+     *    → direkt dashboard
+     *
+     * İlk kez giriş yapıyorsa:
+     *    → supervisor seçim ekranı
+     */
+
+    const supervisorSelected = localStorage.getItem(
+      "stajyer_supervisor_selected"
+    );
+
+    if (supervisorSelected === "true") {
+      window.location.href = "/dashboard";
+    } else {
+      window.location.href = "/login/stajyer/supervisor";
+    }
   };
 
   return (
@@ -33,6 +60,7 @@ export default function StajyerLoginPage() {
       }}
     >
       {/* ==================== HEADER ==================== */}
+
       <Box
         component="header"
         sx={{
@@ -50,6 +78,7 @@ export default function StajyerLoginPage() {
           }}
         >
           {/* LOGO */}
+
           <Link href="/">
             <Box
               component="img"
@@ -65,6 +94,7 @@ export default function StajyerLoginPage() {
           </Link>
 
           {/* ANA SAYFA */}
+
           <Button
             component={Link}
             href="/"
@@ -88,6 +118,7 @@ export default function StajyerLoginPage() {
       </Box>
 
       {/* ==================== GİRİŞ FORMU ==================== */}
+
       <Box
         sx={{
           flex: 1,
@@ -110,6 +141,7 @@ export default function StajyerLoginPage() {
             }}
           >
             {/* BAŞLIK */}
+
             <Box
               sx={{
                 textAlign: "center",
@@ -140,7 +172,47 @@ export default function StajyerLoginPage() {
               </Typography>
             </Box>
 
+            {/* QR KAYIT BİLGİSİ */}
+
+            <Box
+              sx={{
+                mb: 3,
+                p: 2,
+                borderRadius: 2,
+                background: qrToken ? "#eef7f1" : "#f4f7fa",
+                border: qrToken
+                  ? "1px solid #cce8d5"
+                  : "1px solid #e2e8f0",
+              }}
+            >
+              <Typography
+                sx={{
+                  fontSize: "0.82rem",
+                  fontWeight: 700,
+                  color: qrToken ? "#166534" : "#334155",
+                  mb: 0.5,
+                }}
+              >
+                {qrToken
+                  ? "Şirket QR kodu doğrulandı"
+                  : "Stajyer kaydı QR kodu ile yapılır"}
+              </Typography>
+
+              <Typography
+                sx={{
+                  fontSize: "0.75rem",
+                  lineHeight: 1.6,
+                  color: "#64748b",
+                }}
+              >
+                {qrToken
+                  ? "Bu bağlantı üzerinden kayıt olabilirsiniz. Kayıt sırasında QR doğrulaması korunacaktır."
+                  : "Yeni stajyer hesabı oluşturmak için şirket tarafından paylaşılan QR kodu okutun."}
+              </Typography>
+            </Box>
+
             {/* E-POSTA */}
+
             <TextField
               fullWidth
               label="E-posta"
@@ -156,6 +228,7 @@ export default function StajyerLoginPage() {
             />
 
             {/* ŞİFRE */}
+
             <TextField
               fullWidth
               label="Şifre"
@@ -170,6 +243,7 @@ export default function StajyerLoginPage() {
             />
 
             {/* ŞİFRE GÖSTER */}
+
             <Box
               sx={{
                 display: "flex",
@@ -192,6 +266,7 @@ export default function StajyerLoginPage() {
             </Box>
 
             {/* GİRİŞ YAP */}
+
             <Button
               fullWidth
               variant="contained"
@@ -214,6 +289,7 @@ export default function StajyerLoginPage() {
             </Button>
 
             {/* ALT LİNKLER */}
+
             <Box
               sx={{
                 mt: 3,
@@ -232,26 +308,39 @@ export default function StajyerLoginPage() {
                 Hesabınız yok mu?{" "}
               </Typography>
 
-              <Link
-                href="/kayit"
-                style={{
-                  textDecoration: "none",
-                }}
-              >
+              {qrToken ? (
+                <Link
+                  href={`/kayit?token=${encodeURIComponent(qrToken)}`}
+                  style={{
+                    textDecoration: "none",
+                  }}
+                >
+                  <Typography
+                    component="span"
+                    sx={{
+                      color: "#286b9d",
+                      fontWeight: 700,
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    KAYIT OL
+                  </Typography>
+                </Link>
+              ) : (
                 <Typography
                   component="span"
                   sx={{
-                    color: "#286b9d",
-                    fontWeight: 700,
-                    fontSize: "0.9rem",
+                    color: "#94a3b8",
+                    fontSize: "0.85rem",
                   }}
                 >
-                  KAYIT OL
+                  Kayıt için şirketin QR kodunu okutun.
                 </Typography>
-              </Link>
+              )}
             </Box>
 
             {/* GERİ DÖN */}
+
             <Box
               sx={{
                 textAlign: "center",
@@ -282,6 +371,7 @@ export default function StajyerLoginPage() {
       </Box>
 
       {/* ==================== FOOTER ==================== */}
+
       <Box
         component="footer"
         sx={{
@@ -313,6 +403,7 @@ export default function StajyerLoginPage() {
             }}
           >
             {/* LOGO */}
+
             <Box>
               <Box
                 component="img"
@@ -339,6 +430,7 @@ export default function StajyerLoginPage() {
             </Box>
 
             {/* KURUMSAL */}
+
             <Box>
               <Typography
                 sx={{
@@ -384,6 +476,7 @@ export default function StajyerLoginPage() {
             </Box>
 
             {/* DESTEK */}
+
             <Box>
               <Typography
                 sx={{
@@ -430,6 +523,7 @@ export default function StajyerLoginPage() {
           </Box>
 
           {/* ALT FOOTER */}
+
           <Box
             sx={{
               borderTop: "1px solid rgba(255,255,255,0.1)",
