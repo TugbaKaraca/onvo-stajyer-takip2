@@ -263,7 +263,7 @@ export default function RaporlarPage() {
             [<BusinessIcon />, "Departman Yönetimi", "/yetkili/departmanlar"],
             [<DescriptionOutlined />, "Raporlar", "/yetkili/raporlar"],
             [<EventAvailableIcon />, "Devam Durumu", "/yetkili/devam"],
-            [<FolderIcon />, "Belgeler", "/yetkili/belgeler"],
+            [<FolderIcon />, "Kütüphane", "/yetkili/belgeler"],
             [<CampaignIcon />, "Duyurular", "/yetkili/duyurular"],
             [<NotificationsIcon />, "Bildirimler", "/yetkili/bildirimler"],
             [<SettingsIcon />, "Ayarlar", "/yetkili/ayarlar"],

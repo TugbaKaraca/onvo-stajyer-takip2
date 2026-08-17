@@ -130,7 +130,7 @@ export default function AyarlarPage() {
     },
     {
       icon: <FolderIcon />,
-      text: "Belgeler",
+      text: "Kütüphane",
       path: "/yetkili/belgeler",
     },
     {

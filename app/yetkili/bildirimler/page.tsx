@@ -517,7 +517,7 @@ export default function BildirimlerPage() {
             },
             {
               icon: <FolderIcon />,
-              text: "Belgeler",
+              text: "Kütüphane",
               path: "/yetkili/belgeler",
             },
             {

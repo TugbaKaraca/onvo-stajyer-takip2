@@ -223,7 +223,7 @@ export default function DevamPage() {
     },
     {
       icon: <Folder />,
-      text: "Belgeler",
+      text: "Kütüphane",
       path: "/yetkili/belgeler",
     },
     {

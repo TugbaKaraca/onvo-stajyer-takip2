@@ -67,7 +67,7 @@ export default function YetkiliPage() {
     },
     {
       icon: <Folder />,
-      text: "Belgeler",
+      text: "Kütüphane",
       path: "/yetkili/belgeler",
     },
     {

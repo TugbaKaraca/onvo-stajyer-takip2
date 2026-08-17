@@ -1,176 +1,440 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+
 import {
   Box,
-  Button,
   Typography,
-  TextField,
-  Paper,
-  IconButton,
+  Button,
+  Card,
+  CardContent,
+  Grid,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
+  TextField,
+  IconButton,
   Chip,
+  Divider,
+  MenuItem,
 } from "@mui/material";
 
-import GridViewIcon from "@mui/icons-material/GridView";
-import GroupsIcon from "@mui/icons-material/Groups";
-import DescriptionIcon from "@mui/icons-material/Description";
-import BusinessIcon from "@mui/icons-material/Business";
-import EventAvailableIcon from "@mui/icons-material/EventAvailable";
-import FolderIcon from "@mui/icons-material/Folder";
-import CampaignIcon from "@mui/icons-material/Campaign";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import SettingsIcon from "@mui/icons-material/Settings";
-import PersonIcon from "@mui/icons-material/Person";
-import SearchIcon from "@mui/icons-material/Search";
-import DownloadIcon from "@mui/icons-material/Download";
-import CloseIcon from "@mui/icons-material/Close";
+import {
+  Dashboard,
+  People,
+  Business,
+  Description,
+  EventAvailable,
+  Folder,
+  Campaign,
+  Notifications,
+  Settings,
+  Logout,
+  Person,
+  Add,
+  Search,
+  PictureAsPdf,
+  DescriptionOutlined,
+  Visibility,
+  Delete,
+  Close,
+  CheckCircle,
+  RadioButtonUnchecked,
+  CloudUpload,
+  MenuBook,
+  Groups,
+} from "@mui/icons-material";
 
-import Link from "next/link";
-import { useState } from "react";
+interface StajyerOkuma {
+  id: number;
+  ad: string;
+  okundu: boolean;
+  okumaTarihi?: string;
+}
+
+interface Belge {
+  id: number;
+  baslik: string;
+  aciklama: string;
+  kategori: string;
+  dosyaAdi: string;
+  dosyaTuru: string;
+  yuklenmeTarihi: string;
+  stajyerler: StajyerOkuma[];
+}
 
 export default function BelgelerPage() {
-  const [search, setSearch] = useState("");
-  const [seciliBelge, setSeciliBelge] = useState<Belge | null>(null);
-  const [goruntuleOpen, setGoruntuleOpen] = useState(false);
-  const [dosyaBulunamadi, setDosyaBulunamadi] = useState(false);
+  const router = useRouter();
 
-  type Belge = {
-    id: number;
-    ad: string;
-    departman: string;
-    belge: string;
-    tarih: string;
-    durum: "Onaylandı" | "Bekliyor" | "Eksik" | "Reddedildi";
-    dosyaUrl?: string;
-    dosyaTipi: "pdf" | "word";
-  };
+  // =========================================================
+  // MENÜ
+  // =========================================================
 
-  const belgeler: Belge[] = [
+  const menuItems = [
     {
-      id: 1,
-      ad: "Zeliha Koyuncu",
-      departman: "Yazılım",
-      belge: "Staj Başvuru Formu",
-      tarih: "10 Ağustos 2026",
-      durum: "Onaylandı",
-      dosyaUrl: "/belgeler/zeliha-staj-basvuru-formu.pdf",
-      dosyaTipi: "pdf",
+      icon: <Dashboard />,
+      text: "Kontrol Paneli",
+      path: "/yetkili",
     },
     {
-      id: 2,
-      ad: "Ahmet Yılmaz",
-      departman: "Elektrik",
-      belge: "Staj Sözleşmesi",
-      tarih: "11 Ağustos 2026",
-      durum: "Bekliyor",
-      dosyaUrl: "/belgeler/ahmet-staj-sozlesmesi.pdf",
-      dosyaTipi: "pdf",
+      icon: <People />,
+      text: "Stajyerler",
+      path: "/yetkili/stajyerler",
     },
     {
-      id: 3,
-      ad: "Elif Demir",
-      departman: "Yazılım",
-      belge: "Staj Başvuru Formu",
-      tarih: "12 Ağustos 2026",
-      durum: "Onaylandı",
-      dosyaUrl: "/belgeler/elif-staj-basvuru-formu.pdf",
-      dosyaTipi: "pdf",
+      icon: <Business />,
+      text: "Departman Yönetimi",
+      path: "/yetkili/departmanlar",
     },
     {
-      id: 4,
-      ad: "Mehmet Kaya",
-      departman: "Ar-Ge",
-      belge: "Staj Sözleşmesi",
-      tarih: "12 Ağustos 2026",
-      durum: "Bekliyor",
-      dosyaUrl: "/belgeler/mehmet-staj-sozlesmesi.pdf",
-      dosyaTipi: "pdf",
+      icon: <Description />,
+      text: "Raporlar",
+      path: "/yetkili/raporlar",
+    },
+    {
+      icon: <EventAvailable />,
+      text: "Devam Durumu",
+      path: "/yetkili/devam",
+    },
+    {
+      icon: <Folder />,
+      text: "Kütüphane",
+      path: "/yetkili/belgeler",
+    },
+    {
+      icon: <Campaign />,
+      text: "Duyurular",
+      path: "/yetkili/duyurular",
+    },
+    {
+      icon: <Notifications />,
+      text: "Bildirimler",
+      path: "/yetkili/bildirimler",
+    },
+    {
+      icon: <Settings />,
+      text: "Ayarlar",
+      path: "/yetkili/ayarlar",
     },
   ];
 
-  const belgeGoruntule = (belge: Belge) => {
-    setSeciliBelge(belge);
-    setDosyaBulunamadi(false);
-    setGoruntuleOpen(true);
-  };
+  // =========================================================
+  // ÖRNEK STAJYERLER
+  // =========================================================
 
-  const belgeKapat = () => {
-    setGoruntuleOpen(false);
-    setSeciliBelge(null);
-    setDosyaBulunamadi(false);
-  };
+  const ornekStajyerler: StajyerOkuma[] = [
+    {
+      id: 1,
+      ad: "Zeliha Koyuncu",
+      okundu: true,
+      okumaTarihi: "17 Ağustos 2026",
+    },
+    {
+      id: 2,
+      ad: "Elif Demir",
+      okundu: true,
+      okumaTarihi: "17 Ağustos 2026",
+    },
+    {
+      id: 3,
+      ad: "Mehmet Kaya",
+      okundu: false,
+    },
+    {
+      id: 4,
+      ad: "Ayşe Yıldız",
+      okundu: false,
+    },
+    {
+      id: 5,
+      ad: "Can Aydın",
+      okundu: true,
+      okumaTarihi: "17 Ağustos 2026",
+    },
+    {
+      id: 6,
+      ad: "Ece Şahin",
+      okundu: false,
+    },
+  ];
 
-  const belgeIndir = () => {
-    if (!seciliBelge?.dosyaUrl) return;
+  // =========================================================
+  // BELGELER
+  // =========================================================
 
-    const link = document.createElement("a");
-    link.href = seciliBelge.dosyaUrl;
-    link.download = seciliBelge.dosyaUrl.split("/").pop() || "belge";
-    link.target = "_blank";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+  const [belgeler, setBelgeler] = useState<Belge[]>([
+    {
+      id: 1,
+      baslik: "ONVO İş Güvenliği Eğitimi",
+      aciklama:
+        "Stajyerlerin iş güvenliği konusunda bilmesi gereken temel bilgileri içeren eğitim dokümanı.",
+      kategori: "Eğitim",
+      dosyaAdi: "is-guvenligi-egitimi.pdf",
+      dosyaTuru: "PDF",
+      yuklenmeTarihi: "17 Ağustos 2026",
+      stajyerler: ornekStajyerler,
+    },
+    {
+      id: 2,
+      baslik: "Stajyer Oryantasyon Dokümantasyonu",
+      aciklama:
+        "ONVO staj sürecinde uyulması gereken kurallar ve çalışma düzeni hakkında bilgilendirme dokümanı.",
+      kategori: "Dokümantasyon",
+      dosyaAdi: "stajyer-oryantasyon.pdf",
+      dosyaTuru: "PDF",
+      yuklenmeTarihi: "16 Ağustos 2026",
+      stajyerler: ornekStajyerler.map((stajyer) => ({
+        ...stajyer,
+        okundu: true,
+        okumaTarihi: "16 Ağustos 2026",
+      })),
+    },
+    {
+      id: 3,
+      baslik: "ONVO Çalışma Kuralları",
+      aciklama:
+        "Stajyerlerin çalışma süresince dikkat etmesi gereken genel kurallar.",
+      kategori: "Genel",
+      dosyaAdi: "calisma-kurallari.pdf",
+      dosyaTuru: "PDF",
+      yuklenmeTarihi: "15 Ağustos 2026",
+      stajyerler: ornekStajyerler.map((stajyer) => ({
+        ...stajyer,
+        okundu: false,
+        okumaTarihi: undefined,
+      })),
+    },
+  ]);
 
-  const durumRengi = (durum: Belge["durum"]) => {
-    if (durum === "Onaylandı") {
-      return { background: "#dcfce7", color: "#15803d" };
+  // =========================================================
+  // ARAMA
+  // =========================================================
+
+  const [arama, setArama] = useState("");
+
+  const aramaMetni = arama
+    .trim()
+    .toLocaleLowerCase("tr-TR");
+
+  const filtreliBelgeler = belgeler.filter((belge) => {
+    if (!aramaMetni) {
+      return true;
     }
 
-    if (durum === "Reddedildi") {
-      return { background: "#fee2e2", color: "#b91c1c" };
-    }
+    const aranacakAlanlar = [
+      belge.baslik,
+      belge.aciklama,
+      belge.kategori,
+      belge.dosyaAdi,
+      belge.dosyaTuru,
+    ];
 
-    if (durum === "Eksik") {
-      return { background: "#f1f5f9", color: "#475569" };
-    }
-
-    return { background: "#fef3c7", color: "#b45309" };
-  };
-
-  const filtrelenmisBelgeler = belgeler.filter((belge) => {
-    const aranacak = search.toLowerCase();
-
-    return (
-      belge.ad.toLowerCase().includes(aranacak) ||
-      belge.departman.toLowerCase().includes(aranacak) ||
-      belge.belge.toLowerCase().includes(aranacak)
+    return aranacakAlanlar.some((alan) =>
+      alan
+        .toLocaleLowerCase("tr-TR")
+        .includes(aramaMetni)
     );
   });
+
+  // =========================================================
+  // BELGE YÜKLEME
+  // =========================================================
+
+  const [yuklemeDialogOpen, setYuklemeDialogOpen] =
+    useState(false);
+
+  const [belgeBaslik, setBelgeBaslik] = useState("");
+  const [belgeAciklama, setBelgeAciklama] =
+    useState("");
+  const [belgeKategori, setBelgeKategori] =
+    useState("Eğitim");
+  const [secilenDosya, setSecilenDosya] =
+    useState<File | null>(null);
+
+  // =========================================================
+  // DİĞER DİYALOGLAR
+  // =========================================================
+
+  const [okumaDialogOpen, setOkumaDialogOpen] =
+    useState(false);
+
+  const [belgeDetayOpen, setBelgeDetayOpen] =
+    useState(false);
+
+  const [seciliBelge, setSeciliBelge] =
+    useState<Belge | null>(null);
+
+  // =========================================================
+  // BELGE YÜKLEME DİYALOĞU
+  // =========================================================
+
+  const belgeYuklemeAc = () => {
+    setBelgeBaslik("");
+    setBelgeAciklama("");
+    setBelgeKategori("Eğitim");
+    setSecilenDosya(null);
+    setYuklemeDialogOpen(true);
+  };
+
+  // =========================================================
+  // DOSYA SEÇ
+  // =========================================================
+
+  const dosyaSec = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const dosya = event.target.files?.[0];
+
+    if (dosya) {
+      setSecilenDosya(dosya);
+
+      if (!belgeBaslik) {
+        setBelgeBaslik(
+          dosya.name.replace(/\.[^/.]+$/, "")
+        );
+      }
+    }
+  };
+
+  // =========================================================
+  // BELGE YÜKLE
+  // =========================================================
+
+  const belgeYukle = () => {
+    if (!belgeBaslik.trim() || !secilenDosya) {
+      return;
+    }
+
+    const yeniBelge: Belge = {
+      id: Date.now(),
+      baslik: belgeBaslik,
+      aciklama:
+        belgeAciklama ||
+        "Yetkili tarafından ortak kütüphaneye yüklenen doküman.",
+      kategori: belgeKategori,
+      dosyaAdi: secilenDosya.name,
+      dosyaTuru:
+        secilenDosya.name
+          .split(".")
+          .pop()
+          ?.toUpperCase() || "DOSYA",
+      yuklenmeTarihi: "17 Ağustos 2026",
+      stajyerler: ornekStajyerler.map(
+        (stajyer) => ({
+          ...stajyer,
+          okundu: false,
+          okumaTarihi: undefined,
+        })
+      ),
+    };
+
+    setBelgeler((prev) => [
+      yeniBelge,
+      ...prev,
+    ]);
+
+    setYuklemeDialogOpen(false);
+  };
+
+  // =========================================================
+  // OKUMA DURUMLARINI GÖSTER
+  // =========================================================
+
+  const okumaDurumlariniGoster = (
+    belge: Belge
+  ) => {
+    setSeciliBelge(belge);
+    setOkumaDialogOpen(true);
+  };
+
+  // =========================================================
+  // BELGE DETAY
+  // =========================================================
+
+  const belgeDetayGoster = (
+    belge: Belge
+  ) => {
+    setSeciliBelge(belge);
+    setBelgeDetayOpen(true);
+  };
+
+  // =========================================================
+  // BELGE SİL
+  // =========================================================
+
+  const belgeSil = (id: number) => {
+    const onay = window.confirm(
+      "Bu belgeyi ortak kütüphaneden silmek istediğinize emin misiniz?"
+    );
+
+    if (!onay) {
+      return;
+    }
+
+    setBelgeler((prev) =>
+      prev.filter(
+        (belge) => belge.id !== id
+      )
+    );
+  };
+
+  // =========================================================
+  // İSTATİSTİKLER
+  // =========================================================
+
+  const toplamBelge = belgeler.length;
+
+  const toplamOkuma = belgeler.reduce(
+    (toplam, belge) =>
+      toplam +
+      belge.stajyerler.filter(
+        (stajyer) => stajyer.okundu
+      ).length,
+    0
+  );
+
+  const toplamOkunmasiGereken =
+    belgeler.reduce(
+      (toplam, belge) =>
+        toplam +
+        belge.stajyerler.length,
+      0
+    );
+
+  // =========================================================
+  // SAYFA
+  // =========================================================
 
   return (
     <Box
       sx={{
         minHeight: "100vh",
-        background: "#f5f7fa",
-        display: "flex",
-        color: "#17202a",
+        backgroundColor: "#F5F7FA",
       }}
     >
-      {/* =========================
+      {/* =====================================================
           SOL MENÜ
-      ========================= */}
+      ===================================================== */}
 
       <Box
-        component="aside"
         sx={{
           width: 195,
-          minHeight: "100vh",
           background:
             "linear-gradient(180deg, #0F2742 0%, #286B9D 100%)",
-          color: "#ffffff",
+          color: "white",
+          display: "flex",
+          flexDirection: "column",
           position: "fixed",
           left: 0,
           top: 0,
           bottom: 0,
           zIndex: 10,
-          display: "flex",
-          flexDirection: "column",
         }}
       >
+        {/* LOGO */}
+
         <Box
           sx={{
             px: 2.2,
@@ -179,108 +443,137 @@ export default function BelgelerPage() {
               "1px solid rgba(255,255,255,0.15)",
           }}
         >
-          <Typography sx={{ fontSize: 23, fontWeight: "bold" }}>
+          <Typography
+            sx={{
+              fontSize: 23,
+              fontWeight: "bold",
+            }}
+          >
             ONVO
           </Typography>
+
           <Typography
-            sx={{ fontSize: 11, opacity: 0.9, mt: 0.3 }}
+            sx={{
+              fontSize: 11,
+              opacity: 0.9,
+              mt: 0.3,
+            }}
           >
             Stajyer Takip Sistemi
           </Typography>
         </Box>
 
-        <Box sx={{ px: 1, py: 1.5, flex: 1 }}>
-          {[
-            { icon: <GridViewIcon />, text: "Kontrol Paneli", path: "/yetkili" },
-            { icon: <GroupsIcon />, text: "Stajyerler", path: "/yetkili/stajyerler" },
-            { icon: <BusinessIcon />, text: "Departman Yönetimi", path: "/yetkili/departmanlar" },
-            { icon: <DescriptionIcon />, text: "Raporlar", path: "/yetkili/raporlar" },
-            { icon: <EventAvailableIcon />, text: "Devam Durumu", path: "/yetkili/devam" },
-            { icon: <FolderIcon />, text: "Belgeler", path: "/yetkili/belgeler" },
-            { icon: <CampaignIcon />, text: "Duyurular", path: "/yetkili/duyurular" },
-            { icon: <NotificationsIcon />, text: "Bildirimler", path: "/yetkili/bildirimler" },
-            { icon: <SettingsIcon />, text: "Ayarlar", path: "/yetkili/ayarlar" },
-          ].map((item) => {
-            const active = item.path === "/yetkili/belgeler";
+        {/* MENÜ */}
+
+        <Box
+          sx={{
+            px: 1,
+            py: 1.5,
+          }}
+        >
+          {menuItems.map((item) => {
+            const active =
+              item.path ===
+              "/yetkili/belgeler";
+
             return (
-              <Link
+              <Box
                 key={item.text}
-                href={item.path}
-                style={{ textDecoration: "none", color: "inherit" }}
+                onClick={() =>
+                  router.push(item.path)
+                }
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.2,
+                  px: 1.3,
+                  py: 1.05,
+                  mb: 0.35,
+                  borderRadius: 1.5,
+                  cursor: "pointer",
+                  backgroundColor: active
+                    ? "rgba(255,255,255,0.20)"
+                    : "transparent",
+                  "&:hover": {
+                    backgroundColor:
+                      "rgba(255,255,255,0.14)",
+                  },
+                  transition: "0.2s",
+                }}
               >
                 <Box
                   sx={{
                     display: "flex",
                     alignItems: "center",
-                    gap: 1.2,
-                    px: 1.3,
-                    py: 1.05,
-                    mb: 0.35,
-                    borderRadius: 1.5,
-                    cursor: "pointer",
-                    backgroundColor: active
-                      ? "rgba(255,255,255,0.20)"
-                      : "transparent",
-                    "&:hover": {
-                      backgroundColor:
-                        "rgba(255,255,255,0.14)",
+                    "& svg": {
+                      fontSize: 19,
                     },
-                    transition: "0.2s",
                   }}
                 >
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      "& svg": { fontSize: 19 },
-                    }}
-                  >
-                    {item.icon}
-                  </Box>
-                  <Typography
-                    sx={{
-                      fontSize: 12,
-                      fontWeight: active ? 600 : 500,
-                    }}
-                  >
-                    {item.text}
-                  </Typography>
+                  {item.icon}
                 </Box>
-              </Link>
+
+                <Typography
+                  sx={{
+                    fontSize: 12,
+                    fontWeight: active
+                      ? 600
+                      : 500,
+                  }}
+                >
+                  {item.text}
+                </Typography>
+              </Box>
             );
           })}
         </Box>
 
-        <Box sx={{ mt: "auto", px: 1, pb: 2 }}>
-          <Link
-            href="/login/yetkili"
-            style={{ textDecoration: "none", color: "inherit" }}
+        {/* ÇIKIŞ */}
+
+        <Box
+          sx={{
+            mt: "auto",
+            px: 1,
+            pb: 2,
+          }}
+        >
+          <Box
+            onClick={() => router.push("/")}
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              gap: 1.2,
+              px: 1.3,
+              py: 1.05,
+              borderRadius: 1.5,
+              cursor: "pointer",
+              "&:hover": {
+                backgroundColor:
+                  "rgba(255,255,255,0.14)",
+              },
+            }}
           >
-            <Box
+            <Logout
               sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 1.2,
-                px: 1.3,
-                py: 1,
-                borderRadius: 1.5,
-                cursor: "pointer",
-                "&:hover": {
-                  backgroundColor:
-                    "rgba(255,255,255,0.14)",
-                },
+                fontSize: 19,
+              }}
+            />
+
+            <Typography
+              sx={{
+                fontSize: 12,
+                fontWeight: 500,
               }}
             >
-              <Typography sx={{ fontSize: 19 }}>⇥</Typography>
-              <Typography sx={{ fontSize: 12, fontWeight: 500 }}>
-                Çıkış Yap
-              </Typography>
-            </Box>
-          </Link>
+              Çıkış Yap
+            </Typography>
+          </Box>
         </Box>
       </Box>
 
-      {/* ==================== ANA ALAN ==================== */}
+      {/* =====================================================
+          ANA ALAN
+      ===================================================== */}
 
       <Box
         sx={{
@@ -289,45 +582,42 @@ export default function BelgelerPage() {
           minHeight: "100vh",
         }}
       >
-        {/* =========================
-            ÜST BAR
-        ========================= */}
+        {/* ÜST BAR */}
 
         <Box
           component="header"
           sx={{
             height: 58,
             backgroundColor: "white",
-            borderBottom: "1px solid #e4e7ec",
+            borderBottom:
+              "1px solid #e4e7ec",
             display: "flex",
             alignItems: "center",
-            justifyContent: "flex-end",
+            justifyContent:
+              "flex-end",
             px: 3,
           }}
         >
-          <IconButton
-            sx={{
-              mr: 1,
-              color: "#286B9D",
-            }}
-          >
-            <NotificationsIcon />
-          </IconButton>
-
           <Box
             sx={{
               width: 34,
               height: 34,
               borderRadius: "50%",
-              backgroundColor: "#EDF4F9",
+              backgroundColor:
+                "#EDF4F9",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
+              justifyContent:
+                "center",
               color: "#286B9D",
               mr: 1,
             }}
           >
-            <PersonIcon sx={{ fontSize: 20 }} />
+            <Person
+              sx={{
+                fontSize: 20,
+              }}
+            />
           </Box>
 
           <Box>
@@ -352,642 +642,1539 @@ export default function BelgelerPage() {
           </Box>
         </Box>
 
-        {/* ==================== İÇERİK ==================== */}
+        {/* ===================================================
+            İÇERİK
+        =================================================== */}
 
         <Box
           component="main"
           sx={{
+            minHeight:
+              "calc(100vh - 58px)",
+            backgroundColor: "#F5F7FA",
             px: {
               xs: 2,
               md: 4,
             },
             py: 3,
-            maxWidth: 1400,
-            mx: "auto",
           }}
         >
           {/* BAŞLIK */}
 
-          <Box sx={{ mb: 3 }}>
-            <Typography
-              sx={{
-                fontSize: 28,
-                fontWeight: "bold",
-                color: "#0F2742",
-                mb: 0.5,
-              }}
-            >
-              Belgeler
-            </Typography>
-
-            <Typography
-              sx={{
-                color: "#64748B",
-                fontSize: 13,
-              }}
-            >
-              Stajyer belgelerini buradan yönetebilirsiniz.
-            </Typography>
-          </Box>
-
-          {/* BİLGİ / ÖZET KARTLARI */}
           <Box
             sx={{
-              display: "grid",
-              gridTemplateColumns: {
-                xs: "1fr",
-                sm: "repeat(2, 1fr)",
-                lg: "repeat(4, 1fr)",
-              },
+              display: "flex",
+              justifyContent:
+                "space-between",
+              alignItems: "center",
+              mb: 4,
               gap: 2,
-              mb: 3,
             }}
           >
-            {[
-              {
-                label: "Toplam Belge",
-                value: belgeler.length,
-                icon: <FolderIcon />,
-                bg: "#eaf3fa",
-                color: "#286b9d",
-              },
-              {
-                label: "Onaylanan",
-                value: belgeler.filter((b) => b.durum === "Onaylandı").length,
-                icon: <EventAvailableIcon />,
-                bg: "#dcfce7",
-                color: "#15803d",
-              },
-              {
-                label: "Bekleyen",
-                value: belgeler.filter((b) => b.durum === "Bekliyor").length,
-                icon: <DescriptionIcon />,
-                bg: "#fef3c7",
-                color: "#b45309",
-              },
-              {
-                label: "Eksik / Reddedilen",
-                value: belgeler.filter(
-                  (b) => b.durum === "Eksik" || b.durum === "Reddedildi"
-                ).length,
-                icon: <FolderIcon />,
-                bg: "#f1f5f9",
-                color: "#64748b",
-              },
-            ].map((kart) => (
-              <Paper
-                key={kart.label}
-                elevation={0}
+            <Box>
+              <Typography
                 sx={{
-                  p: 2.2,
-                  border: "1px solid #e2e8f0",
-                  borderRadius: 2,
-                  background: "#ffffff",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  minHeight: 96,
+                  fontSize: {
+                    xs: 25,
+                    md: 30,
+                  },
+                  fontWeight: 700,
+                  color: "#0F2742",
                 }}
               >
-                <Box>
-                  <Typography
-                    sx={{
-                      color: "#94a3b8",
-                      fontSize: 11,
-                      mb: 0.5,
-                    }}
-                  >
-                    {kart.label}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      color: "#0f2742",
-                      fontSize: 25,
-                      fontWeight: 800,
-                    }}
-                  >
-                    {kart.value}
-                  </Typography>
-                </Box>
+                Kütüphane
+              </Typography>
 
-                <Box
-                  sx={{
-                    width: 42,
-                    height: 42,
-                    borderRadius: 1.5,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    background: kart.bg,
-                    color: kart.color,
-                  }}
-                >
-                  {kart.icon}
-                </Box>
-              </Paper>
-            ))}
+              <Typography
+                sx={{
+                  mt: 0.7,
+                  fontSize: 13,
+                  color: "#64748B",
+                  maxWidth: 700,
+                }}
+              >
+                Stajyerlerin eğitim ve
+                dokümantasyonlara
+                ulaşabileceği ortak
+                belge havuzunu
+                buradan yönetebilirsiniz.
+              </Typography>
+            </Box>
+
+            <Button
+              variant="contained"
+              startIcon={<Add />}
+              onClick={belgeYuklemeAc}
+              sx={{
+                backgroundColor:
+                  "#0F2742",
+                textTransform: "none",
+                fontWeight: 600,
+                borderRadius: 2,
+                px: 2.5,
+                py: 1.2,
+                whiteSpace: "nowrap",
+                "&:hover": {
+                  backgroundColor:
+                    "#17395D",
+                },
+              }}
+            >
+              Belge Yükle
+            </Button>
           </Box>
 
-          {/* ARAMA ALANI */}
+          {/* ===================================================
+              İSTATİSTİKLER
+          =================================================== */}
 
-          <Paper
-            elevation={0}
-            sx={{
-              p: 2,
-              border: "1px solid #e2e8f0",
-              borderRadius: 2,
-              background: "#ffffff",
-              mb: 3,
-            }}
+          <Grid
+            container
+            spacing={2.5}
+            sx={{ mb: 4 }}
           >
-            <TextField
-              fullWidth
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Stajyer adı, departman veya belge ara..."
-              slotProps={{
-                input: {
-                  startAdornment: (
-                    <SearchIcon
+            <Grid
+              size={{
+                xs: 12,
+                md: 4,
+              }}
+            >
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  border:
+                    "1px solid #E2E8F0",
+                  boxShadow: "none",
+                }}
+              >
+                <CardContent
+                  sx={{ p: 3 }}
+                >
+                  <Box
+                    sx={{
+                      display:
+                        "flex",
+                      alignItems:
+                        "center",
+                      justifyContent:
+                        "space-between",
+                    }}
+                  >
+                    <Box>
+                      <Typography
+                        sx={{
+                          fontSize: 13,
+                          color:
+                            "#64748B",
+                        }}
+                      >
+                        Kütüphanedeki
+                        Belge
+                      </Typography>
+
+                      <Typography
+                        sx={{
+                          mt: 1,
+                          fontSize: 30,
+                          fontWeight: 700,
+                          color:
+                            "#0F2742",
+                        }}
+                      >
+                        {toplamBelge}
+                      </Typography>
+                    </Box>
+
+                    <Box
                       sx={{
-                        color: "#94a3b8",
-                        mr: 1,
+                        width: 45,
+                        height: 45,
+                        borderRadius: 2,
+                        backgroundColor:
+                          "#EDF4F9",
+                        display:
+                          "flex",
+                        alignItems:
+                          "center",
+                        justifyContent:
+                          "center",
+                        color:
+                          "#286B9D",
                       }}
-                    />
-                  ),
-                },
-              }}
-              sx={{
-                "& .MuiOutlinedInput-root": {
-                  borderRadius: 1.5,
-                  background: "#ffffff",
-                },
-              }}
-            />
-          </Paper>
+                    >
+                      <MenuBook />
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
 
-          {/* BELGE LİSTESİ */}
+            <Grid
+              size={{
+                xs: 12,
+                md: 4,
+              }}
+            >
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  border:
+                    "1px solid #E2E8F0",
+                  boxShadow: "none",
+                }}
+              >
+                <CardContent
+                  sx={{ p: 3 }}
+                >
+                  <Box
+                    sx={{
+                      display:
+                        "flex",
+                      alignItems:
+                        "center",
+                      justifyContent:
+                        "space-between",
+                    }}
+                  >
+                    <Box>
+                      <Typography
+                        sx={{
+                          fontSize: 13,
+                          color:
+                            "#64748B",
+                        }}
+                      >
+                        Gerçekleşen
+                        Okuma
+                      </Typography>
 
-          <Paper
-            elevation={0}
+                      <Typography
+                        sx={{
+                          mt: 1,
+                          fontSize: 30,
+                          fontWeight: 700,
+                          color:
+                            "#16A34A",
+                        }}
+                      >
+                        {toplamOkuma}
+                      </Typography>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        width: 45,
+                        height: 45,
+                        borderRadius: 2,
+                        backgroundColor:
+                          "#ECFDF3",
+                        display:
+                          "flex",
+                        alignItems:
+                          "center",
+                        justifyContent:
+                          "center",
+                        color:
+                          "#16A34A",
+                      }}
+                    >
+                      <CheckCircle />
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+
+            <Grid
+              size={{
+                xs: 12,
+                md: 4,
+              }}
+            >
+              <Card
+                sx={{
+                  borderRadius: 3,
+                  border:
+                    "1px solid #E2E8F0",
+                  boxShadow: "none",
+                }}
+              >
+                <CardContent
+                  sx={{ p: 3 }}
+                >
+                  <Box
+                    sx={{
+                      display:
+                        "flex",
+                      alignItems:
+                        "center",
+                      justifyContent:
+                        "space-between",
+                    }}
+                  >
+                    <Box>
+                      <Typography
+                        sx={{
+                          fontSize: 13,
+                          color:
+                            "#64748B",
+                        }}
+                      >
+                        Toplam Okuma
+                        Beklentisi
+                      </Typography>
+
+                      <Typography
+                        sx={{
+                          mt: 1,
+                          fontSize: 30,
+                          fontWeight: 700,
+                          color:
+                            "#D97706",
+                        }}
+                      >
+                        {
+                          toplamOkunmasiGereken
+                        }
+                      </Typography>
+                    </Box>
+
+                    <Box
+                      sx={{
+                        width: 45,
+                        height: 45,
+                        borderRadius: 2,
+                        backgroundColor:
+                          "#FFF7ED",
+                        display:
+                          "flex",
+                        alignItems:
+                          "center",
+                        justifyContent:
+                          "center",
+                        color:
+                          "#D97706",
+                      }}
+                    >
+                      <Groups />
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+
+          {/* ===================================================
+              ARAMA
+          =================================================== */}
+
+          <Box
             sx={{
-              border: "1px solid #e2e8f0",
-              borderRadius: 2,
-              background: "#ffffff",
-              overflow: "hidden",
+              backgroundColor:
+                "white",
+              border:
+                "1px solid #E2E8F0",
+              borderRadius: 3,
+              p: 2,
+              mb: 3,
             }}
           >
             <Box
               sx={{
-                px: 3,
-                py: 2.5,
-                borderBottom: "1px solid #e2e8f0",
+                position:
+                  "relative",
               }}
             >
-              <Typography
+              <Search
                 sx={{
-                  fontSize: "1.2rem",
-                  fontWeight: 800,
-                  color: "#0f2742",
+                  position:
+                    "absolute",
+                  left: 14,
+                  top: "50%",
+                  transform:
+                    "translateY(-50%)",
+                  color:
+                    "#94A3B8",
+                  fontSize: 21,
+                  zIndex: 1,
                 }}
-              >
-                Stajyer Belgeleri
-              </Typography>
-              <Typography sx={{ mt: 0.5, color: "#64748b", fontSize: 12 }}>
-                {filtrelenmisBelgeler.length} belge görüntüleniyor
-              </Typography>
-            </Box>
+              />
 
-            {filtrelenmisBelgeler.length === 0 ? (
-              <Box
+              <TextField
+                fullWidth
+                size="small"
+                placeholder="Kütüphanede ara..."
+                value={arama}
+                onChange={(e) =>
+                  setArama(
+                    e.target.value
+                  )
+                }
                 sx={{
-                  p: 5,
-                  textAlign: "center",
-                }}
-              >
-                <FolderIcon
-                  sx={{
-                    fontSize: 45,
-                    color: "#cbd5e1",
-                    mb: 1,
-                  }}
-                />
-
-                <Typography
-                  sx={{
-                    color: "#64748b",
-                  }}
-                >
-                  Aramanızla eşleşen belge bulunamadı.
-                </Typography>
-              </Box>
-            ) : (
-              filtrelenmisBelgeler.map((belge, index) => (
-                <Box
-                  key={index}
-                  sx={{
-                    px: 3,
-                    py: 2.5,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    gap: 2,
-                    borderBottom:
-                      index !== filtrelenmisBelgeler.length - 1
-                        ? "1px solid #e2e8f0"
-                        : "none",
-
-                    "&:hover": {
-                      background: "#f8fafc",
+                  "& .MuiOutlinedInput-root":
+                    {
+                      borderRadius: 2,
                     },
+                  "& .MuiInputBase-input":
+                    {
+                      paddingLeft:
+                        "44px",
+                    },
+                }}
+              />
+            </Box>
+          </Box>
 
-                    flexWrap: "wrap",
-                  }}
-                >
-                  {/* SOL TARAF */}
+          {/* ===================================================
+              KÜTÜPHANE
+          =================================================== */}
 
-                  <Box
-                    sx={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 2,
-                      flex: 1,
-                      minWidth: 300,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: "50%",
-                        background: "#eaf3fa",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <PersonIcon
-                        sx={{
-                          color: "#286b9d",
-                        }}
-                      />
-                    </Box>
-
-                    <Box>
-                      <Typography
-                        sx={{
-                          fontWeight: 700,
-                          color: "#17202a",
-                          fontSize: "0.95rem",
-                        }}
-                      >
-                        {belge.ad}
-                      </Typography>
-
-                      <Typography
-                        sx={{
-                          color: "#64748b",
-                          fontSize: "0.8rem",
-                          mt: 0.3,
-                        }}
-                      >
-                        {belge.departman}
-                      </Typography>
-                    </Box>
-                  </Box>
-
-                  {/* BELGE */}
-
-                  <Box
-                    sx={{
-                      minWidth: 220,
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: "#94a3b8",
-                        fontSize: "0.72rem",
-                        mb: 0.4,
-                      }}
-                    >
-                      Belge
-                    </Typography>
-
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        color: "#334155",
-                        fontSize: "0.85rem",
-                      }}
-                    >
-                      {belge.belge}
-                    </Typography>
-                  </Box>
-
-                  {/* TARİH */}
-
-                  <Box
-                    sx={{
-                      minWidth: 140,
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        color: "#94a3b8",
-                        fontSize: "0.72rem",
-                        mb: 0.4,
-                      }}
-                    >
-                      Yüklenme Tarihi
-                    </Typography>
-
-                    <Typography
-                      sx={{
-                        color: "#334155",
-                        fontSize: "0.85rem",
-                      }}
-                    >
-                      {belge.tarih}
-                    </Typography>
-                  </Box>
-
-                  {/* DURUM */}
-
-                  <Box
-                    sx={{
-                      minWidth: 110,
-                    }}
-                  >
-                    <Typography
-                      sx={{
-                        display: "inline-block",
-                        px: 1.5,
-                        py: 0.6,
-                        borderRadius: 5,
-                        background:
-                          belge.durum === "Onaylandı"
-                            ? "#dcfce7"
-                            : "#fef3c7",
-                        color:
-                          belge.durum === "Onaylandı"
-                            ? "#15803d"
-                            : "#b45309",
-                        fontSize: "0.75rem",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {belge.durum}
-                    </Typography>
-                  </Box>
-
-                  {/* İNDİR */}
-
-                  <Button
-                    variant="outlined"
-                    startIcon={<DescriptionIcon />}
-                    onClick={() => belgeGoruntule(belge)}
-                    sx={{
-                      borderColor: "#286b9d",
-                      color: "#286b9d",
-                      textTransform: "none",
-                      borderRadius: 1.5,
-                      fontWeight: 600,
-                      minWidth: 125,
-
-                      "&:hover": {
-                        borderColor: "#0f2742",
-                        background: "#f1f7fb",
-                      },
-                    }}
-                  >
-                    Görüntüle
-                  </Button>
-                </Box>
-              ))
-            )}
-          </Paper>
-        </Box>
-      </Box>
-
-      <Dialog
-        open={goruntuleOpen}
-        onClose={belgeKapat}
-        fullWidth
-        maxWidth="lg"
-        sx={{
-          "& .MuiDialog-paper": {
-            borderRadius: 2.5,
-            overflow: "hidden",
-          },
-        }}
-      >
-        {seciliBelge && (
-          <>
-            <DialogTitle
+          <Box
+            sx={{
+              backgroundColor:
+                "white",
+              border:
+                "1px solid #E2E8F0",
+              borderRadius: 3,
+              p: {
+                xs: 2,
+                md: 3,
+              },
+            }}
+          >
+            <Box
               sx={{
-                px: 3,
-                py: 2,
-                borderBottom: "1px solid #e2e8f0",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 2,
+                display:
+                  "flex",
+                alignItems:
+                  "center",
+                justifyContent:
+                  "space-between",
+                mb: 3,
               }}
             >
               <Box>
                 <Typography
                   sx={{
-                    color: "#0f2742",
-                    fontSize: 19,
-                    fontWeight: 800,
+                    fontSize: 20,
+                    fontWeight: 700,
+                    color:
+                      "#0F2742",
                   }}
                 >
-                  {seciliBelge.belge}
+                  Eğitim ve
+                  Dokümantasyonlar
                 </Typography>
 
-                <Box
+                <Typography
                   sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 1,
-                    mt: 0.8,
-                    flexWrap: "wrap",
+                    fontSize: 12,
+                    color:
+                      "#64748B",
+                    mt: 0.5,
                   }}
                 >
-                  <Typography sx={{ color: "#64748b", fontSize: 12 }}>
-                    {seciliBelge.ad} • {seciliBelge.departman}
-                  </Typography>
-
-                  <Chip
-                    label={seciliBelge.durum}
-                    size="small"
-                    sx={{
-                      ...durumRengi(seciliBelge.durum),
-                      fontWeight: 700,
-                      fontSize: 10,
-                    }}
-                  />
-                </Box>
+                  Stajyerlerin
+                  okuması gereken
+                  ortak dokümanlar
+                </Typography>
               </Box>
 
-              <IconButton onClick={belgeKapat} aria-label="Kapat">
-                <CloseIcon />
-              </IconButton>
-            </DialogTitle>
+              <Chip
+                icon={<Folder />}
+                label={`${filtreliBelgeler.length} belge`}
+                size="small"
+                sx={{
+                  backgroundColor:
+                    "#EDF4F9",
+                  color:
+                    "#286B9D",
+                  fontWeight: 600,
+                }}
+              />
+            </Box>
 
-            <DialogContent
+            <Divider
+              sx={{ mb: 3 }}
+            />
+
+            {filtreliBelgeler.length >
+            0 ? (
+              <Grid
+                container
+                spacing={2.5}
+              >
+                {filtreliBelgeler.map(
+                  (belge) => {
+                    const okuyan =
+                      belge.stajyerler.filter(
+                        (stajyer) =>
+                          stajyer.okundu
+                      ).length;
+
+                    const toplam =
+                      belge
+                        .stajyerler
+                        .length;
+
+                    const oran =
+                      toplam > 0
+                        ? Math.round(
+                            (okuyan /
+                              toplam) *
+                              100
+                          )
+                        : 0;
+
+                    return (
+                      <Grid
+                        size={{
+                          xs: 12,
+                          md: 6,
+                          lg: 4,
+                        }}
+                        key={
+                          belge.id
+                        }
+                      >
+                        <Card
+                          sx={{
+                            height:
+                              "100%",
+                            border:
+                              "1px solid #E2E8F0",
+                            borderRadius:
+                              3,
+                            boxShadow:
+                              "none",
+                            transition:
+                              "0.2s",
+                            "&:hover":
+                              {
+                                boxShadow:
+                                  "0 5px 18px rgba(15,39,66,0.08)",
+                                transform:
+                                  "translateY(-2px)",
+                              },
+                          }}
+                        >
+                          <CardContent
+                            sx={{
+                              p: 2.5,
+                            }}
+                          >
+                            <Box
+                              sx={{
+                                display:
+                                  "flex",
+                                justifyContent:
+                                  "space-between",
+                                alignItems:
+                                  "flex-start",
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  width: 48,
+                                  height: 48,
+                                  borderRadius:
+                                    2,
+                                  backgroundColor:
+                                    "#FEF2F2",
+                                  color:
+                                    "#DC2626",
+                                  display:
+                                    "flex",
+                                  alignItems:
+                                    "center",
+                                  justifyContent:
+                                    "center",
+                                }}
+                              >
+                                <PictureAsPdf
+                                  sx={{
+                                    fontSize:
+                                      27,
+                                  }}
+                                />
+                              </Box>
+
+                              <Chip
+                                label={
+                                  belge.kategori
+                                }
+                                size="small"
+                                sx={{
+                                  fontSize:
+                                    10,
+                                  fontWeight:
+                                    600,
+                                  backgroundColor:
+                                    "#EDF4F9",
+                                  color:
+                                    "#286B9D",
+                                }}
+                              />
+                            </Box>
+
+                            <Typography
+                              sx={{
+                                fontSize:
+                                  15,
+                                fontWeight:
+                                  700,
+                                color:
+                                  "#17202A",
+                                mt: 2,
+                                lineHeight:
+                                  1.4,
+                              }}
+                            >
+                              {
+                                belge.baslik
+                              }
+                            </Typography>
+
+                            <Typography
+                              sx={{
+                                fontSize:
+                                  11,
+                                color:
+                                  "#64748B",
+                                mt: 1,
+                                lineHeight:
+                                  1.6,
+                                minHeight:
+                                  54,
+                              }}
+                            >
+                              {
+                                belge.aciklama
+                              }
+                            </Typography>
+
+                            <Divider
+                              sx={{
+                                my: 2,
+                              }}
+                            />
+
+                            <Box
+                              sx={{
+                                display:
+                                  "flex",
+                                alignItems:
+                                  "center",
+                                gap: 1,
+                              }}
+                            >
+                              <DescriptionOutlined
+                                sx={{
+                                  fontSize:
+                                    17,
+                                  color:
+                                    "#64748B",
+                                }}
+                              />
+
+                              <Typography
+                                sx={{
+                                  fontSize:
+                                    11,
+                                  color:
+                                    "#64748B",
+                                  overflow:
+                                    "hidden",
+                                  textOverflow:
+                                    "ellipsis",
+                                  whiteSpace:
+                                    "nowrap",
+                                }}
+                              >
+                                {
+                                  belge.dosyaAdi
+                                }
+                              </Typography>
+                            </Box>
+
+                            <Typography
+                              sx={{
+                                fontSize:
+                                  10,
+                                color:
+                                  "#94A3B8",
+                                mt: 0.7,
+                              }}
+                            >
+                              Yüklendi:{" "}
+                              {
+                                belge.yuklenmeTarihi
+                              }
+                            </Typography>
+
+                            <Box
+                              sx={{
+                                mt: 2,
+                                p: 1.5,
+                                borderRadius:
+                                  2,
+                                backgroundColor:
+                                  oran ===
+                                  100
+                                    ? "#ECFDF3"
+                                    : "#F8FAFC",
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  display:
+                                    "flex",
+                                  justifyContent:
+                                    "space-between",
+                                  alignItems:
+                                    "center",
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    display:
+                                      "flex",
+                                    alignItems:
+                                      "center",
+                                    gap: 0.7,
+                                  }}
+                                >
+                                  {oran ===
+                                  100 ? (
+                                    <CheckCircle
+                                      sx={{
+                                        fontSize:
+                                          17,
+                                        color:
+                                          "#16A34A",
+                                      }}
+                                    />
+                                  ) : (
+                                    <Groups
+                                      sx={{
+                                        fontSize:
+                                          17,
+                                        color:
+                                          "#64748B",
+                                      }}
+                                    />
+                                  )}
+
+                                  <Typography
+                                    sx={{
+                                      fontSize:
+                                        11,
+                                      fontWeight:
+                                        600,
+                                      color:
+                                        oran ===
+                                        100
+                                          ? "#166534"
+                                          : "#475569",
+                                    }}
+                                  >
+                                    {
+                                      okuyan
+                                    }{" "}
+                                    /{" "}
+                                    {
+                                      toplam
+                                    }{" "}
+                                    stajyer
+                                    okudu
+                                  </Typography>
+                                </Box>
+
+                                <Typography
+                                  sx={{
+                                    fontSize:
+                                      11,
+                                    fontWeight:
+                                      700,
+                                    color:
+                                      oran ===
+                                      100
+                                        ? "#16A34A"
+                                        : "#286B9D",
+                                  }}
+                                >
+                                  {oran}%
+                                </Typography>
+                              </Box>
+
+                              <Box
+                                sx={{
+                                  mt: 1,
+                                  height: 5,
+                                  borderRadius:
+                                    10,
+                                  backgroundColor:
+                                    "#E2E8F0",
+                                  overflow:
+                                    "hidden",
+                                }}
+                              >
+                                <Box
+                                  sx={{
+                                    width: `${oran}%`,
+                                    height:
+                                      "100%",
+                                    backgroundColor:
+                                      oran ===
+                                      100
+                                        ? "#16A34A"
+                                        : "#286B9D",
+                                    borderRadius:
+                                      10,
+                                    transition:
+                                      "0.3s",
+                                  }}
+                                />
+                              </Box>
+                            </Box>
+
+                            <Box
+                              sx={{
+                                display:
+                                  "flex",
+                                gap: 1,
+                                mt: 2,
+                              }}
+                            >
+                              <Button
+                                fullWidth
+                                size="small"
+                                startIcon={
+                                  <Visibility />
+                                }
+                                onClick={() =>
+                                  belgeDetayGoster(
+                                    belge
+                                  )
+                                }
+                                sx={{
+                                  textTransform:
+                                    "none",
+                                  fontSize:
+                                    11,
+                                  color:
+                                    "#286B9D",
+                                  backgroundColor:
+                                    "#EDF4F9",
+                                  "&:hover":
+                                    {
+                                      backgroundColor:
+                                        "#DCECF7",
+                                    },
+                                }}
+                              >
+                                Görüntüle
+                              </Button>
+
+                              <Button
+                                fullWidth
+                                size="small"
+                                startIcon={
+                                  <Groups />
+                                }
+                                onClick={() =>
+                                  okumaDurumlariniGoster(
+                                    belge
+                                  )
+                                }
+                                sx={{
+                                  textTransform:
+                                    "none",
+                                  fontSize:
+                                    11,
+                                  color:
+                                    "#0F2742",
+                                  backgroundColor:
+                                    "#F1F5F9",
+                                  "&:hover":
+                                    {
+                                      backgroundColor:
+                                        "#E2E8F0",
+                                    },
+                                }}
+                              >
+                                Okuma
+                              </Button>
+
+                              <IconButton
+                                size="small"
+                                onClick={() =>
+                                  belgeSil(
+                                    belge.id
+                                  )
+                                }
+                                sx={{
+                                  color:
+                                    "#DC2626",
+                                  backgroundColor:
+                                    "#FEF2F2",
+                                  borderRadius:
+                                    1.5,
+                                  "&:hover":
+                                    {
+                                      backgroundColor:
+                                        "#FEE2E2",
+                                    },
+                                }}
+                              >
+                                <Delete
+                                  sx={{
+                                    fontSize:
+                                      18,
+                                  }}
+                                />
+                              </IconButton>
+                            </Box>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    );
+                  }
+                )}
+              </Grid>
+            ) : (
+              <Box
+                sx={{
+                  textAlign:
+                    "center",
+                  py: 7,
+                }}
+              >
+                <MenuBook
+                  sx={{
+                    fontSize: 50,
+                    color:
+                      "#CBD5E1",
+                  }}
+                />
+
+                <Typography
+                  sx={{
+                    mt: 1,
+                    fontSize: 16,
+                    fontWeight: 600,
+                    color:
+                      "#475569",
+                  }}
+                >
+                  Belge bulunamadı.
+                </Typography>
+
+                <Typography
+                  sx={{
+                    mt: 0.5,
+                    fontSize: 12,
+                    color:
+                      "#94A3B8",
+                  }}
+                >
+                  Arama kriterlerinizi
+                  değiştirmeyi
+                  deneyin.
+                </Typography>
+              </Box>
+            )}
+          </Box>
+        </Box>
+      </Box>
+
+      {/* =====================================================
+          BELGE YÜKLEME DİYALOĞU
+      ===================================================== */}
+
+      <Dialog
+        open={yuklemeDialogOpen}
+        onClose={() =>
+          setYuklemeDialogOpen(
+            false
+          )
+        }
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle
+          sx={{
+            display:
+              "flex",
+            alignItems:
+              "center",
+            justifyContent:
+              "space-between",
+            fontWeight: 700,
+            color:
+              "#0F2742",
+          }}
+        >
+          Ortak Kütüphaneye
+          Belge Yükle
+
+          <IconButton
+            onClick={() =>
+              setYuklemeDialogOpen(
+                false
+              )
+            }
+          >
+            <Close />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent>
+          <Typography
+            sx={{
+              fontSize: 12,
+              color:
+                "#64748B",
+              mb: 2,
+            }}
+          >
+            Yüklediğiniz belge
+            tüm stajyerlerin
+            ortak
+            kütüphanesinde
+            görüntülenecektir.
+          </Typography>
+
+          <TextField
+            fullWidth
+            label="Belge Başlığı"
+            value={belgeBaslik}
+            onChange={(e) =>
+              setBelgeBaslik(
+                e.target.value
+              )
+            }
+            margin="normal"
+            placeholder="Örn. İş Güvenliği Eğitimi"
+          />
+
+          <TextField
+            fullWidth
+            select
+            label="Kategori"
+            value={belgeKategori}
+            onChange={(e) =>
+              setBelgeKategori(
+                e.target.value
+              )
+            }
+            margin="normal"
+          >
+            <MenuItem value="Eğitim">
+              Eğitim
+            </MenuItem>
+
+            <MenuItem value="Dokümantasyon">
+              Dokümantasyon
+            </MenuItem>
+
+            <MenuItem value="Genel">
+              Genel
+            </MenuItem>
+          </TextField>
+
+          <TextField
+            fullWidth
+            multiline
+            rows={3}
+            label="Açıklama"
+            value={belgeAciklama}
+            onChange={(e) =>
+              setBelgeAciklama(
+                e.target.value
+              )
+            }
+            margin="normal"
+            placeholder="Belgenin içeriği hakkında kısa bilgi..."
+          />
+
+          <Box sx={{ mt: 2 }}>
+            <Button
+              component="label"
+              fullWidth
+              variant="outlined"
+              startIcon={
+                <CloudUpload />
+              }
               sx={{
-                p: 0,
-                background: "#eef2f6",
-                minHeight: 620,
+                py: 2,
+                borderRadius: 2,
+                borderStyle:
+                  "dashed",
+                borderColor:
+                  "#CBD5E1",
+                color:
+                  "#286B9D",
+                textTransform:
+                  "none",
+                "&:hover": {
+                  borderColor:
+                    "#286B9D",
+                  backgroundColor:
+                    "#F8FAFC",
+                },
               }}
             >
-              {seciliBelge.dosyaUrl &&
-              seciliBelge.dosyaTipi === "pdf" &&
-              !dosyaBulunamadi ? (
+              {secilenDosya
+                ? secilenDosya.name
+                : "Doküman Seç"}
+
+              <input
+                hidden
+                type="file"
+                accept=".pdf,.doc,.docx,.txt"
+                onChange={dosyaSec}
+              />
+            </Button>
+          </Box>
+
+          {secilenDosya && (
+            <Box
+              sx={{
+                mt: 1.5,
+                p: 1.5,
+                borderRadius: 2,
+                backgroundColor:
+                  "#ECFDF3",
+                display:
+                  "flex",
+                alignItems:
+                  "center",
+                gap: 1,
+              }}
+            >
+              <CheckCircle
+                sx={{
+                  fontSize: 18,
+                  color:
+                    "#16A34A",
+                }}
+              />
+
+              <Typography
+                sx={{
+                  fontSize: 11,
+                  color:
+                    "#166534",
+                }}
+              >
+                {
+                  secilenDosya.name
+                } seçildi.
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+
+        <DialogActions
+          sx={{ p: 2.5 }}
+        >
+          <Button
+            onClick={() =>
+              setYuklemeDialogOpen(
+                false
+              )
+            }
+            sx={{
+              textTransform:
+                "none",
+              color:
+                "#64748B",
+            }}
+          >
+            İptal
+          </Button>
+
+          <Button
+            variant="contained"
+            startIcon={
+              <CloudUpload />
+            }
+            onClick={
+              belgeYukle
+            }
+            disabled={
+              !belgeBaslik.trim() ||
+              !secilenDosya
+            }
+            sx={{
+              backgroundColor:
+                "#0F2742",
+              textTransform:
+                "none",
+              px: 3,
+              "&:hover": {
+                backgroundColor:
+                  "#17395D",
+              },
+            }}
+          >
+            Kütüphaneye Yükle
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* =====================================================
+          BELGE DETAY DİYALOĞU
+      ===================================================== */}
+
+      <Dialog
+        open={belgeDetayOpen}
+        onClose={() =>
+          setBelgeDetayOpen(false)
+        }
+        fullWidth
+        maxWidth="md"
+      >
+        <DialogTitle
+          sx={{
+            display:
+              "flex",
+            alignItems:
+              "center",
+            justifyContent:
+              "space-between",
+          }}
+        >
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 20,
+                fontWeight: 700,
+                color:
+                  "#0F2742",
+              }}
+            >
+              {seciliBelge?.baslik}
+            </Typography>
+
+            <Typography
+              sx={{
+                fontSize: 11,
+                color:
+                  "#64748B",
+                mt: 0.5,
+              }}
+            >
+              {
+                seciliBelge?.dosyaAdi
+              }
+            </Typography>
+          </Box>
+
+          <IconButton
+            onClick={() =>
+              setBelgeDetayOpen(
+                false
+              )
+            }
+          >
+            <Close />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent
+          dividers
+        >
+          <Box
+            sx={{
+              backgroundColor:
+                "#F8FAFC",
+              borderRadius: 2,
+              p: 3,
+              minHeight: 350,
+              display:
+                "flex",
+              flexDirection:
+                "column",
+              alignItems:
+                "center",
+              justifyContent:
+                "center",
+              textAlign:
+                "center",
+            }}
+          >
+            <PictureAsPdf
+              sx={{
+                fontSize: 65,
+                color:
+                  "#DC2626",
+              }}
+            />
+
+            <Typography
+              sx={{
+                mt: 2,
+                fontSize: 17,
+                fontWeight: 700,
+                color:
+                  "#0F2742",
+              }}
+            >
+              {
+                seciliBelge?.baslik
+              }
+            </Typography>
+
+            <Typography
+              sx={{
+                mt: 1,
+                fontSize: 12,
+                color:
+                  "#64748B",
+                maxWidth: 500,
+              }}
+            >
+              {
+                seciliBelge?.aciklama
+              }
+            </Typography>
+
+            <Button
+              variant="contained"
+              startIcon={
+                <Visibility />
+              }
+              sx={{
+                mt: 3,
+                backgroundColor:
+                  "#0F2742",
+                textTransform:
+                  "none",
+                "&:hover": {
+                  backgroundColor:
+                    "#17395D",
+                },
+              }}
+            >
+              Dokümanı Aç
+            </Button>
+          </Box>
+        </DialogContent>
+
+        <DialogActions
+          sx={{ p: 2 }}
+        >
+          <Button
+            onClick={() =>
+              setBelgeDetayOpen(
+                false
+              )
+            }
+            sx={{
+              textTransform:
+                "none",
+              color:
+                "#64748B",
+            }}
+          >
+            Kapat
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* =====================================================
+          OKUMA DURUMU DİYALOĞU
+      ===================================================== */}
+
+      <Dialog
+        open={okumaDialogOpen}
+        onClose={() =>
+          setOkumaDialogOpen(false)
+        }
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle
+          sx={{
+            display:
+              "flex",
+            alignItems:
+              "center",
+            justifyContent:
+              "space-between",
+          }}
+        >
+          <Box>
+            <Typography
+              sx={{
+                fontSize: 19,
+                fontWeight: 700,
+                color:
+                  "#0F2742",
+              }}
+            >
+              Okuma Durumu
+            </Typography>
+
+            <Typography
+              sx={{
+                fontSize: 11,
+                color:
+                  "#64748B",
+                mt: 0.4,
+              }}
+            >
+              {
+                seciliBelge?.baslik
+              }
+            </Typography>
+          </Box>
+
+          <IconButton
+            onClick={() =>
+              setOkumaDialogOpen(
+                false
+              )
+            }
+          >
+            <Close />
+          </IconButton>
+        </DialogTitle>
+
+        <DialogContent
+          dividers
+        >
+          {seciliBelge?.stajyerler.map(
+            (stajyer) => (
+              <Box
+                key={
+                  stajyer.id
+                }
+                sx={{
+                  display:
+                    "flex",
+                  alignItems:
+                    "center",
+                  justifyContent:
+                    "space-between",
+                  py: 1.5,
+                  borderBottom:
+                    "1px solid #F1F5F9",
+                }}
+              >
                 <Box
                   sx={{
-                    width: "100%",
-                    height: {
-                      xs: 500,
-                      md: 680,
-                    },
-                    background: "#525659",
+                    display:
+                      "flex",
+                    alignItems:
+                      "center",
+                    gap: 1.2,
                   }}
                 >
-                  <iframe
-                    src={`${seciliBelge.dosyaUrl}#toolbar=1&navpanes=0`}
-                    title={seciliBelge.belge}
-                    onError={() => setDosyaBulunamadi(true)}
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      border: "none",
-                      display: "block",
-                    }}
-                  />
-                </Box>
-              ) : (
-                <Box
-                  sx={{
-                    minHeight: 620,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    p: 4,
-                  }}
-                >
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      maxWidth: 500,
-                      width: "100%",
-                      p: 4,
-                      textAlign: "center",
-                      border: "1px solid #e2e8f0",
-                      borderRadius: 2.5,
-                    }}
-                  >
-                    <DescriptionIcon
+                  {stajyer.okundu ? (
+                    <CheckCircle
                       sx={{
-                        fontSize: 58,
-                        color: "#286b9d",
-                        mb: 1.5,
+                        fontSize:
+                          21,
+                        color:
+                          "#16A34A",
                       }}
                     />
+                  ) : (
+                    <RadioButtonUnchecked
+                      sx={{
+                        fontSize:
+                          21,
+                        color:
+                          "#CBD5E1",
+                      }}
+                    />
+                  )}
 
+                  <Box>
                     <Typography
                       sx={{
-                        fontSize: 18,
-                        fontWeight: 800,
-                        color: "#0f2742",
-                        mb: 1,
+                        fontSize:
+                          13,
+                        fontWeight:
+                          600,
+                        color:
+                          "#17202A",
                       }}
                     >
-                      {seciliBelge.belge}
+                      {
+                        stajyer.ad
+                      }
                     </Typography>
 
-                    <Typography
-                      sx={{
-                        color: "#64748b",
-                        fontSize: 13,
-                        lineHeight: 1.7,
-                        mb: 2.5,
-                      }}
-                    >
-                      {dosyaBulunamadi
-                        ? "Bu belge için tanımlanan dosya bulunamadı. Gerçek PDF dosyasını public/belgeler klasörüne eklediğinizde burada doğrudan görüntülenecektir."
-                        : "Bu dosya türü tarayıcı içinde önizlenemiyor. Dosyayı indirerek cihazınızda açabilirsiniz."}
-                    </Typography>
-
-                    <Button
-                      variant="contained"
-                      startIcon={<DownloadIcon />}
-                      onClick={belgeIndir}
-                      disabled={!seciliBelge.dosyaUrl || dosyaBulunamadi}
-                      sx={{
-                        background: "#1f6fae",
-                        textTransform: "none",
-                        borderRadius: 1.5,
-                        "&:hover": {
-                          background: "#185d91",
-                        },
-                      }}
-                    >
-                      Belgeyi İndir
-                    </Button>
-                  </Paper>
+                    {stajyer.okundu &&
+                      stajyer.okumaTarihi && (
+                        <Typography
+                          sx={{
+                            fontSize:
+                              10,
+                            color:
+                              "#64748B",
+                            mt: 0.2,
+                          }}
+                        >
+                          Okundu:{" "}
+                          {
+                            stajyer.okumaTarihi
+                          }
+                        </Typography>
+                      )}
+                  </Box>
                 </Box>
-              )}
-            </DialogContent>
 
-            <DialogActions
-              sx={{
-                px: 3,
-                py: 1.5,
-                borderTop: "1px solid #e2e8f0",
-                justifyContent: "space-between",
-              }}
-            >
-              <Typography sx={{ color: "#94a3b8", fontSize: 11 }}>
-                Yüklenme tarihi: {seciliBelge.tarih}
-              </Typography>
-
-              <Box sx={{ display: "flex", gap: 1 }}>
-                <Button
-                  variant="outlined"
-                  startIcon={<DownloadIcon />}
-                  onClick={belgeIndir}
-                  disabled={!seciliBelge.dosyaUrl}
+                <Chip
+                  label={
+                    stajyer.okundu
+                      ? "Okudu"
+                      : "Okumadı"
+                  }
+                  size="small"
                   sx={{
-                    textTransform: "none",
-                    borderRadius: 1.5,
-                    borderColor: "#286b9d",
-                    color: "#286b9d",
+                    fontSize:
+                      10,
+                    fontWeight:
+                      600,
+                    color:
+                      stajyer.okundu
+                        ? "#166534"
+                        : "#991B1B",
+                    backgroundColor:
+                      stajyer.okundu
+                        ? "#DCFCE7"
+                        : "#FEE2E2",
                   }}
-                >
-                  İndir
-                </Button>
-
-                <Button
-                  variant="contained"
-                  onClick={belgeKapat}
-                  sx={{
-                    textTransform: "none",
-                    borderRadius: 1.5,
-                    background: "#1f6fae",
-                    "&:hover": {
-                      background: "#185d91",
-                    },
-                  }}
-                >
-                  Kapat
-                </Button>
+                />
               </Box>
-            </DialogActions>
-          </>
-        )}
+            )
+          )}
+        </DialogContent>
+
+        <DialogActions
+          sx={{ p: 2 }}
+        >
+          <Button
+            onClick={() =>
+              setOkumaDialogOpen(
+                false
+              )
+            }
+            sx={{
+              textTransform:
+                "none",
+              color:
+                "#64748B",
+            }}
+          >
+            Kapat
+          </Button>
+        </DialogActions>
       </Dialog>
     </Box>
   );

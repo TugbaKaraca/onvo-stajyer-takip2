@@ -253,7 +253,7 @@ export default function DuyurularPage() {
             { icon: <BusinessIcon />, text: "Departman Yönetimi", path: "/yetkili/departmanlar" },
             { icon: <DescriptionIcon />, text: "Raporlar", path: "/yetkili/raporlar" },
             { icon: <EventAvailableIcon />, text: "Devam Durumu", path: "/yetkili/devam" },
-            { icon: <FolderIcon />, text: "Belgeler", path: "/yetkili/belgeler" },
+            { icon: <FolderIcon />, text: "Kütüphane", path: "/yetkili/belgeler" },
             { icon: <CampaignIcon />, text: "Duyurular", path: "/yetkili/duyurular" },
             { icon: <NotificationsIcon />, text: "Bildirimler", path: "/yetkili/bildirimler" },
             { icon: <SettingsIcon />, text: "Ayarlar", path: "/yetkili/ayarlar" },

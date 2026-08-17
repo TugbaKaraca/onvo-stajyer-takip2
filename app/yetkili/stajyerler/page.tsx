@@ -109,7 +109,7 @@ export default function StajyerlerPage() {
     { icon: <Business />, text: "Departman Yönetimi", path: "/yetkili/departmanlar" },
     { icon: <Description />, text: "Raporlar", path: "/yetkili/raporlar" },
     { icon: <EventAvailable />, text: "Devam Durumu", path: "/yetkili/devam" },
-    { icon: <Folder />, text: "Belgeler", path: "/yetkili/belgeler" },
+    { icon: <Folder />, text: "Kütüphane", path: "/yetkili/belgeler" },
     { icon: <Campaign />, text: "Duyurular", path: "/yetkili/duyurular" },
     { icon: <Notifications />, text: "Bildirimler", path: "/yetkili/bildirimler" },
     { icon: <Settings />, text: "Ayarlar", path: "/yetkili/ayarlar" },
