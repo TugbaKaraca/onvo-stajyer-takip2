@@ -31,15 +31,18 @@ export default function AbsencePage() {
           }}
         >
           {/* BAŞLIK */}
-          <Typography
-            variant="h4"
+          <Box
+            component="img"
+            src="/logo.png"
+            alt="ONVO"
             sx={{
-              fontWeight: "bold",
+              width: 105,
+              height: "auto",
+              display: "block",
+              objectFit: "contain",
               mb: 1,
             }}
-          >
-            ONVO
-          </Typography>
+          />
 
           <Typography
             variant="h5"

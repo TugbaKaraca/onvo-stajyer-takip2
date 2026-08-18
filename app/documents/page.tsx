@@ -60,7 +60,7 @@ export default function DocumentsPage() {
       path: "/attendance",
     },
     {
-      title: "Belgelerim",
+      title: "Kütüphane",
       icon: <FolderIcon />,
       path: "/documents",
     },
@@ -113,15 +113,19 @@ export default function DocumentsPage() {
             borderBottom: "1px solid rgba(255,255,255,0.15)",
           }}
         >
-          <Typography
+          <Box
+            component="img"
+            src="/logo.png"
+            alt="ONVO"
             sx={{
-              fontSize: 23,
-              fontWeight: "bold",
-              letterSpacing: 0.5,
+              width: 105,
+              height: "auto",
+              display: "block",
+              objectFit: "contain",
+              filter: "brightness(0) invert(1)",
+              mb: 0.8,
             }}
-          >
-            ONVO
-          </Typography>
+          />
 
           <Typography
             sx={{
@@ -321,7 +325,7 @@ export default function DocumentsPage() {
                 color: "#0F2742",
               }}
             >
-              Belgelerim
+              Kütüphane
             </Typography>
 
             <Typography

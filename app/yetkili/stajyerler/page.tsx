@@ -146,9 +146,19 @@ export default function StajyerlerPage() {
             borderBottom: "1px solid rgba(255,255,255,0.15)",
           }}
         >
-          <Typography sx={{ fontSize: 23, fontWeight: "bold" }}>
-            ONVO
-          </Typography>
+         <Box
+            component="img"
+            src="/logo.png"
+            alt="ONVO"
+            sx={{
+              width: 105,
+              height: "auto",
+              display: "block",
+              objectFit: "contain",
+              filter: "brightness(0) invert(1)",
+              mb: 0.8,
+            }}
+          />
           <Typography sx={{ fontSize: 11, opacity: 0.9, mt: 0.3 }}>
             Stajyer Takip Sistemi
           </Typography>
