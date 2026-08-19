@@ -397,6 +397,7 @@ export default function ProfilePage() {
                 fullWidth
                 label="Ad Soyad"
                 placeholder="Ad Soyad"
+                slotProps={{ htmlInput: { readOnly: true } }}
                 sx={{
                   mb: 2,
                   "& .MuiOutlinedInput-root.Mui-focused fieldset": {
@@ -413,6 +414,7 @@ export default function ProfilePage() {
                 label="E-posta"
                 placeholder="E-posta"
                 type="email"
+                slotProps={{ htmlInput: { readOnly: true } }}
                 sx={{
                   mb: 2,
                   "& .MuiOutlinedInput-root.Mui-focused fieldset": {
@@ -428,6 +430,7 @@ export default function ProfilePage() {
                 fullWidth
                 label="Üniversite"
                 defaultValue="İstanbul Gelişim Üniversitesi"
+                slotProps={{ htmlInput: { readOnly: true } }}
                 sx={{
                   mb: 2,
                   "& .MuiOutlinedInput-root.Mui-focused fieldset": {
@@ -443,6 +446,7 @@ export default function ProfilePage() {
                 fullWidth
                 label="Bölüm"
                 defaultValue="Yazılım Mühendisliği"
+                slotProps={{ htmlInput: { readOnly: true } }}
                 sx={{
                   mb: 2,
                   "& .MuiOutlinedInput-root.Mui-focused fieldset": {
